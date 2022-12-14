@@ -68,7 +68,8 @@ int main(int argc, char *argv[]) {
                 usage(argv[0]);
                 exit(0);
             case 'd':
-                add_debug_to(optarg);
+                // TODO
+                fprintf(stderr, "Debug mode not implemented yet\n");
                 break;
             default:
                 fprintf(stderr, "Unrecognized option %c", opt);
