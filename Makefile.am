@@ -8,13 +8,16 @@ AM_CFLAGS+=-D WARNING
 # parsing might result in debug flag incorrectly set to 0 for some files
 #AM_CFLAGS+=-D CACHE_DEBUG_FLAG
 
+LDADD=-lpthread
 
-
+AUTOMAKE_OPTIONS=subdir-objects
 SUBDIRS=
 SUBDIRS+=. Examples_fusion
 
 bin_PROGRAMS=
-bin_PROGRAMS+=Options_and_debug_example
+bin_PROGRAMS+=Options_and_debug_example elf_read
+
+read_elf_SOURCES=elf_read.c
 
 
 COMMON=debug.h debug.c util.h util.c
