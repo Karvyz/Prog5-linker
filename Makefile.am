@@ -15,9 +15,9 @@ SUBDIRS=
 SUBDIRS+=. Examples_fusion
 
 bin_PROGRAMS=
-bin_PROGRAMS+=Options_and_debug_example elf_read
+bin_PROGRAMS+=Options_and_debug_example read_elf
 
-read_elf_SOURCES=elf_read.c
+read_elf_SOURCES=elf_read/elf_read.c
 
 
 COMMON=debug.h debug.c util.h util.c
