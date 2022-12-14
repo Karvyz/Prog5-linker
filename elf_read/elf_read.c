@@ -9,11 +9,14 @@
 
 void usage(char *name) {
     fprintf(stderr, "Usage:\n"
-        "%s [ --help ] [ --debug file ] [ -h | -S | -s ] file\n\n"
+        "%s [ -H | --help ] [ -h | -S | -s | -x <num|text> | -r ] [ --debug] file\n\n"
         "Prints information about the given ELF file. The --debug flag enables the output produced by "
         "calls to the debug function in the named source file.\n"
         , name);
 }
+
+int sectionsAAfficher_s = 0;
+char *sectionsAAfficher[100];
 
 int main(int argc, char *argv[]) {
     int opt;
@@ -33,10 +36,46 @@ int main(int argc, char *argv[]) {
             {"symbols",     no_argument,       NULL, 's'},
             {"relocations", no_argument,       NULL, 'r'},
             {"help",        no_argument,       NULL, 'H'},
+            {"debug",       no_argument,       NULL, 'd'},
             {NULL,          0,                 NULL, 0}
     };
 
     file_name = NULL;
+
+    int show_header = 0, show_sections = 0, show_symbols = 0, show_relocations = 0;
+
+    while ( (opt = getopt_long(argc, argv, "hSsrx:Hd", longopts, NULL)) != -1 ) {
+        switch (opt) {
+            case 'h':
+                show_header = 1;
+                break;
+            case 'S':
+                show_sections = 1;
+                break;
+            case 's':
+                show_symbols = 1;
+                break;
+            case 'r':
+                show_relocations = 1;
+                break;
+            case 'x':
+                if (sectionsAAfficher_s < 100) {
+                    sectionsAAfficher[sectionsAAfficher_s] = optarg;
+                    sectionsAAfficher_s++;
+                }
+                break;
+            case 'H':
+                usage(argv[0]);
+                exit(0);
+            case 'd':
+                add_debug_to(optarg);
+                break;
+            default:
+                fprintf(stderr, "Unrecognized option %c", opt);
+                usage(argv[0]);
+                exit(1);
+        }
+    }
 
     return 0;
 }
