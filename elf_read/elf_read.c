@@ -8,10 +8,16 @@
 #include <elf.h>
 
 void usage(char *name) {
-    fprintf(stderr, "Usage:\n"
-        "%s [ -H | --help ] [ -h | -S | -s | -x <num|text> | -r ] [ --debug] file\n\n"
-        "Prints information about the given ELF file. The --debug flag enables the output produced by "
-        "calls to the debug function in the named source file.\n"
+    fprintf(stderr, "Usage: \n"
+        "\t%s [ -H | --help ] [ -h | -S | -s | -x <num|text> | -r ] [ --debug] file\n\n"
+        "\tDisplay information about the given ELF file\n"
+        "\t-H --help\tDisplay this information\n"
+        "\t-h\t\tDisplay the ELF header\n"
+        "\t-S\t\tDisplay the sections' headers\n"
+        "\t-s\t\tDisplay the symbol table\n"
+        "\t-x <num|text>\tDisplay the content of the section <num|text>\n"
+        "\t-r\t\tDisplay the relocation table\n"
+        "\t--debug\t\tDisplay debug information\n"
         , name);
 }
 
@@ -86,7 +92,7 @@ int main(int argc, char *argv[]) {
     } else {
         file_name = argv[optind];
 
-        FILE *file = fopen(file_name, "r");
+        file = fopen(file_name, "r");
         if (file == NULL) {
             fprintf(stderr, "Could not open file %s\n", file_name);
             exit(1);
@@ -102,10 +108,9 @@ int main(int argc, char *argv[]) {
         // Lecture de l'en-tête
 
         // TODO
-        // Read the ELF header in the file
-        // Use the fread function
         // A faire dans une fonction auxiliaire, dans un fichier elf_lib.c / .h
-        fread(&header, sizeof(Elf32_Ehdr), 1, file);
+        // Cette fonction prend en paramètre le fichier et un pointeur sur une
+        // structure Elf32_Ehdr. Elle lit l'en-tête dans le fichier
 
 
 
