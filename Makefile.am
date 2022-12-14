@@ -1,6 +1,6 @@
 ACLOCAL_AMFLAGS = -I m4
 
-AM_CFLAGS=-Wall -Werror -g
+AM_CFLAGS=-Wall -g #-Werror
 AM_CFLAGS+=-D DEBUG
 AM_CFLAGS+=-D WARNING
 # Uncomment if performance when running with -DDEBUG is an issue
@@ -17,7 +17,7 @@ SUBDIRS+=. Examples_fusion
 bin_PROGRAMS=
 bin_PROGRAMS+=Options_and_debug_example read_elf
 
-read_elf_SOURCES=elf_read/elf_read.c
+read_elf_SOURCES=elf_lib/elf_lib.h elf_lib/elf_lib.c elf_lib/elf_utils.h elf_lib/elf_utils.c elf_read/elf_read.c
 
 
 COMMON=debug.h debug.c util.h util.c
