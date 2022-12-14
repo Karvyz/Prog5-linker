@@ -26,6 +26,7 @@ int main(int argc, char *argv[]) {
     Elf32_Shdr *sections;
     Elf32_Shdr *section;
     Elf32_Shdr *section_names;
+    Elf32_Sym *symbols;
     char *section_names_data;
     int i;
 
@@ -76,6 +77,38 @@ int main(int argc, char *argv[]) {
                 usage(argv[0]);
                 exit(1);
         }
+    }
+
+    if (optind >= argc) {
+        fprintf(stderr, "No file given !\n");
+        usage(argv[0]);
+        exit(1);
+    } else {
+        file_name = argv[optind];
+
+        FILE *file = fopen(file_name, "r");
+        if (file == NULL) {
+            fprintf(stderr, "Could not open file %s\n", file_name);
+            exit(1);
+        }
+
+        // TODO
+        // Define a macro SH_TABLE_MAX to 400
+        //
+        sections = malloc(sizeof(Elf32_Shdr) * 400);
+        symbols = malloc(sizeof(Elf32_Sym) * 400);
+        size_t nb_symbols = 0;
+
+        // Lecture de l'en-tête
+
+        // TODO
+        // Read the ELF header in the file
+        // Use the fread function
+        // A faire dans une fonction auxiliaire, dans un fichier elf_lib.c / .h
+        fread(&header, sizeof(Elf32_Ehdr), 1, file);
+
+
+
     }
 
     return 0;
