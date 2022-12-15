@@ -33,6 +33,19 @@ void init_header(FILE *f, Elf32_Ehdr *elf_h){
     // TODO
     // read in big endian
 
+    assert(bread(&elf_h->e_type, sizeof(elf_h->e_type), 1, f));
+    assert(bread(&elf_h->e_machine, sizeof(elf_h->e_machine), 1, f));
+    assert(bread(&elf_h->e_version, sizeof(elf_h->e_version), 1, f));
+    assert(bread(&elf_h->e_entry, sizeof(elf_h->e_entry), 1, f));
+    assert(bread(&elf_h->e_phoff, sizeof(elf_h->e_phoff), 1, f));
+    assert(bread(&elf_h->e_shoff, sizeof(elf_h->e_shoff), 1, f));
+    assert(bread(&elf_h->e_flags, sizeof(elf_h->e_flags), 1, f));
+    assert(bread(&elf_h->e_ehsize, sizeof(elf_h->e_ehsize), 1, f));
+    assert(bread(&elf_h->e_phentsize, sizeof(elf_h->e_phentsize), 1, f));
+    assert(bread(&elf_h->e_phnum, sizeof(elf_h->e_phnum), 1, f));
+    assert(bread(&elf_h->e_shentsize, sizeof(elf_h->e_shentsize), 1, f));
+    assert(bread(&elf_h->e_shnum, sizeof(elf_h->e_shnum), 1, f));
+    assert(bread(&elf_h->e_shstrndx, sizeof(elf_h->e_shstrndx), 1, f));
 }
 
 
