@@ -51,6 +51,12 @@ void init_header(FILE *f, Elf32_Ehdr *elf_h){
 
 
 void print_elf(FILE *f, Elf32_Ehdr elf_h){
+    printf("ELF Header:\n");
+    printf("  Magic:  ");
+    for(int i = 0; i<EI_NIDENT; i++){
+        printf("%.2x ",elf_h.e_ident[i]);
+    }
+
 
 }
 
