@@ -23,4 +23,12 @@
  */
 size_t bread(void * buffer, size_t s, size_t n, FILE *f);
 
+void print_elf_type(FILE *fout, Elf32_Word e_type);
+
+void print_elf_version(FILE *fout, Elf32_Word e_version);
+
+void print_elf_machine(FILE *fout, Elf32_Half e_machine);
+
+void print_OS_ABI(FILE *fout, unsigned char OSABI);
+
 #endif
