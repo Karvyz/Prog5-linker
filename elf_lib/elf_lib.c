@@ -8,6 +8,7 @@
 #include <string.h>
 #include <assert.h>
 #include "elf_lib/elf_lib.h"
+#include "elf_lib/elf_utils.h"
 
 void init_header(FILE *f, Elf32_Ehdr *elf_h){
     unsigned char e_ident[EI_NIDENT];
