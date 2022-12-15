@@ -26,10 +26,10 @@ void init_header(FILE *f, Elf32_Ehdr *elf_h);
 /**
  * @brief   Affiche l'en-tête du fichier ELF
  *
- * @param   f flux
+ * @param   fout flux de sortie
  * @param   elf_h en-tête ELF
  */
-void print_elf (FILE *f, Elf32_Ehdr elf_h);
+void print_elf (FILE *fout, Elf32_Ehdr elf_h);
 
 /* Etape 2 */
 

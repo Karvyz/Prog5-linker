@@ -50,14 +50,33 @@ void init_header(FILE *f, Elf32_Ehdr *elf_h){
 
 
 
-void print_elf(FILE *f, Elf32_Ehdr elf_h){
-    printf("ELF Header:\n");
-    printf("  Magic:  ");
+void print_elf(FILE *fout, Elf32_Ehdr elf_h){
+    fprintf(fout, "ELF Header:\n");
+    fprintf(fout, "  Magic:   ");
     for(int i = 0; i<EI_NIDENT; i++){
-        printf("%.2x ",elf_h.e_ident[i]);
+        fprintf(fout, "%.2x ",elf_h.e_ident[i]);
     }
+    fprintf(fout, "\n");
 
+    fprintf(fout, "  Class:\t\t\t     ");
+    if (elf_h.e_ident[EI_CLASS] == ELFCLASS32) fprintf(fout, "ELF32\n");
+    else fprintf(fout, "None\n");
 
+    print_OS_ABI(fout, elf_h.e_ident[EI_OSABI]);
+    fprintf(fout, "  ABI Version:\t\t\t     %d\n", elf_h.e_ident[EI_ABIVERSION]);
+    print_elf_type(fout, elf_h.e_type);
+    print_elf_machine(fout, elf_h.e_machine);
+    print_elf_version(fout, elf_h.e_version);
+    fprintf(fout, "  Entry point address:\t\t     0x%.8x\n", elf_h.e_entry);
+    fprintf(fout, "  Start of program headers:\t     %d (bytes into file)\n", elf_h.e_phoff);
+    fprintf(fout, "  Start of section headers:\t     %d (bytes into file)\n", elf_h.e_shoff);
+    fprintf(fout, "  Flags:\t\t\t     %#x, Version5 EABI\n",elf_h.e_flags);
+    fprintf(fout, "  Size of this header:\t\t     %d (bytes)\n", elf_h.e_ehsize);
+    fprintf(fout, "  Size of program headers:\t     %d (bytes)\n", elf_h.e_phentsize);
+    fprintf(fout, "  Number of program headers:\t     %d\n", elf_h.e_phnum);
+    fprintf(fout, "  Size of section headers:\t     %d (bytes)\n", elf_h.e_shentsize);
+    fprintf(fout, "  Number of section headers:\t     %d\n", elf_h.e_shnum);
+    fprintf(fout, "  Section header string table index: %d\n", elf_h.e_shstrndx);
 }
 
 void read_sections(FILE *f, Elf32_Ehdr elf_h, Elf32_Shdr *arr_elf_SH){
