@@ -117,7 +117,7 @@ int main(int argc, char *argv[]) {
     }
 
     if(show_header) {
-        print_elf(file, header);
+        print_elf(stdout, header);
     }
 
 
