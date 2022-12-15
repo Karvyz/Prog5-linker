@@ -30,7 +30,6 @@ void init_header(FILE *f, Elf32_Ehdr *elf_h){
     memcpy(elf_h->e_ident, e_ident, EI_NIDENT);
 
     // Read of file's header
-    // TODO
     // read in big endian
 
     assert(bread(&elf_h->e_type, sizeof(elf_h->e_type), 1, f));
