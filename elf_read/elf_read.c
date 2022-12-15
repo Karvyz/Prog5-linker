@@ -6,6 +6,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <elf.h>
+#include "elf_lib/elf_lib.h"
 
 void usage(char *name) {
     fprintf(stderr, "Usage: \n"
@@ -111,10 +112,14 @@ int main(int argc, char *argv[]) {
         // A faire dans une fonction auxiliaire, dans un fichier elf_lib.c / .h
         // Cette fonction prend en paramètre le fichier et un pointeur sur une
         // structure Elf32_Ehdr. Elle lit l'en-tête dans le fichier
-
-
+        init_header(file, &header);
 
     }
+
+    if(show_header) {
+        print_elf(file, header);
+    }
+
 
     return 0;
 }
