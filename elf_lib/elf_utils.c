@@ -5,6 +5,7 @@
  */
 
 #include <stdio.h>
+#include "elf_utils.h"
 
 size_t bread(void * buffer, size_t s, size_t n, FILE *f){
     char* cb = buffer;
