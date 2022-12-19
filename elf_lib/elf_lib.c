@@ -102,3 +102,26 @@ void read_sections(FILE *f, Elf32_Ehdr elf_h, Elf32_Shdr *arr_elf_SH){
         assert(bread(&arr_elf_SH[i].sh_entsize, sizeof(arr_elf_SH[i].sh_entsize), 1, f));
     }
 }
+
+/* Print the section header table */
+void print_sections_header(FILE *fout, Elf32_Ehdr elf_h, Elf32_Shdr *arr_elf_SH) {
+    // TODO : Print the section header table
+}
+
+/* Etape 3 */
+
+void print_section_content(FILE *f, FILE *fout, Elf32_Ehdr elf_h, Elf32_Shdr *arr_elf_SH, Elf32_Shdr *elf_SH) {
+    fprintf(fout, "\n");
+    fprintf(fout, "Hex dump of section '%s':", get_section_by_name(elf_SH->sh_name));
+    fprintf(fout, "\n");
+
+    fseek(f, elf_SH->sh_offset, SEEK_SET);
+
+    for (int i = 0; i < elf_SH->sh_size; i++) {
+        if (i%4 == 0) fprintf(fout, " ");
+        if (i%16 == 0) fprintf(fout, "\n0x%08x ", i);
+        fprintf(fout, "%.2x", fgetc(f));
+    }
+    fprintf(fout, "\n");
+
+}

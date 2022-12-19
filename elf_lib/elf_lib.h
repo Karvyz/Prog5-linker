@@ -52,6 +52,33 @@ void read_sections(FILE *f, Elf32_Ehdr elf_h, Elf32_Shdr *arr_elf_SH);
  * @param   elf_h en-tête ELF
  * @param   arr_elf_SH table des sections
  */
-void print_sections_header(FILE *f, FILE *fout, Elf32_Ehdr elf_h, Elf32_Shdr *arr_elf_SH);
+void print_sections_header(FILE *fout, Elf32_Ehdr elf_h, Elf32_Shdr *arr_elf_SH);
+
+/* Etapte 3 */
+
+/**
+ * @brief   Affichage d'un contenu de section
+ *         du fichier ELF
+ * @param   f flux
+ * @param   fout flux de sortie
+ * @param   elf_h en-tête ELF
+ * @param   arr_elf_SH table des sections
+ * @param   elf_h en-tête de la section
+ */
+void print_section_content(FILE *f, FILE *fout, Elf32_Ehdr elf_h, Elf32_Shdr *arr_elf_SH, Elf32_Shdr *elf_SH);
+
+/* Etape 4 */
+
+/**
+ * @brief   Lecture de la table des symboles
+ *          du fichier ELF
+ *
+ * @param   f flux
+ * @param   elf_h en-tête ELF
+ * @param   arr_elf_SH table des sections
+ * @param   arr_elf_SH table des symboles
+ * @param   nb_sym nombre de symboles
+ */
+
 
 #endif
