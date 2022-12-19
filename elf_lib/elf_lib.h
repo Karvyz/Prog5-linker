@@ -65,7 +65,7 @@ void print_sections_header(FILE *fout, Elf32_Ehdr elf_h, Elf32_Shdr *arr_elf_SH)
  * @param   arr_elf_SH table des sections
  * @param   elf_h en-tête de la section
  */
-void print_section_content(FILE *f, FILE *fout, Elf32_Ehdr elf_h, Elf32_Shdr *arr_elf_SH, Elf32_Shdr *elf_SH);
+void print_section_content(FILE *f, FILE *fout, Elf32_Shdr *elf_SH);
 
 /* Etape 4 */
 

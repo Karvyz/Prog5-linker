@@ -110,9 +110,9 @@ void print_sections_header(FILE *fout, Elf32_Ehdr elf_h, Elf32_Shdr *arr_elf_SH)
 
 /* Etape 3 */
 
-void print_section_content(FILE *f, FILE *fout, Elf32_Ehdr elf_h, Elf32_Shdr *arr_elf_SH, Elf32_Shdr *elf_SH) {
+void print_section_content(FILE *f, FILE *fout, Elf32_Shdr *elf_SH) {
     fprintf(fout, "\n");
-    fprintf(fout, "Hex dump of section '%s':", get_section_by_name(elf_SH->sh_name));
+    fprintf(fout, "Hex dump of section '%s':", read_from_shstrtab(elf_SH->sh_name));
     fprintf(fout, "\n");
 
     fseek(f, elf_SH->sh_offset, SEEK_SET);
