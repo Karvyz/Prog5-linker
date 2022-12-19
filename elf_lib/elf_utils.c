@@ -129,3 +129,7 @@ void print_OS_ABI(FILE *fout, unsigned char OSABI){
         default: fprintf(fout, "Unknown OS/ABI\n"); break;
     }
 }
+
+char * get_section_by_name(Elf32_Word *index){
+    // TODO
+}
