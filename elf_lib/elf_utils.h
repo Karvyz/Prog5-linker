@@ -31,6 +31,6 @@ void print_elf_machine(FILE *fout, Elf32_Half e_machine);
 
 void print_OS_ABI(FILE *fout, unsigned char OSABI);
 
-char * get_section_by_name(Elf32_Word *index);
+char * get_section_by_name(Elf32_Word index);
 
 #endif
