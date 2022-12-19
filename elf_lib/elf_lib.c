@@ -111,6 +111,10 @@ void print_sections_header(FILE *fout, Elf32_Ehdr elf_h, Elf32_Shdr *arr_elf_SH)
 /* Etape 3 */
 
 void print_section_content(FILE *f, FILE *fout, Elf32_Shdr *elf_SH) {
+    if(elf_SH->sh_size == 0) {
+        fprintf(fout, "Section '%s' has no data.\n", read_from_shstrtab(elf_SH->sh_name));
+        return;
+    }
     fprintf(fout, "\n");
     fprintf(fout, "Hex dump of section '%s':", read_from_shstrtab(elf_SH->sh_name));
     fprintf(fout, "\n");
