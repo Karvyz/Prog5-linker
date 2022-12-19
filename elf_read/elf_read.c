@@ -7,6 +7,7 @@
 #include <stdlib.h>
 #include <elf.h>
 #include "elf_lib/elf_lib.h"
+#include "elf_lib/elf_utils.h"
 
 void usage(char *name) {
     fprintf(stderr, "Usage: \n"
@@ -31,10 +32,7 @@ int main(int argc, char *argv[]) {
     FILE *file;
     Elf32_Ehdr header;
     Elf32_Shdr *sections;
-    Elf32_Shdr *section;
-    Elf32_Shdr *section_names;
     Elf32_Sym *symbols;
-    char *section_names_data;
     int i;
 
     struct option longopts[] = {
@@ -68,7 +66,7 @@ int main(int argc, char *argv[]) {
                 break;
             case 'x':
                 if (sectionsAAfficher_s < 100) {
-                    sectionsAAfficher[sectionsAAfficher_s] = optarg;
+                    sectionsAAfficher[sectionsAAfficher_s] = optarg; // stocke le(s) nom(s) de section(s) à afficher
                     sectionsAAfficher_s++;
                 }
                 break;
@@ -106,14 +104,48 @@ int main(int argc, char *argv[]) {
         symbols = malloc(sizeof(Elf32_Sym) * 400);
         size_t nb_symbols = 0;
 
-        // Lecture de l'en-tête
-
+        // - Lecture de l'en-tête
         init_header(file, &header);
+        // - Lecture des en-têtes de sections
+        read_sections(file, header, sections);
+        // - Lecture des noms de sections
+        read_section_names(file, sections[header.e_shstrndx]);
+        // - Lecture des en-têtes de symboles
+        // read_symbols(file, header, sections, symbols, &nb_symbols);
 
     }
 
     if(show_header) {
         print_elf(stdout, header);
+    }
+    if(show_sections) {
+        print_sections_header(stdout, header, sections);
+    }
+    if(show_symbols) {
+        //print_symbols(stdout, header, sections, symbols, nb_symbols);
+    }
+    if(show_relocations) {
+        //print_relocations(stdout, header, sections);
+    }
+    if(sectionsAAfficher_s > 0) {
+        for(i = 0; i < sectionsAAfficher_s; i++) {
+            char * name = sectionsAAfficher[i];
+            int num = 0;
+            int res = sscanf(name, "%d", &num);
+            if(res == 1) {
+                if (num >= 0 && num < header.e_shnum)
+                    print_section_content(file, stdout, &sections[num]);
+                else
+                    printf("-- No section number %d was found", num);
+            } else {
+                Elf32_Shdr section;
+                if(get_section_by_name(name, header.e_shnum, sections, &section))
+                    print_section_content(file, stdout, &section);
+                else
+                    printf("-- No section named %s was found", name);
+            }
+            fprintf(stdout, "\n");
+        }
     }
 
 
