@@ -108,10 +108,6 @@ int main(int argc, char *argv[]) {
 
         // Lecture de l'en-tête
 
-        // TODO
-        // A faire dans une fonction auxiliaire, dans un fichier elf_lib.c / .h
-        // Cette fonction prend en paramètre le fichier et un pointeur sur une
-        // structure Elf32_Ehdr. Elle lit l'en-tête dans le fichier
         init_header(file, &header);
 
     }
