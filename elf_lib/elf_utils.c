@@ -6,6 +6,8 @@
 
 #include <stdio.h>
 #include <elf.h>
+#include <string.h>
+#include <stdlib.h>
 #include "elf_utils.h"
 
 size_t bread(void * buffer, size_t s, size_t n, FILE *f){
@@ -130,6 +132,38 @@ void print_OS_ABI(FILE *fout, unsigned char OSABI){
     }
 }
 
-char * get_section_by_name(Elf32_Word index){
-    // TODO
+/* Etape 3 */
+
+char shstrtab[MAX_STRTAB_LEN];
+char symstrtab[MAX_STRTAB_LEN];
+
+void read_section_names(FILE *f, Elf32_Shdr STable) {
+    int s = 0;
+    fseek(f, STable.sh_offset, SEEK_SET);
+    while (s != STable.sh_size) {
+        bread(&shstrtab[s], sizeof(char), 1, f);
+        s++;
+    }
+}
+
+char * read_from_shstrtab(uint32_t st_name) {
+    int i = st_name;
+    char *nSection = malloc(MAX_STRTAB_LEN*sizeof(char));
+
+    while (shstrtab[i] != '\0') {
+        nSection[i - st_name] = shstrtab[i]; // on copie le nom de la section dans nSection
+        i++;
+    }
+    return nSection;
+}
+
+int get_section_by_name(char *name, int shnum, Elf32_Shdr *sections, Elf32_Shdr *section) {
+    int i = 0;
+    for (i = 0; i < shnum; i++) {
+        if (strcmp(read_from_shstrtab(sections[i].sh_name), name) == 0) { // Si le nom de la section correspond au nom recherché
+            *section = sections[i]; // On modifie la section (vide) passée en paramètre par la section trouvée
+            return 1;
+        }
+    }
+    return 0;
 }
