@@ -23,7 +23,7 @@ void usage(char *name) {
         , name);
 }
 
-int sectionsAAfficher_s = 0;
+int sectionsAAfficher_nb = 0;
 char *sectionsAAfficher[100];
 
 int main(int argc, char *argv[]) {
@@ -65,9 +65,9 @@ int main(int argc, char *argv[]) {
                 show_relocations = 1;
                 break;
             case 'x':
-                if (sectionsAAfficher_s < 100) {
-                    sectionsAAfficher[sectionsAAfficher_s] = optarg; // stocke le(s) nom(s) de section(s) à afficher
-                    sectionsAAfficher_s++;
+                if (sectionsAAfficher_nb < 100) {
+                    sectionsAAfficher[sectionsAAfficher_nb] = optarg; // stocke le(s) nom(s) de section(s) à afficher
+                    sectionsAAfficher_nb++;
                 }
                 break;
             case 'H':
