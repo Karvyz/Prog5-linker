@@ -79,6 +79,32 @@ void print_section_content(FILE *f, FILE *fout, Elf32_Shdr *elf_SH);
  * @param   arr_elf_SH table des symboles
  * @param   nb_sym nombre de symboles
  */
+void read_symbols(FILE *f, Elf32_Ehdr elf_h, Elf32_Shdr *arr_elf_SH, Elf32_Sym *arr_elf_ST, int *nb_sym);
+
+/**
+ * @brief   Affichage d'un symbole
+ *          du fichier ELF
+ *
+ * @param   f flux
+ * @param   fout flux de sortie
+ * @param   elf_h en-tête ELF
+ * @param   arr_elf_SH table des sections
+ * @param   arr_elf_SH table des symboles
+ * @param   nb_sym nombre de symboles
+ */
+void print_symbol(FILE *fout, Elf32_Shdr *arr_elf_SH, Elf32_Sym elf_Sym);
+
+/**
+ * @brief   Affichage de la table des symboles
+ *          du fichier ELF
+ *
+ * @param   fout flux de sortie
+ * @param   elf_h en-tête ELF
+ * @param   arr_elf_SH table des sections
+ * @param   arr_elf_SH table des symboles
+ * @param   nb_sym nombre de symboles
+ */
+void print_symbols(FILE *fout, Elf32_Ehdr elf_h, Elf32_Shdr *arr_elf_SH, Elf32_Sym *arr_elf_ST, int nb_sym);
 
 
 #endif
