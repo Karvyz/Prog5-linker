@@ -146,12 +146,47 @@ void read_symbols(FILE *f, Elf32_Ehdr elf_h, Elf32_Shdr *arr_elf_SH, Elf32_Sym *
     // Read the symbol table
     int i = 0; // Count the number of symbols
     for (i = 0; i < SymTab.sh_size / sizeof(Elf32_Sym) ; i++){ // Read all the symbols
-        assert(bread(&arr_elf_Sym[i].st_name, sizeof(arr_elf_Sym[i].st_name), 1, f));
-        assert(bread(&arr_elf_Sym[i].st_value, sizeof(arr_elf_Sym[i].st_value), 1, f));
-        assert(bread(&arr_elf_Sym[i].st_size, sizeof(arr_elf_Sym[i].st_size), 1, f));
-        assert(bread(&arr_elf_Sym[i].st_info, sizeof(arr_elf_Sym[i].st_info), 1, f));
-        assert(bread(&arr_elf_Sym[i].st_other, sizeof(arr_elf_Sym[i].st_other), 1, f));
-        assert(bread(&arr_elf_Sym[i].st_shndx, sizeof(arr_elf_Sym[i].st_shndx), 1, f));
+        assert(bread(&arr_elf_ST[i].st_name, sizeof(arr_elf_ST[i].st_name), 1, f));
+        assert(bread(&arr_elf_ST[i].st_value, sizeof(arr_elf_ST[i].st_value), 1, f));
+        assert(bread(&arr_elf_ST[i].st_size, sizeof(arr_elf_ST[i].st_size), 1, f));
+        assert(bread(&arr_elf_ST[i].st_info, sizeof(arr_elf_ST[i].st_info), 1, f));
+        assert(bread(&arr_elf_ST[i].st_other, sizeof(arr_elf_ST[i].st_other), 1, f));
+        assert(bread(&arr_elf_ST[i].st_shndx, sizeof(arr_elf_ST[i].st_shndx), 1, f));
     }
     *nb_sym = i;
+}
+
+/* Print one symbol */
+void print_symbol(FILE *fout, Elf32_Shdr *arr_elf_Sym, Elf32_Sym elf_Sym) {
+    fprintf(fout, "\t%08x", elf_Sym.st_value);
+    fprintf(fout, "\t   0");
+
+    print_st_type(fout, elf_Sym.st_info);
+    print_st_bind(fout, elf_Sym.st_info);
+    print_st_visibility(fout, elf_Sym.st_other);
+    print_st_shndx(fout, elf_Sym.st_shndx);
+
+    if(ELF32_ST_TYPE(elf_Sym.st_info) == STT_SECTION) {
+        fprintf(fout, "\t%s", read_from_shstrtab(arr_elf_Sym[elf_Sym.st_shndx].sh_name));
+    } else {
+        fprintf(fout, "\t%s", read_from_strtab(elf_Sym.st_name));
+    }
+}
+
+/* Print the symbol table */
+void print_symbols(FILE *fout, Elf32_Ehdr elf_h, Elf32_Shdr *arr_elf_SH, Elf32_Sym *arr_elf_ST, int nb_sym) {
+    // TODO : Print the symbol table
+    // appeler print_symbol()
+    fprintf(fout, "\nSymbol table '.symtab' contains %d entries:\n", nb_sym);
+    fprintf(fout, "   Num:\tValue\t\tSize\tType\tBind\tVis\tNdx\tName\n");
+
+    for (int i = 0; i < nb_sym; i++) {
+        fprintf(fout, "   ");
+        if(i > 9)
+            fprintf(fout, " %d:", i);
+        else
+            fprintf(fout, "  %d:", i);
+        print_symbol(fout, arr_elf_SH, arr_elf_ST[i]);
+        fprintf(fout, "\n");
+    }
 }
