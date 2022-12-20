@@ -175,8 +175,6 @@ void print_symbol(FILE *fout, Elf32_Shdr *arr_elf_Sym, Elf32_Sym elf_Sym) {
 
 /* Print the symbol table */
 void print_symbols(FILE *fout, Elf32_Ehdr elf_h, Elf32_Shdr *arr_elf_SH, Elf32_Sym *arr_elf_ST, int nb_sym) {
-    // TODO : Print the symbol table
-    // appeler print_symbol()
     fprintf(fout, "\nSymbol table '.symtab' contains %d entries:\n", nb_sym);
     fprintf(fout, "   Num:\tValue\t\tSize\tType\tBind\tVis\tNdx\tName\n");
 
