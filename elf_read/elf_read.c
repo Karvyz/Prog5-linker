@@ -34,6 +34,7 @@ int main(int argc, char *argv[]) {
     Elf32_Shdr *sections;
     Elf32_Sym *symbols;
     int i;
+    int nb_symbols;
 
     struct option longopts[] = {
             {"header",      no_argument,       NULL, 'h'},
@@ -102,7 +103,7 @@ int main(int argc, char *argv[]) {
         //
         sections = malloc(sizeof(Elf32_Shdr) * 400);
         symbols = malloc(sizeof(Elf32_Sym) * 400);
-        int nb_symbols = 0;
+        nb_symbols = 0;
 
         // - Lecture de l'en-tête
         init_header(file, &header);
@@ -122,13 +123,13 @@ int main(int argc, char *argv[]) {
         print_sections_header(stdout, header, sections);
     }
     if(show_symbols) {
-        //print_symbols(stdout, header, sections, symbols, nb_symbols);
+        print_symbols(stdout, header, sections, symbols, nb_symbols);
     }
     if(show_relocations) {
         //print_relocations(stdout, header, sections);
     }
-    if(sectionsAAfficher_s > 0) {
-        for(i = 0; i < sectionsAAfficher_s; i++) {
+    if(sectionsAAfficher_nb > 0) {
+        for(i = 0; i < sectionsAAfficher_nb; i++) {
             char * name = sectionsAAfficher[i];
             int num = 0;
             int res = sscanf(name, "%d", &num);
