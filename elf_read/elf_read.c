@@ -102,7 +102,7 @@ int main(int argc, char *argv[]) {
         //
         sections = malloc(sizeof(Elf32_Shdr) * 400);
         symbols = malloc(sizeof(Elf32_Sym) * 400);
-        size_t nb_symbols = 0;
+        int nb_symbols = 0;
 
         // - Lecture de l'en-tête
         init_header(file, &header);
@@ -111,7 +111,7 @@ int main(int argc, char *argv[]) {
         // - Lecture des noms de sections
         read_section_names(file, sections[header.e_shstrndx]);
         // - Lecture des en-têtes de symboles
-        // read_symbols(file, header, sections, symbols, &nb_symbols);
+        read_symbols(file, header, sections, symbols, &nb_symbols);
 
     }
 

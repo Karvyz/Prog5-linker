@@ -129,3 +129,29 @@ void print_section_content(FILE *f, FILE *fout, Elf32_Shdr *elf_SH) {
     fprintf(fout, "\n");
 
 }
+
+/* Etape 4 */
+
+void read_symbols(FILE *f, Elf32_Ehdr elf_h, Elf32_Shdr *arr_elf_SH, Elf32_Sym *arr_elf_ST, int *nb_sym){
+    // Check if there is a symbol table
+    Elf32_Shdr SymTab;
+    if(!get_section_by_name(".symtab", elf_h.e_shnum, arr_elf_SH,&SymTab)) {
+        fprintf(stderr, "No symbol table found.\n");
+        *nb_sym = 0;
+        return;
+    }
+    // Go to the beginning of the symbol table
+    assert(fseek(f, SymTab.sh_offset, SEEK_SET) == 0);
+
+    // Read the symbol table
+    int i = 0; // Count the number of symbols
+    for (i = 0; i < SymTab.sh_size / sizeof(Elf32_Sym) ; i++){ // Read all the symbols
+        assert(bread(&arr_elf_Sym[i].st_name, sizeof(arr_elf_Sym[i].st_name), 1, f));
+        assert(bread(&arr_elf_Sym[i].st_value, sizeof(arr_elf_Sym[i].st_value), 1, f));
+        assert(bread(&arr_elf_Sym[i].st_size, sizeof(arr_elf_Sym[i].st_size), 1, f));
+        assert(bread(&arr_elf_Sym[i].st_info, sizeof(arr_elf_Sym[i].st_info), 1, f));
+        assert(bread(&arr_elf_Sym[i].st_other, sizeof(arr_elf_Sym[i].st_other), 1, f));
+        assert(bread(&arr_elf_Sym[i].st_shndx, sizeof(arr_elf_Sym[i].st_shndx), 1, f));
+    }
+    *nb_sym = i;
+}
