@@ -25,21 +25,44 @@
  */
 size_t bread(void * buffer, size_t s, size_t n, FILE *f);
 
+/**
+ * @brief   Affiche le type du fichier ELF
+ *
+ * @param   fout flux de sortie
+ * @param   e_type type du fichier ELF
+ */
 void print_elf_type(FILE *fout, Elf32_Word e_type);
 
+/**
+ * @brief   Affiche la version du fichier ELF
+ *
+ * @param   fout flux de sortie
+ * @param   e_version version du fichier ELF
+ */
 void print_elf_version(FILE *fout, Elf32_Word e_version);
 
+/**
+ * @brief   Affiche la machine du fichier ELF
+ *
+ * @param   fout flux de sortie
+ * @param   e_machine machine du fichier ELF
+ */
 void print_elf_machine(FILE *fout, Elf32_Half e_machine);
 
+/**
+ * @brief   Affiche la version de l'OS ABI du fichier ELF
+ *
+ * @param   fout flux de sortie
+ * @param   OSABI version de l'OS ABI du fichier ELF
+ */
 void print_OS_ABI(FILE *fout, unsigned char OSABI);
 
 /**
- * @brief Lit tt les noms de sections depuis la section
- *        `shstrtab` et les renvoi dans le tableau "shrstrtab"
+ * @brief   Lit tous les noms de sections depuis la section
+ *          'shstrtab' et les renvoi dans le tableau 'shrstrtab'
  *
- * @param f flux
- * @param STable section `shstrtab`
- * @return
+ * @param   f flux
+ * @param   STable section `shstrtab`
  */
 void read_section_names(FILE *f, Elf32_Shdr STable);
 
@@ -63,5 +86,48 @@ char * read_from_shstrtab(uint32_t st_name);
  * @return int (1 si trouvée, 0 sinon)
  */
 int get_section_by_name(char *name, int shnum, Elf32_Shdr *sections, Elf32_Shdr *section);
+
+/* Etape 4 */
+/**
+ * @brief Affiche le type du symbole
+ *
+ * @param fout flux de sortie
+ * @param st_type type du symbole
+ */
+void print_st_type(FILE *fout, Elf32_Word st_type);
+
+/**
+ * @brief Affiche la liaison du symbole
+ *
+ * @param fout flux de sortie
+ * @param st_info type du symbole
+ */
+void print_st_bind(FILE *fout, Elf32_Word st_bind);
+
+/**
+ * @brief Affiche la visibilité du symbole
+ *
+ * @param fout flux de sortie
+ * @param st_info visibilité du symbole
+ */
+void print_st_visibility(FILE *fout, Elf32_Word st_visibility);
+
+/**
+ * @brief Affiche la section du symbole
+ *
+ * @param fout flux de sortie
+ * @param st_shndx section du symbole
+ */
+void print_st_shndx(FILE *fout, Elf32_Word st_shndx);
+
+/**
+ * @brief Retourne le nom de symbole, dont l'index de table
+ *        de chaîne de caractères est st_name, depuis la table des
+ *        chaînes de caractères correspondante (ici, symtab)
+ *
+ * @param st_name index du nom de symbole
+ * @return châine de caractères
+ */
+char * read_from_strtab(Elf32_Word st_name);
 
 #endif

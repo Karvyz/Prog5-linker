@@ -148,10 +148,10 @@ void read_section_names(FILE *f, Elf32_Shdr STable) {
 
 char * read_from_shstrtab(uint32_t st_name) {
     int i = st_name;
-    char *nSection = malloc(MAX_STRTAB_LEN*sizeof(char));
+    char *nSection = malloc(MAX_STRTAB_LEN); // Max 150 char
 
     while (shstrtab[i] != '\0') {
-        nSection[i - st_name] = shstrtab[i]; // on copie le nom de la section dans nSection
+        nSection[i - st_name] = shstrtab[i]; // copy the name of the section in nSection
         i++;
     }
     return nSection;
@@ -166,4 +166,105 @@ int get_section_by_name(char *name, int shnum, Elf32_Shdr *sections, Elf32_Shdr 
         }
     }
     return 0;
+}
+
+/* Etape 4 */
+void print_st_type(FILE *fout, Elf32_Word st_type){
+    switch(ELF32_ST_TYPE(st_type)){
+        case STT_NOTYPE:
+            fprintf(fout, "\tNOTYPE");
+            break;
+        case STT_OBJECT:
+            fprintf(fout, "\tOBJECT");
+            break;
+        case STT_FUNC:
+            fprintf(fout, "\tFUNC");
+            break;
+        case STT_SECTION:
+            fprintf(fout, "\tSECTION");
+            break;
+        case STT_FILE:
+            fprintf(fout, "\tFILE");
+            break;
+        case STT_LOPROC:
+            fprintf(fout, "\tLOPROC");
+            break;
+        case STT_HIPROC:
+            fprintf(fout, "\tHIPROC");
+            break;
+        default:
+            fprintf(fout, "\tUNKNOWN");
+            break;
+    }
+}
+
+void print_st_bind(FILE *fout, Elf32_Word st_bind){
+    switch(ELF32_ST_BIND(st_bind)){
+        case STB_LOCAL:
+            fprintf(fout, "\tLOCAL");
+            break;
+        case STB_GLOBAL:
+            fprintf(fout, "\tGLOBAL");
+            break;
+        case STB_WEAK:
+            fprintf(fout, "\tWEAK");
+            break;
+        case STB_LOPROC:
+            fprintf(fout, "\tLOPROC");
+            break;
+        case STB_HIPROC:
+            fprintf(fout, "\tHIPROC");
+            break;
+        default:
+            fprintf(fout, "\tUNKNOWN");
+            break;
+    }
+}
+
+void print_st_visibility(FILE *fout, Elf32_Word st_visibility){
+    switch(ELF32_ST_VISIBILITY(st_visibility)){
+        case STV_DEFAULT:
+            fprintf(fout, "\tDEFAULT");
+            break;
+        case STV_INTERNAL:
+            fprintf(fout, "\tINTERNAL");
+            break;
+        case STV_HIDDEN:
+            fprintf(fout, "\tHIDDEN");
+            break;
+        case STV_PROTECTED:
+            fprintf(fout, "\tPROTECTED");
+            break;
+        default:
+            fprintf(fout, "\tUNKNOWN");
+            break;
+    }
+}
+
+void print_st_shndx(FILE *fout, Elf32_Word st_shndx){
+    switch(st_shndx){
+        case SHN_UNDEF:
+            fprintf(fout, "\tUND");
+            break;
+        case SHN_ABS:
+            fprintf(fout, "\tABS");
+            break;
+        case SHN_COMMON:
+            fprintf(fout, "\tCOM");
+            break;
+        default:
+            fprintf(fout, "\t%d", st_shndx);
+            break;
+    }
+}
+
+char * read_from_strtab(Elf32_Word st_name) {
+    int i = (int) st_name;
+    char *nSection = malloc(MAX_STRTAB_LEN); // Max 150 char
+
+    while (symstrtab[i] != '\0') {
+        nSection[i - st_name] = symstrtab[i]; // copy the name of the section in nSection
+        i++;
+    }
+    return nSection;
 }
