@@ -170,53 +170,55 @@ int get_section_by_name(char *name, int shnum, Elf32_Shdr *sections, Elf32_Shdr 
 
 /* Etape 4 */
 void print_st_type(FILE *fout, Elf32_Word st_type){
+    printf(" ");
     switch(ELF32_ST_TYPE(st_type)){
         case STT_NOTYPE:
-            fprintf(fout, "\tNOTYPE");
+            fprintf(fout, "NOTYPE ");
             break;
         case STT_OBJECT:
-            fprintf(fout, "\tOBJECT");
+            fprintf(fout, "OBJECT ");
             break;
         case STT_FUNC:
-            fprintf(fout, "\tFUNC");
+            fprintf(fout, "FUNC   ");
             break;
         case STT_SECTION:
-            fprintf(fout, "\tSECTION");
+            fprintf(fout, "SECTION");
             break;
         case STT_FILE:
-            fprintf(fout, "\tFILE");
+            fprintf(fout, "FILE   ");
             break;
         case STT_LOPROC:
-            fprintf(fout, "\tLOPROC");
+            fprintf(fout, "LOPROC ");
             break;
         case STT_HIPROC:
-            fprintf(fout, "\tHIPROC");
+            fprintf(fout, "HIPROC ");
             break;
         default:
-            fprintf(fout, "\tUNKNOWN");
+            fprintf(fout, "UNKNOWN");
             break;
     }
 }
 
 void print_st_bind(FILE *fout, Elf32_Word st_bind){
+    printf(" ");
     switch(ELF32_ST_BIND(st_bind)){
         case STB_LOCAL:
-            fprintf(fout, "\tLOCAL");
+            fprintf(fout, "LOCAL");
             break;
         case STB_GLOBAL:
-            fprintf(fout, "\tGLOBAL");
+            fprintf(fout, "GLOBAL");
             break;
         case STB_WEAK:
-            fprintf(fout, "\tWEAK");
+            fprintf(fout, "WEAK");
             break;
         case STB_LOPROC:
-            fprintf(fout, "\tLOPROC");
+            fprintf(fout, "LOPROC");
             break;
         case STB_HIPROC:
-            fprintf(fout, "\tHIPROC");
+            fprintf(fout, "HIPROC");
             break;
         default:
-            fprintf(fout, "\tUNKNOWN");
+            fprintf(fout, "UNKNOWN");
             break;
     }
 }

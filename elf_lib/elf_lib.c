@@ -167,7 +167,7 @@ void print_symbol(FILE *fout, Elf32_Shdr *arr_elf_Sym, Elf32_Sym elf_Sym) {
     print_st_shndx(fout, elf_Sym.st_shndx);
 
     if(ELF32_ST_TYPE(elf_Sym.st_info) == STT_SECTION) {
-        fprintf(fout, "\t%s", read_from_shstrtab(arr_elf_Sym[elf_Sym.st_shndx].sh_name));
+        fprintf(fout, " %s", read_from_shstrtab(arr_elf_Sym[elf_Sym.st_shndx].sh_name));
     } else {
         fprintf(fout, "\t%s", read_from_strtab(elf_Sym.st_name));
     }
@@ -176,7 +176,7 @@ void print_symbol(FILE *fout, Elf32_Shdr *arr_elf_Sym, Elf32_Sym elf_Sym) {
 /* Print the symbol table */
 void print_symbols(FILE *fout, Elf32_Ehdr elf_h, Elf32_Shdr *arr_elf_SH, Elf32_Sym *arr_elf_ST, int nb_sym) {
     fprintf(fout, "\nSymbol table '.symtab' contains %d entries:\n", nb_sym);
-    fprintf(fout, "   Num:\tValue\t\tSize\tType\tBind\tVis\tNdx\tName\n");
+    fprintf(fout, "   Num:    Value  Size Type    Bind   Vis      Ndx Name\n");
 
     for (int i = 0; i < nb_sym; i++) {
         fprintf(fout, "   ");
