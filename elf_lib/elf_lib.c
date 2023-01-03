@@ -158,8 +158,8 @@ void read_symbols(FILE *f, Elf32_Ehdr elf_h, Elf32_Shdr *arr_elf_SH, Elf32_Sym *
 
 /* Print one symbol */
 void print_symbol(FILE *fout, Elf32_Shdr *arr_elf_Sym, Elf32_Sym elf_Sym) {
-    fprintf(fout, "\t%08x", elf_Sym.st_value);
-    fprintf(fout, "\t   0");
+    fprintf(fout, " %08x", elf_Sym.st_value);
+    fprintf(fout, "     0");
 
     print_st_type(fout, elf_Sym.st_info);
     print_st_bind(fout, elf_Sym.st_info);
@@ -169,7 +169,7 @@ void print_symbol(FILE *fout, Elf32_Shdr *arr_elf_Sym, Elf32_Sym elf_Sym) {
     if(ELF32_ST_TYPE(elf_Sym.st_info) == STT_SECTION) {
         fprintf(fout, " %s", read_from_shstrtab(arr_elf_Sym[elf_Sym.st_shndx].sh_name));
     } else {
-        fprintf(fout, "\t%s", read_from_strtab(elf_Sym.st_name));
+        fprintf(fout, " %s", read_from_strtab(elf_Sym.st_name));
     }
 }
 

@@ -212,13 +212,13 @@ void print_st_bind(FILE *fout, Elf32_Word st_bind){
     printf(" ");
     switch(ELF32_ST_BIND(st_bind)){
         case STB_LOCAL:
-            fprintf(fout, "LOCAL");
+            fprintf(fout, "LOCAL ");
             break;
         case STB_GLOBAL:
             fprintf(fout, "GLOBAL");
             break;
         case STB_WEAK:
-            fprintf(fout, "WEAK");
+            fprintf(fout, "WEAK  ");
             break;
         case STB_LOPROC:
             fprintf(fout, "LOPROC");
@@ -233,38 +233,42 @@ void print_st_bind(FILE *fout, Elf32_Word st_bind){
 }
 
 void print_st_visibility(FILE *fout, Elf32_Word st_visibility){
+    printf(" ");
     switch(ELF32_ST_VISIBILITY(st_visibility)){
         case STV_DEFAULT:
-            fprintf(fout, "\tDEFAULT");
+            fprintf(fout, "DEFAULT ");
             break;
         case STV_INTERNAL:
-            fprintf(fout, "\tINTERNAL");
+            fprintf(fout, "INTERNAL");
             break;
         case STV_HIDDEN:
-            fprintf(fout, "\tHIDDEN");
+            fprintf(fout, "HIDDEN  ");
             break;
         case STV_PROTECTED:
-            fprintf(fout, "\tPROTECTED");
+            fprintf(fout, "PROTECTED");
             break;
         default:
-            fprintf(fout, "\tUNKNOWN");
+            fprintf(fout, "UNKNOWN ");
             break;
     }
 }
 
 void print_st_shndx(FILE *fout, Elf32_Word st_shndx){
+    printf(" ");
     switch(st_shndx){
         case SHN_UNDEF:
-            fprintf(fout, "\tUND");
+            fprintf(fout, "UND");
             break;
         case SHN_ABS:
-            fprintf(fout, "\tABS");
+            fprintf(fout, "ABS");
             break;
         case SHN_COMMON:
-            fprintf(fout, "\tCOM");
+            fprintf(fout, "COM");
             break;
         default:
-            fprintf(fout, "\t%d", st_shndx);
+            if (st_shndx < 100) {printf(" ");}
+            if (st_shndx < 10) {printf(" ");}
+            fprintf(fout, "%d", st_shndx);
             break;
     }
 }
