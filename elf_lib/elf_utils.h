@@ -67,6 +67,15 @@ void print_OS_ABI(FILE *fout, unsigned char OSABI);
 void read_section_names(FILE *f, Elf32_Shdr STable);
 
 /**
+ * @brief   Lit le nom de tous les symboles depuis la section
+ *          'strtab' et les renvoi dans le tableau 'symstrtab'
+ *
+ * @param   f flux
+ * @param   STable section strtab
+ */
+void read_symbol_names(FILE *f, Elf32_Shdr STable);
+
+/**
  * @brief Retourne le nom de la section, dont l'index de table
  *        de chaîne de caractères est st_name, depuis la table des
  *        chaînes de caractères correspondante (ici, shstrtab)
