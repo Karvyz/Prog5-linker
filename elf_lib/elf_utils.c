@@ -146,6 +146,15 @@ void read_section_names(FILE *f, Elf32_Shdr STable) {
     }
 }
 
+void read_symbol_names(FILE *f, Elf32_Shdr STable) {
+    int s = 0;
+    fseek(f, STable.sh_offset, SEEK_SET);
+    while (s != STable.sh_size) {
+        bread(&symstrtab[s], sizeof(char), 1, f);
+        s++;
+    }
+}
+
 char * read_from_shstrtab(uint32_t st_name) {
     int i = st_name;
     char *nSection = malloc(MAX_STRTAB_LEN); // Max 150 char
