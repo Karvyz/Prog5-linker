@@ -114,7 +114,9 @@ void print_symbols(FILE *fout, Elf32_Ehdr elf_h, Elf32_Shdr *arr_elf_SH, Elf32_S
  *
  * @param   fout flux de sortie
  */
-void print_relocations(FILE *fout);
+void read_relocations(Elf32_Ehdr elf_h, Elf32_Shdr *elf_SH);
+
+void print_relocations(Elf32_Shdr* relocation_section, Elf32_Shdr* sections, FILE *fout);
 
 /* Etape 6 */
 

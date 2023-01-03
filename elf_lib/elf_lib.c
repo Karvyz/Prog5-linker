@@ -191,7 +191,62 @@ void print_symbols(FILE *fout, Elf32_Ehdr elf_h, Elf32_Shdr *arr_elf_SH, Elf32_S
 
 /* Etape 5 */
 
-/* Etape 6 */
+void read_relocations(Elf32_Ehdr elf_h, Elf32_Shdr *elf_SH){
+  // Recherchez la section des relocations
+  Elf32_Shdr* relocation_section = NULL;
+  for (int i = 0; i < elf_h.e_shnum; i++) {
+    if (elf_SH[i].sh_type == SHT_REL) {
+      relocation_section = elf_SH + i;
+      break;
+    }
+  }
+  if (!relocation_section) {
+    fprintf(stderr, "Le fichier ne contient pas de section de relocations\n");
+    return;
+  }
+}
+
+
+
+void print_relocations(Elf32_Shdr* relocation_section, Elf32_Shdr* sections, FILE *fout) {
+  // Affichez l'en-tête de la section des relocations
+  printf("Section de relocations XXXsectionXXX à l'adresse de décalage 0x%x contient %ld entrées:\n",
+         //get_section_name(relocation_section, sections, file),
+         relocation_section->sh_offset,
+         relocation_section->sh_size / sizeof(Elf32_Rel));
+
+  // Affichez le contenu de la section des relocations
+  fseek(fout, relocation_section->sh_offset, SEEK_SET);
+  Elf32_Rel* relocations = malloc(relocation_section->sh_size);
+  if (!relocations) {
+    perror("malloc");
+    return;
+  }
+  if (fread(relocations, relocation_section->sh_size, 1, fout) != 1) {
+    perror("fread");
+    free(relocations);
+    return;
+  }
+  for (int i = 0; i < relocation_section->sh_size / sizeof(Elf32_Rel); i++) {
+    Elf32_Rel* relocation = relocations + i;
+    /*printf("  %d: %08x %s %s\n",
+           i,
+           relocation->r_offset,
+           //get_symbol_name(relocation->r_info, sections, file),
+           "XXX symbol name"
+           //get_section_name(sections + relocation->r_info, sections, file)
+           "section name");
+        */
+    printf("  %d: %08x XXXsymbol nameXXX XXXsection_nameXXX\n",
+           i,
+           relocation->r_offset);
+
+
+  }
+  free(relocations);
+}
+
+/* Etape 6 
 
 void fusion_sections(FILE *f1, FILE *f2) {
     // TODO : Fusionner les deux fichiers elf en un seul
@@ -203,4 +258,4 @@ void fusion_sections(FILE *f1, FILE *f2) {
 
 
 }
-
+*/
