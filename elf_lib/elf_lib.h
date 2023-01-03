@@ -106,5 +106,27 @@ void print_symbol(FILE *fout, Elf32_Shdr *arr_elf_SH, Elf32_Sym elf_Sym);
  */
 void print_symbols(FILE *fout, Elf32_Ehdr elf_h, Elf32_Shdr *arr_elf_SH, Elf32_Sym *arr_elf_ST, int nb_sym);
 
+/* Etape 5 */
+
+/**
+ * @brief   Affichage de la table des relocations
+ *          du fichier ELF
+ *
+ * @param   fout flux de sortie
+ */
+void print_relocations(FILE *fout);
+
+/* Etape 6 */
+
+// Fusion et numérotation des sections
+
+/**
+ * @brief   Fusion et numérotation des sections
+ *          du fichier ELF
+ *
+ * @param   f1 flux
+ * @param   f2 flux
+ */
+void fusion_sections(FILE *f1, FILE *f2);
 
 #endif
