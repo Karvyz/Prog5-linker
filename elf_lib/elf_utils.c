@@ -32,13 +32,13 @@ size_t bread(void * buffer, size_t s, size_t n, FILE *f){
 }
 
 void print_elf_type(FILE *fout, Elf32_Word e_type){
-    fprintf(fout, "  Type:\t\t\t\t     ");
+    fprintf(fout, "  Type:                              ");
     switch(e_type){
         case ET_NONE:
             fprintf(fout, "No file type\n");
             break;
         case ET_REL:
-            fprintf(fout, "Relocatable file\n");
+            fprintf(fout, "REL (Relocatable file)\n");
             break;
         case ET_EXEC:
             fprintf(fout, "Executable file\n");
@@ -62,13 +62,13 @@ void print_elf_type(FILE *fout, Elf32_Word e_type){
 }
 
 void print_elf_version(FILE *fout, Elf32_Word e_version){
-    fprintf(fout, "  Version:\t\t\t     ");
+    fprintf(fout, "  Version:                           ");
     switch(e_version){
         case EV_NONE:
             fprintf(fout, "Invalid version\n");
             break;
         case EV_CURRENT:
-            fprintf(fout, "Current version\n");
+            fprintf(fout, "1 (current)\n");
             break;
         default:
             fprintf(fout, "%x\n", e_version);
@@ -77,7 +77,7 @@ void print_elf_version(FILE *fout, Elf32_Word e_version){
 }
 
 void print_elf_machine(FILE *fout, Elf32_Half e_machine) {
-    fprintf(fout, "  Machine:\t\t\t     ");
+    fprintf(fout, "  Machine:                           ");
     switch (e_machine) {
         case ET_NONE:
             fprintf(fout, "No machine\n");
@@ -116,7 +116,7 @@ void print_elf_machine(FILE *fout, Elf32_Half e_machine) {
 }
 
 void print_OS_ABI(FILE *fout, unsigned char OSABI){
-    fprintf(fout, "  OS/ABI:\t\t\t     ");
+    fprintf(fout, "  OS/ABI:                            ");
     switch (OSABI) {
         case ELFOSABI_SYSV: fprintf(fout, "UNIX - System V\n"); break;
         case ELFOSABI_HPUX: fprintf(fout, "HP-UX ABI\n"); break;

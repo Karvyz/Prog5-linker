@@ -58,29 +58,29 @@ void print_elf(FILE *fout, Elf32_Ehdr elf_h){
     }
     fprintf(fout, "\n");
 
-    fprintf(fout, "  Class:\t\t\t     ");
+    fprintf(fout, "  Class:                             ");
     if (elf_h.e_ident[EI_CLASS] == ELFCLASS32) fprintf(fout, "ELF32\n");
     else fprintf(fout, "None\n");
-    fprintf(fout, "  Data:\t\t\t\t     ");
+    fprintf(fout, "  Data:                              ");
 
     if (elf_h.e_ident[EI_DATA] == ELFDATA2MSB) fprintf(fout, "2's complement, big endian\n");
     else if(elf_h.e_ident[EI_DATA] == ELFDATA2LSB) fprintf(fout, "2's complement, little endian\n");
 
     print_elf_version(fout, elf_h.e_version);
     print_OS_ABI(fout, elf_h.e_ident[EI_OSABI]);
-    fprintf(fout, "  ABI Version:\t\t\t     %d\n", elf_h.e_ident[EI_ABIVERSION]);
+    fprintf(fout, "  ABI Version:                       %d\n", elf_h.e_ident[EI_ABIVERSION]);
     print_elf_type(fout, elf_h.e_type);
     print_elf_machine(fout, elf_h.e_machine);
-    fprintf(fout, "  Version:\t\t\t     0x%1.x\n", elf_h.e_version);
-    fprintf(fout, "  Entry point address:\t\t     0x%.1x\n", elf_h.e_entry);
-    fprintf(fout, "  Start of program headers:\t     %d (bytes into file)\n", elf_h.e_phoff);
-    fprintf(fout, "  Start of section headers:\t     %d (bytes into file)\n", elf_h.e_shoff);
-    fprintf(fout, "  Flags:\t\t\t     %#x, Version5 EABI\n",elf_h.e_flags);
-    fprintf(fout, "  Size of this header:\t\t     %d (bytes)\n", elf_h.e_ehsize);
-    fprintf(fout, "  Size of program headers:\t     %d (bytes)\n", elf_h.e_phentsize);
-    fprintf(fout, "  Number of program headers:\t     %d\n", elf_h.e_phnum);
-    fprintf(fout, "  Size of section headers:\t     %d (bytes)\n", elf_h.e_shentsize);
-    fprintf(fout, "  Number of section headers:\t     %d\n", elf_h.e_shnum);
+    fprintf(fout, "  Version:                           0x%1.x\n", elf_h.e_version);
+    fprintf(fout, "  Entry point address:               0x%.1x\n", elf_h.e_entry);
+    fprintf(fout, "  Start of program headers:          %d (bytes into file)\n", elf_h.e_phoff);
+    fprintf(fout, "  Start of section headers:          %d (bytes into file)\n", elf_h.e_shoff);
+    fprintf(fout, "  Flags:                             %#x, Version5 EABI\n",elf_h.e_flags);
+    fprintf(fout, "  Size of this header:               %d (bytes)\n", elf_h.e_ehsize);
+    fprintf(fout, "  Size of program headers:           %d (bytes)\n", elf_h.e_phentsize);
+    fprintf(fout, "  Number of program headers:         %d\n", elf_h.e_phnum);
+    fprintf(fout, "  Size of section headers:           %d (bytes)\n", elf_h.e_shentsize);
+    fprintf(fout, "  Number of section headers:         %d\n", elf_h.e_shnum);
     fprintf(fout, "  Section header string table index: %d\n", elf_h.e_shstrndx);
 }
 
