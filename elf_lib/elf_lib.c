@@ -188,3 +188,19 @@ void print_symbols(FILE *fout, Elf32_Ehdr elf_h, Elf32_Shdr *arr_elf_SH, Elf32_S
         fprintf(fout, "\n");
     }
 }
+
+/* Etape 5 */
+
+/* Etape 6 */
+
+void fusion_sections(FILE *f1, FILE *f2) {
+    // TODO : Fusionner les deux fichiers elf en un seul
+    int nb_sym1 = 0;
+    int nb_sym2 = 0;
+
+    Elf32_Ehdr elf_h1;
+    Elf32_Ehdr elf_h2;
+
+
+}
+
