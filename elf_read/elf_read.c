@@ -144,7 +144,12 @@ int main(int argc, char *argv[]) {
         print_sections_header(stdout, header, sections);
     }
     if(show_symbols) {
-        print_symbols(stdout, header, sections, symbols, nb_symbols);
+        Elf32_Shdr strtab;
+        if (get_section_by_name(".strtab", header.e_shnum, sections, &strtab)){
+            // -- lecture des noms de symboles avant affichage
+            read_symbol_names(file, strtab);
+            print_symbols(stdout, header, sections, symbols, nb_symbols);
+        }
     }
     if(show_relocations) {
         //print_relocations(stdout, header, sections);
@@ -174,10 +179,11 @@ int main(int argc, char *argv[]) {
         init_header(file2, &header2);
 
 
-        Elf32_Shdr sections2;
-        read_sections(file2, header2, &sections2);
+        Elf32_Shdr *sections2;
+        sections2 = malloc(sizeof(Elf32_Shdr) * 400);
+        read_sections(file2, header2, sections2);
 
-        fusion_sections(file, file2, header, *sections, header2, sections2);
+        fusion_sections(file, file2, header, sections, header2, sections2);
     }
 
 
