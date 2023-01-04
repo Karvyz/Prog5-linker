@@ -72,7 +72,6 @@ int main(int argc, char *argv[]) {
                 break;
             case 'x':
                 show_section = 1;
-                fprintf(stderr, "Section %s\n", optarg);
                 if (sectionsAAfficher_nb < 100) {
                     sectionsAAfficher[sectionsAAfficher_nb] = optarg; // stocke le(s) nom(s) de section(s) à afficher
                     sectionsAAfficher_nb++;
