@@ -288,3 +288,16 @@ char * read_from_strtab(Elf32_Word st_name) {
     }
     return nSection;
 }
+
+/* Etape 6 */
+
+// TODO : bwrite
+int bwrite(void *ptr, size_t size, size_t nmemb, FILE *f) {
+    int i = 0;
+    // Ecrire en big endian
+    for (i = 0; i < nmemb; i++) {
+        fwrite(ptr, size, 1, f);
+        ptr += size;
+    }
+    return 0;
+}
