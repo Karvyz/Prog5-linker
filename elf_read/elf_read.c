@@ -194,6 +194,8 @@ int main(int argc, char *argv[]) {
         fusion_sections(file, file2, header, sections, header2, sections2);
     }
 
-
+    // TODO
+    // Free memory
+    // Close files
     return 0;
 }
