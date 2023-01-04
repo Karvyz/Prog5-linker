@@ -7,6 +7,17 @@
 
 /* Etape 6 */
 
+// TODO : check if bwrite is correct
+int bwrite(void *ptr, size_t size, size_t nmemb, FILE *f) {
+    int i = 0;
+    // Ecrire en big endian
+    for (i = 0; i < nmemb; i++) {
+        fwrite(ptr, size, 1, f);
+        ptr += size;
+    }
+    return 0;
+}
+
 void fusion_sections(FILE *f1, FILE *f2, Elf32_Ehdr header1, Elf32_Shdr *sections1, Elf32_Ehdr header2, Elf32_Shdr *sections2) {
     // TODO : Fusionner les deux fichiers elf en un seul
     int nb_sym1 = header1.e_shnum;
@@ -51,6 +62,9 @@ void fusion_sections(FILE *f1, FILE *f2, Elf32_Ehdr header1, Elf32_Shdr *section
     memset(changes, 0, sizeof(SectionChanges) * header2.e_shnum);
 
     //Elf32_Shdr *sections = malloc(sizeof(Elf32_Shdr) * ((header1.e_shentsize * header1.e_shnum) + (header2.e_shentsize * header2.e_shnum)));
+
+    // Ecriture du header dans le fichier resultat
+    bwrite(&new_header, sizeof(Elf32_Ehdr), 1, result);
 
     for (int i = 0; i < nb_sym1; i++) {
         char *data = NULL;
@@ -128,6 +142,6 @@ void fusion_sections(FILE *f1, FILE *f2, Elf32_Ehdr header1, Elf32_Shdr *section
     }
 
     // Ajout du header dans le fichier resultat
-    // TODO : écrire la section de chaîne de noms
+
 
 }
