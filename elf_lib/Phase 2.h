@@ -1,0 +1,6 @@
+#ifndef PROG5_LINKER_PHASE_2_H
+#define PROG5_LINKER_PHASE_2_H
+
+
+
+#endif //PROG5_LINKER_PHASE_2_H

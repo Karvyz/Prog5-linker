@@ -117,6 +117,9 @@ void print_sections_header(FILE *fout, Elf32_Ehdr elf_h, Elf32_Shdr *arr_elf_SH)
 
 	  // Allouez un tableau de pointeurs de chaînes de caractères pour stocker les attributs de sections
 	  char** section_flag_names = malloc(sizeof(char*) * elf_h.e_shnum);
+      for(int i = 0; i<elf_h.e_shnum; i++){
+          section_flag_names[i] = malloc(sizeof(char) * 100);
+      }
 
 	  // Recherchez et stockez les noms et les types de chaque section
 	  for (int i = 0; i < elf_h.e_shnum; i++) {
@@ -176,30 +179,27 @@ void print_sections_header(FILE *fout, Elf32_Ehdr elf_h, Elf32_Shdr *arr_elf_SH)
 	    }
 
 	    if (arr_elf_SH[i].sh_flags & SHF_ALLOC) {
-	      section_flag_names[i] = "ALLOC";
+            section_flag_names[i] = "ALLOC";
+	    } else if (arr_elf_SH[i].sh_flags & SHF_EXECINSTR) {
+            if (strlen(section_flag_names[i]) > 0) {
+              strcat(section_flag_names[i], ", ");
+	        }
+	        strcat(section_flag_names[i], "EXECINSTR");
+	    } else if (arr_elf_SH[i].sh_flags & SHF_WRITE) {
+	        if (strlen(section_flag_names[i]) > 0) {
+              strcat(section_flag_names[i], ", ");
+	        }
+	      strcat(section_flag_names[i], "WRITE");
+	    } else if (arr_elf_SH[i].sh_flags & SHF_MASKPROC) {
+	        if (strlen(section_flag_names[i]) > 0) {
+		        strcat(section_flag_names[i], ", ");
+	        }
+	        strcat(section_flag_names[i], "MASKPROC");
 	    }
-	    if (arr_elf_SH[i].sh_flags & SHF_EXECINSTR) {
-	      if (strlen(section_flag_names[i]) > 0) {
-		section_flag_names[i] = strcat(section_flag_names[i], ", ");
-	      }
-	      section_flag_names[i] = strcat(section_flag_names[i], "EXECINSTR");
-	    }
-	    if (arr_elf_SH[i].sh_flags & SHF_WRITE) {
-	      if (strlen(section_flag_names[i]) > 0) {
-		section_flag_names[i] = strcat(section_flag_names[i], ", ");
-	      }
-	      section_flag_names[i] = strcat(section_flag_names[i], "WRITE");
-	    }
-	    if (arr_elf_SH[i].sh_flags & SHF_MASKPROC) {
-	      if (strlen(section_flag_names[i]) > 0) {
-		section_flag_names[i] = strcat(section_flag_names[i], ", ");
-	      }
-	      section_flag_names[i] = strcat(section_flag_names[i], "MASKPROC");
-	  }
 
 	  // Recherchez et stockez les noms de chaque section
 	  fseek(fout, arr_elf_SH[elf_h.e_shstrndx].sh_offset, SEEK_SET);
-	  fread(section_names, arr_elf_SH[elf_h.e_shstrndx].sh_size, 1, fout);
+	  assert(fread(section_names, arr_elf_SH[elf_h.e_shstrndx].sh_size, 1, fout));
 
 	  // Parcourez le tableau de sections et affichez les informations de chaque section
 	  for (int i = 0; i < elf_h.e_shnum; i++) {
@@ -302,16 +302,3 @@ void print_symbols(FILE *fout, Elf32_Ehdr elf_h, Elf32_Shdr *arr_elf_SH, Elf32_S
 }
 
 /* Etape 5 */
-
-/* Etape 6 */
-
-void fusion_sections(FILE *f1, FILE *f2, Elf32_Ehdr header1, Elf32_Shdr *sections1, Elf32_Ehdr header2, Elf32_Shdr *sections2) {
-    // TODO : Fusionner les deux fichiers elf en un seul
-    int nb_sym1 = 0;
-    int nb_sym2 = 0;
-
-    Elf32_Shdr *sections = malloc(sizeof(Elf32_Shdr) * (header1.e_shnum + header2.e_shnum));
-
-
-}
-
