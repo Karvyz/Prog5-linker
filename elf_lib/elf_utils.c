@@ -175,9 +175,11 @@ int get_section_by_name(char *name, int shnum, Elf32_Shdr *sections, Elf32_Shdr 
     int i = 0;
     for (i = 0; i < shnum; i++) {
         char *name2 = read_from_shstrtab(sections[i].sh_name);
-        if(strcmp(name2,"\0") == 0){
+        // TODO: check if name2 is null
+        /*if(strcmp(name2,"\0") == 0){
             exit(1);
         }
+        */
         if (strcmp(name2, name) == 0) { // Si le nom de la section correspond au nom recherché
             *section = sections[i]; // On modifie la section (vide) passée en paramètre par la section trouvée
             return 1;
