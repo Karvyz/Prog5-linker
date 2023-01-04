@@ -53,7 +53,7 @@ int main(int argc, char *argv[]) {
 
     file_name = NULL;
 
-    int show_header = 0, show_sections = 0, show_symbols = 0, show_relocations = 0;
+    int show_header = 0, show_sections = 0, show_symbols = 0, show_relocations = 0, show_section = 0;
     int fusion = 0;
 
     while ( (opt = getopt_long(argc, argv, "hSsrxF:Hd", longopts, NULL)) != -1 ) {
@@ -71,6 +71,7 @@ int main(int argc, char *argv[]) {
                 show_relocations = 1;
                 break;
             case 'x':
+                show_section = 1;
                 if (sectionsAAfficher_nb < 100) {
                     sectionsAAfficher[sectionsAAfficher_nb] = optarg; // stocke le(s) nom(s) de section(s) à afficher
                     sectionsAAfficher_nb++;
@@ -100,6 +101,9 @@ int main(int argc, char *argv[]) {
     }
 
     if (optind >= argc) {
+        if(show_section){
+            fprintf(stderr, "Error: no section number or name given\n");
+        }
         fprintf(stderr, "No file given !\n");
         usage(argv[0]);
         exit(1);
