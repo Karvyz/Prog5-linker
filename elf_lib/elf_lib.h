@@ -116,21 +116,4 @@ void print_symbols(FILE *fout, Elf32_Ehdr elf_h, Elf32_Shdr *arr_elf_SH, Elf32_S
  */
 void print_relocations(FILE *fout);
 
-/* Etape 6 */
-
-// Fusion et numérotation des sections
-
-/**
- * @brief   Fusion et numérotation des sections
- *          du fichier ELF
- *
- * @param   f1 flux 1 (fichier qui sera modifié)
- * @param   f2 flux 2 (fichier qui sera ajouté)
- * @param   header1 en-tête du fichier 1
- * @param   sections1 table des sections du fichier 1
- * @param   header2 en-tête du fichier 2
- * @param   sections2 table des sections du fichier 2
- */
-void fusion_sections(FILE *f1, FILE *f2, Elf32_Ehdr header1, Elf32_Shdr *sections1, Elf32_Ehdr header2, Elf32_Shdr *sections2);
-
 #endif
