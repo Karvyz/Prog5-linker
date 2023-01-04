@@ -224,18 +224,17 @@ void print_sections_header(FILE *fout, Elf32_Ehdr elf_h, Elf32_Shdr *arr_elf_SH)
 
 void print_section_content(FILE *f, FILE *fout, Elf32_Shdr *elf_SH) {
     if(elf_SH->sh_size == 0) {
-        fprintf(fout, "Section '%s' has no data.\n", read_from_shstrtab(elf_SH->sh_name));
+        fprintf(fout, "Section '%s' has no data to dump.", read_from_shstrtab(elf_SH->sh_name));
         return;
     }
     fprintf(fout, "\n");
     fprintf(fout, "Hex dump of section '%s':", read_from_shstrtab(elf_SH->sh_name));
-    fprintf(fout, "\n");
 
     fseek(f, elf_SH->sh_offset, SEEK_SET);
 
     for (int i = 0; i < elf_SH->sh_size; i++) {
         if (i%4 == 0) fprintf(fout, " ");
-        if (i%16 == 0) fprintf(fout, "\n0x%08x ", i);
+        if (i%16 == 0) fprintf(fout, "\n  0x%08x ", i);
         fprintf(fout, "%.2x", fgetc(f));
     }
     fprintf(fout, "\n");
