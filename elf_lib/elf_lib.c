@@ -191,59 +191,69 @@ void print_symbols(FILE *fout, Elf32_Ehdr elf_h, Elf32_Shdr *arr_elf_SH, Elf32_S
 
 /* Etape 5 */
 
-void read_relocations(Elf32_Ehdr elf_h, Elf32_Shdr *elf_SH){
-  // Recherchez la section des relocations
-  Elf32_Shdr* relocation_section = NULL;
-  for (int i = 0; i < elf_h.e_shnum; i++) {
-    if (elf_SH[i].sh_type == SHT_REL) {
-      relocation_section = elf_SH + i;
-      break;
+char * revert_define_type_relocation(int val){
+    char * type = malloc(sizeof(16));
+    type = sprintf(type, "%d", val);
+    switch (val)
+    {
+    case 2:
+        type = "R_ARM_ABS32";
+        break;
+    case 29:
+        type = "R_ARM_JUMP24";
+        break;
+    case 28:
+        type = "R_ARM_CALL";
+        break;
+    case 1:
+        type = "R_ARM_PC24";
+        break;
+    default:
+        break;
     }
-  }
-  if (!relocation_section) {
-    fprintf(stderr, "Le fichier ne contient pas de section de relocations\n");
-    return;
-  }
+    return type;
 }
 
+void print_relocation(Elf32_Ehdr elf_h, Elf32_Shdr* elf_SH, Elf32_Sym *elf_Sym, FILE *file){
+    for (int i = 0; i < elf_h.e_shnum; i++) {
+    if (elf_SH[i].sh_type == SHT_REL) {
+        printf("Section de relocations %s à l'adresse de décalage 0x%x contient %ld entrées:\n",
+            read_from_shstrtab(elf_SH[i].sh_name), elf_SH[i].sh_offset, elf_SH[i].sh_size / sizeof(Elf32_Rel));
+        printf("   Num:\tDecalage\tInfo\tType\tVal.-sym\tNoms-symboles\n");
+        fseek(file, elf_SH[i].sh_offset, SEEK_SET);
+        Elf32_Rel* relocations = malloc(elf_SH->sh_size); // malloc a vérifier
+        if (!relocations) {
+            perror("malloc");
+            return;
+        }
+        for (int j = 0; j < elf_SH[i].sh_size / sizeof(Elf32_Rel); j++) {
+            assert(bread(&relocations->r_offset, sizeof(relocations->r_offset), 1, file));
+            assert(bread(&relocations->r_info, sizeof(relocations->r_info), 1, file));
+            //Elf32_Rel* relocation = relocations + j;
+            /*printf("  %d: %08x %s %s\n",
+                j,
+                relocation->r_offset,
+                //get_symbol_name(relocation->r_info, sections, file),
+                "XXX symbol name"
+                //get_section_name(sections + relocation->r_info, sections, file)
+                "section name");
+                
+            printf("  %d: %08x XXXsymbol nameXXX XXXsection_nameXXX\n",
+                j,
+                relocation->r_offset);
+            */
+           int symb = ELF32_R_SYM(relocations->r_info);
+           int typint = ELF32_R_TYPE(relocations->r_info);
+           char* typchar = revert_define_type_relocation(typint);
+            printf("  %d:\t%08x\t%08x\t%s\t%08x\t%s\n", j, relocations->r_offset, relocations->r_info, 
+                    typchar,
+                    elf_Sym[symb].st_value,
+                    read_from_strtab(elf_Sym[symb].st_name)
+                    );
 
-
-void print_relocations(Elf32_Shdr* relocation_section, Elf32_Shdr* sections, FILE *fout) {
-  // Affichez l'en-tête de la section des relocations
-  printf("Section de relocations XXXsectionXXX à l'adresse de décalage 0x%x contient %ld entrées:\n",
-         //get_section_name(relocation_section, sections, file),
-         relocation_section->sh_offset,
-         relocation_section->sh_size / sizeof(Elf32_Rel));
-
-  // Affichez le contenu de la section des relocations
-  fseek(fout, relocation_section->sh_offset, SEEK_SET);
-  Elf32_Rel* relocations = malloc(relocation_section->sh_size);
-  if (!relocations) {
-    perror("malloc");
-    return;
+        }
+    }
   }
-  if (fread(relocations, relocation_section->sh_size, 1, fout) != 1) {
-    perror("fread");
-    free(relocations);
-    return;
-  }
-  for (int i = 0; i < relocation_section->sh_size / sizeof(Elf32_Rel); i++) {
-    Elf32_Rel* relocation = relocations + i;
-    /*printf("  %d: %08x %s %s\n",
-           i,
-           relocation->r_offset,
-           //get_symbol_name(relocation->r_info, sections, file),
-           "XXX symbol name"
-           //get_section_name(sections + relocation->r_info, sections, file)
-           "section name");
-        */
-    printf("  %d: %08x XXXsymbol nameXXX XXXsection_nameXXX\n",
-           i,
-           relocation->r_offset);
-
-
-  }
-  free(relocations);
 }
 
 /* Etape 6 

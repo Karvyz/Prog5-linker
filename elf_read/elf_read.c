@@ -32,7 +32,6 @@ int main(int argc, char *argv[]) {
     FILE *file;
     Elf32_Ehdr header;
     Elf32_Shdr *sections;
-    Elf32_Shdr *relocation_section;
     Elf32_Sym *symbols;
     int i;
     int nb_symbols;
@@ -104,7 +103,6 @@ int main(int argc, char *argv[]) {
         //
         sections = malloc(sizeof(Elf32_Shdr) * 400);
         symbols = malloc(sizeof(Elf32_Sym) * 400);
-        relocation_section = malloc(sizeof(Elf32_Shdr) * 400); //TODO : pas sur du 400
         nb_symbols = 0;
 
         // - Lecture de l'en-tête
@@ -115,8 +113,6 @@ int main(int argc, char *argv[]) {
         read_section_names(file, sections[header.e_shstrndx]);
         // - Lecture des en-têtes de symboles
         read_symbols(file, header, sections, symbols, &nb_symbols);
-        // -lecture de la table des relocations
-        read_relocations(header, sections);
 
     }
 
@@ -130,7 +126,7 @@ int main(int argc, char *argv[]) {
         print_symbols(stdout, header, sections, symbols, nb_symbols);
     }
     if(show_relocations) {
-        print_relocations(relocation_section, sections, file); //TODO : rajouter stdout
+        print_relocation(header, sections, symbols, file);
     }
     if(sectionsAAfficher_nb > 0) {
         for(i = 0; i < sectionsAAfficher_nb; i++) {
