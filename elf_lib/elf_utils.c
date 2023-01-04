@@ -158,10 +158,15 @@ void read_symbol_names(FILE *f, Elf32_Shdr STable) {
 char * read_from_shstrtab(uint32_t st_name) {
     int i = st_name;
     char *nSection = malloc(MAX_STRTAB_LEN); // Max 150 char
+    int j = 0;
 
     while (shstrtab[i] != '\0') {
         nSection[i - st_name] = shstrtab[i]; // copy the name of the section in nSection
         i++;
+        j++;
+    }
+    if(!j){
+        nSection[0] = '\0';
     }
     return nSection;
 }
@@ -169,7 +174,11 @@ char * read_from_shstrtab(uint32_t st_name) {
 int get_section_by_name(char *name, int shnum, Elf32_Shdr *sections, Elf32_Shdr *section) {
     int i = 0;
     for (i = 0; i < shnum; i++) {
-        if (strcmp(read_from_shstrtab(sections[i].sh_name), name) == 0) { // Si le nom de la section correspond au nom recherché
+        char *name2 = read_from_shstrtab(sections[i].sh_name);
+        if(strcmp(name2,"\0") == 0){
+            exit(1);
+        }
+        if (strcmp(name2, name) == 0) { // Si le nom de la section correspond au nom recherché
             *section = sections[i]; // On modifie la section (vide) passée en paramètre par la section trouvée
             return 1;
         }
