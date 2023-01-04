@@ -104,8 +104,120 @@ void read_sections(FILE *f, Elf32_Ehdr elf_h, Elf32_Shdr *arr_elf_SH){
 }
 
 /* Print the section header table */
+
 void print_sections_header(FILE *fout, Elf32_Ehdr elf_h, Elf32_Shdr *arr_elf_SH) {
-    // TODO : Print the section header table
+	  // Allouez de la mémoire pour stocker le nom de chaque section
+	  char* section_names = malloc(elf_h.e_shentsize * elf_h.e_shnum);
+
+	  // Allouez un tableau de pointeurs de chaînes de caractères pour stocker les noms de sections
+	  char** section_name_ptrs = malloc(sizeof(char*) * elf_h.e_shnum);
+
+	  // Allouez un tableau de pointeurs de chaînes de caractères pour stocker les types de sections
+	  char** section_type_names = malloc(sizeof(char*) * elf_h.e_shnum);
+
+	  // Allouez un tableau de pointeurs de chaînes de caractères pour stocker les attributs de sections
+	  char** section_flag_names = malloc(sizeof(char*) * elf_h.e_shnum);
+
+	  // Recherchez et stockez les noms et les types de chaque section
+	  for (int i = 0; i < elf_h.e_shnum; i++) {
+	    section_name_ptrs[i] = &section_names[arr_elf_SH[i].sh_name];
+	    section_type_names[i] = "UNKNOWN";
+	    section_flag_names[i] = "";
+
+	    switch (arr_elf_SH[i].sh_type) {
+	      case SHT_PROGBITS:
+		section_type_names[i] = "PROGBITS";
+		break;
+	      case SHT_SYMTAB:
+		section_type_names[i] = "SYMTAB";
+		break;
+	      case SHT_STRTAB:
+		section_type_names[i] = "STRTAB";
+		break;
+	      case SHT_RELA:
+        section_type_names[i] = "RELA";
+        break;
+          case SHT_HASH:
+        section_type_names[i] = "HASH";
+        break;
+	      case SHT_DYNAMIC:
+        section_type_names[i] = "DYNAMIC";
+        break;	      
+          case SHT_NOTE:
+        section_type_names[i] = "NOTE";
+        break;
+          case SHT_NOBITS:
+        section_type_names[i] = "NOBITS";
+        break;
+	      case SHT_REL:
+        section_type_names[i] = "REL";
+        break;
+	      case SHT_SHLIB:
+        section_type_names[i] = "SHLIB";
+        break;
+	      case SHT_DYNSYM:
+        section_type_names[i] = "DYNSYM";
+        break;	      
+          case SHT_LOPROC:
+        section_type_names[i] = "LOPROC";
+        break;
+	      case SHT_HIPROC:
+        section_type_names[i] = "HIPROC";
+        break;
+	      case SHT_LOUSER:
+        section_type_names[i] = "LOUSER";
+        break;
+	      case SHT_HIUSER:
+        section_type_names[i] = "HIUSER";
+        break;
+	      case SHT_NULL:
+        section_type_names[i] = "NULL";
+        break;
+	    }
+
+	    if (arr_elf_SH[i].sh_flags & SHF_ALLOC) {
+	      section_flag_names[i] = "ALLOC";
+	    }
+	    if (arr_elf_SH[i].sh_flags & SHF_EXECINSTR) {
+	      if (strlen(section_flag_names[i]) > 0) {
+		section_flag_names[i] = strcat(section_flag_names[i], ", ");
+	      }
+	      section_flag_names[i] = strcat(section_flag_names[i], "EXECINSTR");
+	    }
+	    if (arr_elf_SH[i].sh_flags & SHF_WRITE) {
+	      if (strlen(section_flag_names[i]) > 0) {
+		section_flag_names[i] = strcat(section_flag_names[i], ", ");
+	      }
+	      section_flag_names[i] = strcat(section_flag_names[i], "WRITE");
+	    }
+	    if (arr_elf_SH[i].sh_flags & SHF_MASKPROC) {
+	      if (strlen(section_flag_names[i]) > 0) {
+		section_flag_names[i] = strcat(section_flag_names[i], ", ");
+	      }
+	      section_flag_names[i] = strcat(section_flag_names[i], "MASKPROC");
+	  }
+
+	  // Recherchez et stockez les noms de chaque section
+	  fseek(fout, arr_elf_SH[elf_h.e_shstrndx].sh_offset, SEEK_SET);
+	  fread(section_names, arr_elf_SH[elf_h.e_shstrndx].sh_size, 1, fout);
+
+	  // Parcourez le tableau de sections et affichez les informations de chaque section
+	  for (int i = 0; i < elf_h.e_shnum; i++) {
+	    printf("Section #%d:\n", i);
+	    printf("  Name: %s\n", section_name_ptrs[i]);
+	    printf("  Size: %d\n", arr_elf_SH[i].sh_size);
+	    printf("  Type: %s\n", section_type_names[i]);
+	    printf("  Flags: %s\n", section_flag_names[i]);
+	    printf("  Addr: 0x%08x\n", arr_elf_SH[i].sh_addr);
+	    printf("  Offset: 0x%08x\n", arr_elf_SH[i].sh_offset);
+	  }
+
+	  // Libérez la mémoire allouée
+	  free(section_names);
+	  free(section_name_ptrs);
+	  free(section_type_names);
+	  free(section_flag_names);
+	}
 }
 
 /* Etape 3 */
