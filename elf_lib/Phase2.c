@@ -7,12 +7,6 @@
 
 /* Etape 6 */
 
-typedef struct {
-    int old_index;
-    int new_index;
-    Elf32_Off offset;
-} SectionChanges;
-
 void fusion_sections(FILE *f1, FILE *f2, Elf32_Ehdr header1, Elf32_Shdr *sections1, Elf32_Ehdr header2, Elf32_Shdr *sections2) {
     // TODO : Fusionner les deux fichiers elf en un seul
     int nb_sym1 = header1.e_shnum;
