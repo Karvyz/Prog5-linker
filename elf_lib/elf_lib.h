@@ -131,6 +131,6 @@ void print_relocations(FILE *fout);
  * @param   header2 en-tête du fichier 2
  * @param   sections2 table des sections du fichier 2
  */
-void fusion_sections(FILE *f1, FILE *f2, Elf32_Ehdr header1, Elf32_Shdr sections1, Elf32_Ehdr header2, Elf32_Shdr sections2);
+void fusion_sections(FILE *f1, FILE *f2, Elf32_Ehdr header1, Elf32_Shdr *sections1, Elf32_Ehdr header2, Elf32_Shdr *sections2);
 
 #endif

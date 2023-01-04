@@ -193,7 +193,7 @@ void print_symbols(FILE *fout, Elf32_Ehdr elf_h, Elf32_Shdr *arr_elf_SH, Elf32_S
 
 /* Etape 6 */
 
-void fusion_sections(FILE *f1, FILE *f2, Elf32_Ehdr header1, Elf32_Shdr sections1, Elf32_Ehdr header2, Elf32_Shdr sections2) {
+void fusion_sections(FILE *f1, FILE *f2, Elf32_Ehdr header1, Elf32_Shdr *sections1, Elf32_Ehdr header2, Elf32_Shdr *sections2) {
     // TODO : Fusionner les deux fichiers elf en un seul
     int nb_sym1 = 0;
     int nb_sym2 = 0;
