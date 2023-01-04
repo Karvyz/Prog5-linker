@@ -11,7 +11,7 @@
 
 void usage(char *name) {
     fprintf(stderr, "Usage: \n"
-        "\t%s [ -H | --help ] [ -h | -S | -s | -x <num|text> | -r ] [ --debug] file\n\n"
+        "\t%s [ -H | --help ] [ -h | -S | -s | -x <num|text> | -r | -F file2 ] [ --debug] file\n\n"
         "\tDisplay information about the given ELF file\n"
         "\t-H --help\tDisplay this information\n"
         "\t-h\t\tDisplay the ELF header\n"
@@ -19,6 +19,7 @@ void usage(char *name) {
         "\t-s\t\tDisplay the symbol table\n"
         "\t-x <num|text>\tDisplay the content of the section <num|text>\n"
         "\t-r\t\tDisplay the relocation table\n"
+        "\t-F file2\t\tFusion of file2's sections in the file\n"
         "\t--debug\t\tDisplay debug information\n"
         , name);
 }
@@ -30,6 +31,8 @@ int main(int argc, char *argv[]) {
     int opt;
     char *file_name;
     FILE *file;
+    FILE *file2;
+    char *file2_name;
     Elf32_Ehdr header;
     Elf32_Shdr *sections;
     Elf32_Sym *symbols;
@@ -43,15 +46,17 @@ int main(int argc, char *argv[]) {
             {"symbols",     no_argument,       NULL, 's'},
             {"relocations", no_argument,       NULL, 'r'},
             {"help",        no_argument,       NULL, 'H'},
+            {"fusion",      required_argument, NULL, 'F'},
             {"debug",       no_argument,       NULL, 'd'},
             {NULL,          0,                 NULL, 0}
     };
 
     file_name = NULL;
 
-    int show_header = 0, show_sections = 0, show_symbols = 0, show_relocations = 0;
+    int show_header = 0, show_sections = 0, show_symbols = 0, show_relocations = 0, show_section = 0;
+    int fusion = 0;
 
-    while ( (opt = getopt_long(argc, argv, "hSsrx:Hd", longopts, NULL)) != -1 ) {
+    while ( (opt = getopt_long(argc, argv, "hSsrxF:Hd", longopts, NULL)) != -1 ) {
         switch (opt) {
             case 'h':
                 show_header = 1;
@@ -66,9 +71,19 @@ int main(int argc, char *argv[]) {
                 show_relocations = 1;
                 break;
             case 'x':
+                show_section = 1;
                 if (sectionsAAfficher_nb < 100) {
                     sectionsAAfficher[sectionsAAfficher_nb] = optarg; // stocke le(s) nom(s) de section(s) à afficher
                     sectionsAAfficher_nb++;
+                }
+                break;
+            case 'F':
+                fusion = 1;
+                file2_name = optarg;
+                file2 = fopen(file2_name, "r");
+                if(file2 == NULL){
+                    fprintf(stderr, "Error: cannot open file %s", file2_name);
+                    exit(1);
                 }
                 break;
             case 'H':
@@ -86,13 +101,23 @@ int main(int argc, char *argv[]) {
     }
 
     if (optind >= argc) {
+        if(show_section){
+            fprintf(stderr, "Error: no section number or name given\n");
+        }
         fprintf(stderr, "No file given !\n");
         usage(argv[0]);
         exit(1);
     } else {
         file_name = argv[optind];
 
-        file = fopen(file_name, "r");
+        char *mode;
+        if(fusion == 1){
+            mode = "r+";
+        } else {
+            mode = "r";
+        }
+
+        file = fopen(file_name, mode);
         if (file == NULL) {
             fprintf(stderr, "Could not open file %s\n", file_name);
             exit(1);
@@ -123,7 +148,12 @@ int main(int argc, char *argv[]) {
         print_sections_header(stdout, header, sections);
     }
     if(show_symbols) {
-        print_symbols(stdout, header, sections, symbols, nb_symbols);
+        Elf32_Shdr strtab;
+        if (get_section_by_name(".strtab", header.e_shnum, sections, &strtab)){
+            // -- lecture des noms de symboles avant affichage
+            read_symbol_names(file, strtab);
+            print_symbols(stdout, header, sections, symbols, nb_symbols);
+        }
     }
     if(show_relocations) {
         //print_relocations(stdout, header, sections);
@@ -147,6 +177,17 @@ int main(int argc, char *argv[]) {
             }
             fprintf(stdout, "\n");
         }
+    }
+    if(fusion){
+        Elf32_Ehdr header2;
+        init_header(file2, &header2);
+
+
+        Elf32_Shdr *sections2;
+        sections2 = malloc(sizeof(Elf32_Shdr) * 400);
+        read_sections(file2, header2, sections2);
+
+        fusion_sections(file, file2, header, sections, header2, sections2);
     }
 
 
