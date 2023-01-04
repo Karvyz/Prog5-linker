@@ -8,6 +8,7 @@
 #include <elf.h>
 #include "elf_lib/elf_lib.h"
 #include "elf_lib/elf_utils.h"
+#include "elf_lib/Phase2.h"
 
 void usage(char *name) {
     fprintf(stderr, "Usage: \n"
