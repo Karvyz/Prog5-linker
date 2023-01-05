@@ -203,6 +203,8 @@ SectionFusion *fusion_sections(FILE *f1, FILE *f2, Elf32_Ehdr header1, Elf32_Shd
             sections[i].sh_entsize = sections1[i].sh_entsize;
             // On met à jour fusion
             fusion->data[i] = data;
+            // Mise à jour de l'offset courant
+            offset += sections1[i].sh_size;
         }
         // Incrémentation du nombre de sections
         nb_sym++;
