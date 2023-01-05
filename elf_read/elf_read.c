@@ -13,7 +13,7 @@
 
 void usage(char *name) {
     fprintf(stderr, "Usage: \n"
-        "\t%s [ -H | --help ] [ -h | -S | -s | -x <num|text> | -r | -F file2 ] [ --debug] file\n\n"
+        "\t%s [ -H | --help ] [ -h | -S | -s | -x <num|text> | -r | -F file2 | -w ] [ --debug] file\n\n"
         "\tDisplay information about the given ELF file\n"
         "\t-H --help\tDisplay this information\n"
         "\t-h\t\tDisplay the ELF header\n"
@@ -61,7 +61,7 @@ int main(int argc, char *argv[]) {
     int fusion = 0;
     int write = 0;
 
-    while ( (opt = getopt_long(argc, argv, "hSsrx:F:Hd", longopts, NULL)) != -1 ) {
+    while ( (opt = getopt_long(argc, argv, "hSsrx:F:Hdw", longopts, NULL)) != -1 ) {
         switch (opt) {
             case 'h':
                 show_header = 1;
@@ -217,7 +217,7 @@ int main(int argc, char *argv[]) {
     }
 
     if(write) {
-        write_main();
+        write_main(header);
     }
 
     // TODO
