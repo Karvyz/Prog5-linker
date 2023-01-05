@@ -51,8 +51,9 @@ void read_sections(FILE *f, Elf32_Ehdr elf_h, Elf32_Shdr *arr_elf_SH);
  * @param   fout flux de sortie
  * @param   elf_h en-tête ELF
  * @param   arr_elf_SH table des sections
+ * @param   shstrtab table des chaines de caractères
  */
-void print_sections_header(FILE *fout, Elf32_Ehdr elf_h, Elf32_Shdr *arr_elf_SH);
+void print_sections_header(FILE *fout, Elf32_Ehdr elf_h, Elf32_Shdr *arr_elf_SH, char *shstrtab);
 
 /* Etapte 3 */
 
@@ -64,8 +65,9 @@ void print_sections_header(FILE *fout, Elf32_Ehdr elf_h, Elf32_Shdr *arr_elf_SH)
  * @param   elf_h en-tête ELF
  * @param   arr_elf_SH table des sections
  * @param   elf_h en-tête de la section
+ * @param   shstrtab table des chaines de caractères
  */
-void print_section_content(FILE *f, FILE *fout, Elf32_Shdr *elf_SH);
+void print_section_content(FILE *f, FILE *fout, Elf32_Shdr *elf_SH, char *shstrtab);
 
 /* Etape 4 */
 
@@ -85,14 +87,12 @@ void read_symbols(FILE *f, Elf32_Ehdr elf_h, Elf32_Shdr *arr_elf_SH, Elf32_Sym *
  * @brief   Affichage d'un symbole
  *          du fichier ELF
  *
- * @param   f flux
  * @param   fout flux de sortie
- * @param   elf_h en-tête ELF
- * @param   arr_elf_SH table des sections
- * @param   arr_elf_SH table des symboles
- * @param   nb_sym nombre de symboles
+ * @param   arr_elf_Sym table des symboles
+ * @param   elf_Sym symbole
+ * @param   shstrtab table des chaines de caractères
  */
-void print_symbol(FILE *fout, Elf32_Shdr *arr_elf_SH, Elf32_Sym elf_Sym);
+void print_symbol(FILE *fout, Elf32_Shdr *arr_elf_Sym, Elf32_Sym elf_Sym, char *shstrtab);
 
 /**
  * @brief   Affichage de la table des symboles
@@ -103,8 +103,9 @@ void print_symbol(FILE *fout, Elf32_Shdr *arr_elf_SH, Elf32_Sym elf_Sym);
  * @param   arr_elf_SH table des sections
  * @param   arr_elf_SH table des symboles
  * @param   nb_sym nombre de symboles
+ * @param   shstrtab table des chaines de caractères
  */
-void print_symbols(FILE *fout, Elf32_Ehdr elf_h, Elf32_Shdr *arr_elf_SH, Elf32_Sym *arr_elf_ST, int nb_sym);
+void print_symbols(FILE *fout, Elf32_Ehdr elf_h, Elf32_Shdr *arr_elf_SH, Elf32_Sym *arr_elf_ST, int nb_sym, char *shstrtab);
 
 /* Etape 5 */
 

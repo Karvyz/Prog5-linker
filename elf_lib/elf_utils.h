@@ -63,8 +63,9 @@ void print_OS_ABI(FILE *fout, unsigned char OSABI);
  *
  * @param   f flux
  * @param   STable section `shstrtab`
+ * @return  char* tableau contenant tous les noms de sections
  */
-void read_section_names(FILE *f, Elf32_Shdr STable);
+char * read_section_names(FILE *f, Elf32_Shdr STable);
 
 /**
  * @brief   Lit le nom de tous les symboles depuis la section
@@ -76,25 +77,27 @@ void read_section_names(FILE *f, Elf32_Shdr STable);
 void read_symbol_names(FILE *f, Elf32_Shdr STable);
 
 /**
- * @brief Retourne le nom de la section, dont l'index de table
- *        de chaîne de caractères est st_name, depuis la table des
- *        chaînes de caractères correspondante (ici, shstrtab)
+ * @brief  Retourne le nom de la section, dont l'index de table
+ *         de chaîne de caractères est st_name, depuis la table des
+ *         chaînes de caractères correspondante (ici, shstrtab)
  *
- * @param st_name index de la section désirée
+ * @param  st_name index de la section désirée
+ * @param  shstrtab table des chaînes de caractères
  * @return châine de caractères (nom de la section)
  */
-char * read_from_shstrtab(uint32_t st_name);
+char * read_from_shstrtab(uint32_t st_name, char * shstrtab);
 
 /**
  * @brief Recherche une section par son nom
  *
- * @param name nom de la section à rechercher
- * @param shnum nombre de sections
- * @param sections tableau d'en-têtes section
- * @param section  section retournée
+ * @param  name nom de la section à rechercher
+ * @param  shnum nombre de sections
+ * @param  sections tableau d'en-têtes section
+ * @param  section  section retournée
+ * @param  shstrtab table des chaînes de caractères
  * @return int (1 si trouvée, 0 sinon)
  */
-int get_section_by_name(char *name, int shnum, Elf32_Shdr *sections, Elf32_Shdr *section);
+int get_section_by_name(char *name, int shnum, Elf32_Shdr *sections, Elf32_Shdr *section, char *shstrtab);
 
 /* Etape 4 */
 /**

@@ -115,7 +115,7 @@ SectionFusion *fusion_sections(FILE *f1, FILE *f2, Elf32_Ehdr header1, Elf32_Shd
             perror("Erreur allocation name1\n");
             exit(1);
         }
-        name1 = read_from_shstrtab(sections1[i].sh_name);
+        name1 = read_from_shstrtab(sections1[i].sh_name, read_section_names(f1, sections1[header1.e_shstrndx]));
         names1[i] = name1;
 
         if(sections1[i].sh_type == SHT_PROGBITS) {
@@ -130,7 +130,7 @@ SectionFusion *fusion_sections(FILE *f1, FILE *f2, Elf32_Ehdr header1, Elf32_Shd
                     perror("Erreur allcoation name2\n");
                     exit(1);
                 }
-                name2 = read_from_shstrtab(sections2[j].sh_name);
+                name2 = read_from_shstrtab(sections2[j].sh_name, read_section_names(f2, sections2[header2.e_shstrndx]));
                 names2[j] = name2;
                 // Debug
                 if(strcmp(names1[i], "\0") == 0 || strcmp(names2[j], "\0") == 0){

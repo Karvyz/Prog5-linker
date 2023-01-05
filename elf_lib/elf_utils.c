@@ -134,16 +134,18 @@ void print_OS_ABI(FILE *fout, unsigned char OSABI){
 
 /* Etape 3 */
 
-char shstrtab[MAX_STRTAB_LEN];
+//char shstrtab[MAX_STRTAB_LEN];
 char symstrtab[MAX_STRTAB_LEN];
 
-void read_section_names(FILE *f, Elf32_Shdr STable) {
+char * read_section_names(FILE *f, Elf32_Shdr STable) {
+    char shstrtab[MAX_STRTAB_LEN];
     int s = 0;
     fseek(f, STable.sh_offset, SEEK_SET);
     while (s != STable.sh_size) {
         bread(&shstrtab[s], sizeof(char), 1, f);
         s++;
     }
+    return shstrtab;
 }
 
 void read_symbol_names(FILE *f, Elf32_Shdr STable) {
@@ -155,7 +157,7 @@ void read_symbol_names(FILE *f, Elf32_Shdr STable) {
     }
 }
 
-char * read_from_shstrtab(uint32_t st_name) {
+char * read_from_shstrtab(uint32_t st_name, char * shstrtab) {
     int i = st_name;
     char *nSection = malloc(MAX_STRTAB_LEN); // Max 150 char
     int j = 0;
@@ -171,14 +173,14 @@ char * read_from_shstrtab(uint32_t st_name) {
     return nSection;
 }
 
-int get_section_by_name(char *name, int shnum, Elf32_Shdr *sections, Elf32_Shdr *section) {
+int get_section_by_name(char *name, int shnum, Elf32_Shdr *sections, Elf32_Shdr *section, char *shstrtab) {
     int i = 0;
     for (i = 0; i < shnum; i++) {
         char *name2 = NULL;
         name2 = malloc(MAX_STRTAB_LEN);
         if(!name2)
             fprintf(stderr, "Error: malloc failed\n");
-        name2 = read_from_shstrtab(sections[i].sh_name);
+        name2 = read_from_shstrtab(sections[i].sh_name, shstrtab);
         // check name2
         if(strcmp(name2, "\0") == 0 || strcmp(name2, "") == 0 || name2==NULL){
             continue;

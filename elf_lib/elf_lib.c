@@ -105,7 +105,7 @@ void read_sections(FILE *f, Elf32_Ehdr elf_h, Elf32_Shdr *arr_elf_SH){
 
 /* Print the section header table */
 
-void print_sections_header(FILE *fout, Elf32_Ehdr elf_h, Elf32_Shdr *arr_elf_SH) {
+void print_sections_header(FILE *fout, Elf32_Ehdr elf_h, Elf32_Shdr *arr_elf_SH, char *shstrtab){
     //Intro
     fprintf(fout,"There are %d section headers, starting at offset 0x%x:\n\n",elf_h.e_shnum,elf_h.e_shoff);
 
@@ -118,7 +118,7 @@ void print_sections_header(FILE *fout, Elf32_Ehdr elf_h, Elf32_Shdr *arr_elf_SH)
         fprintf(fout,"  [%d]\t",i);
 
         // Nom de la section
-        fprintf(fout,"%-20s", read_from_shstrtab(arr_elf_SH[i].sh_name));
+        fprintf(fout,"%-20s", read_from_shstrtab(arr_elf_SH[i].sh_name, shstrtab));
 
         // Gestion du type
         switch (arr_elf_SH[i].sh_type) {
@@ -235,13 +235,13 @@ void print_sections_header(FILE *fout, Elf32_Ehdr elf_h, Elf32_Shdr *arr_elf_SH)
 
 /* Etape 3 */
 
-void print_section_content(FILE *f, FILE *fout, Elf32_Shdr *elf_SH) {
+void print_section_content(FILE *f, FILE *fout, Elf32_Shdr *elf_SH, char *shstrtab) {
     if(elf_SH->sh_size == 0) {
-        fprintf(fout, "Section '%s' has no data.\n", read_from_shstrtab(elf_SH->sh_name));
+        fprintf(fout, "Section '%s' has no data.\n", read_from_shstrtab(elf_SH->sh_name, shstrtab));
         return;
     }
     fprintf(fout, "\n");
-    fprintf(fout, "Hex dump of section '%s':", read_from_shstrtab(elf_SH->sh_name));
+    fprintf(fout, "Hex dump of section '%s':", read_from_shstrtab(elf_SH->sh_name, shstrtab));
     fprintf(fout, "\n");
 
     fseek(f, elf_SH->sh_offset, SEEK_SET);
@@ -258,9 +258,10 @@ void print_section_content(FILE *f, FILE *fout, Elf32_Shdr *elf_SH) {
 /* Etape 4 */
 
 void read_symbols(FILE *f, Elf32_Ehdr elf_h, Elf32_Shdr *arr_elf_SH, Elf32_Sym *arr_elf_ST, int *nb_sym){
+    char shstrtab[MAX_STRTAB_LEN];
     // Check if there is a symbol table
     Elf32_Shdr SymTab;
-    if(!get_section_by_name(".symtab", elf_h.e_shnum, arr_elf_SH,&SymTab)) {
+    if(!get_section_by_name(".symtab", elf_h.e_shnum, arr_elf_SH,&SymTab, read_section_names(f, arr_elf_SH[elf_h.e_shstrndx]))) {
         fprintf(stderr, "No symbol table found.\n");
         *nb_sym = 0;
         return;
@@ -282,7 +283,7 @@ void read_symbols(FILE *f, Elf32_Ehdr elf_h, Elf32_Shdr *arr_elf_SH, Elf32_Sym *
 }
 
 /* Print one symbol */
-void print_symbol(FILE *fout, Elf32_Shdr *arr_elf_Sym, Elf32_Sym elf_Sym) {
+void print_symbol(FILE *fout, Elf32_Shdr *arr_elf_Sym, Elf32_Sym elf_Sym, char *shstrtab) {
     fprintf(fout, "\t%08x", elf_Sym.st_value);
     fprintf(fout, "\t   0");
 
@@ -292,14 +293,14 @@ void print_symbol(FILE *fout, Elf32_Shdr *arr_elf_Sym, Elf32_Sym elf_Sym) {
     print_st_shndx(fout, elf_Sym.st_shndx);
 
     if(ELF32_ST_TYPE(elf_Sym.st_info) == STT_SECTION) {
-        fprintf(fout, "\t%s", read_from_shstrtab(arr_elf_Sym[elf_Sym.st_shndx].sh_name));
+        fprintf(fout, "\t%s", read_from_shstrtab(arr_elf_Sym[elf_Sym.st_shndx].sh_name, shstrtab));
     } else {
         fprintf(fout, "\t%s", read_from_strtab(elf_Sym.st_name));
     }
 }
 
 /* Print the symbol table */
-void print_symbols(FILE *fout, Elf32_Ehdr elf_h, Elf32_Shdr *arr_elf_SH, Elf32_Sym *arr_elf_ST, int nb_sym) {
+void print_symbols(FILE *fout, Elf32_Ehdr elf_h, Elf32_Shdr *arr_elf_SH, Elf32_Sym *arr_elf_ST, int nb_sym, char *shstrtab) {
     fprintf(fout, "\nSymbol table '.symtab' contains %d entries:\n", nb_sym);
     fprintf(fout, "   Num:\tValue\t\tSize\tType\tBind\tVis\tNdx\tName\n");
 
@@ -309,7 +310,7 @@ void print_symbols(FILE *fout, Elf32_Ehdr elf_h, Elf32_Shdr *arr_elf_SH, Elf32_S
             fprintf(fout, " %d:", i);
         else
             fprintf(fout, "  %d:", i);
-        print_symbol(fout, arr_elf_SH, arr_elf_ST[i]);
+        print_symbol(fout, arr_elf_SH, arr_elf_ST[i], shstrtab);
         fprintf(fout, "\n");
     }
 }
