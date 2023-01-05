@@ -119,7 +119,13 @@ void print_sections_header(FILE *fout, Elf32_Ehdr elf_h, Elf32_Shdr *arr_elf_SH)
         fprintf(fout,"  [%2d] ",i);
 
         // Nom de la section
-        fprintf(fout,"%-18s", read_from_shstrtab(arr_elf_SH[i].sh_name));
+        char* section_name = read_from_shstrtab(arr_elf_SH[i].sh_name);
+        int k = 0;
+        for (; section_name[k] != '\0'; k++) {}
+        if (k > 15) {
+            strcpy(&section_name[12], "[...]\0");
+        }
+        fprintf(fout,"%-18s", section_name);
 
         // Gestion du type
         switch (arr_elf_SH[i].sh_type) {
@@ -305,10 +311,12 @@ void print_symbols(FILE *fout, Elf32_Ehdr elf_h, Elf32_Shdr *arr_elf_SH, Elf32_S
 
 void print_relocation(Elf32_Ehdr elf_h, Elf32_Shdr* elf_SH, Elf32_Sym *elf_Sym, FILE *file){
     //parcours des sections en cherchant les relocalisations
+    int bool = 1;
     for (int i = 0; i < elf_h.e_shnum; i++) {
         if (elf_SH[i].sh_type == SHT_REL) {
-            printf("Section de relocations %s à l'adresse de décalage 0x%x contient %ld entrées:\n", read_from_shstrtab(elf_SH[i].sh_name), elf_SH[i].sh_offset, elf_SH[i].sh_size / sizeof(Elf32_Rel));
-            printf("   Num:\tDecalage\tInfo\t\tType\t\tVal.-sym\tNoms-symboles\n");
+            bool = 0;
+            printf("\nRelocation section '%s' at offset 0x%x contains %ld entr%s:\n", read_from_shstrtab(elf_SH[i].sh_name), elf_SH[i].sh_offset, elf_SH[i].sh_size / sizeof(Elf32_Rel), (elf_SH[i].sh_size / sizeof(Elf32_Rel) < 2) ? "y" : "ies");
+            printf(" Offset     Info    Type            Sym.Value  Sym. Name\n");
             fseek(file, elf_SH[i].sh_offset, SEEK_SET);
             Elf32_Rel* relocations = malloc(elf_SH->sh_size);
             if (!relocations) {
@@ -322,13 +330,25 @@ void print_relocation(Elf32_Ehdr elf_h, Elf32_Shdr* elf_SH, Elf32_Sym *elf_Sym, 
                 int symb = ELF32_R_SYM(relocations->r_info);
                 int typint = ELF32_R_TYPE(relocations->r_info);
                 char* typechar = revert_define_type_relocation(typint);
-                printf("  %d:\t%08x\t%08x\t%s\t%08x\t%s\n", j, relocations->r_offset, relocations->r_info, 
-                        typechar,
-                        elf_Sym[symb].st_value,
-                        read_from_shstrtab(elf_SH[elf_Sym[symb].st_shndx].sh_name)
-                        );
+                char * nomSymb;
+                if(ELF32_ST_TYPE(elf_Sym[symb].st_info) == STT_SECTION) {
+                    nomSymb = read_from_shstrtab(elf_SH[elf_Sym[symb].st_shndx].sh_name);
+                } else {
+                    nomSymb = read_from_strtab(elf_Sym[symb].st_name);
+                }
+                printf("%08x  %08x %-17s",
+                        relocations->r_offset,
+                        relocations->r_info, 
+                        typechar);
+                if (typint == 1 || typint == 2 || typint == 28 || typint == 29) {
+                    printf(" %08x   %s", elf_Sym[symb].st_value, nomSymb);
+                }
+                printf("\n");
 
             }
         }
+    }
+    if (bool) {
+        printf("\nThere are no relocations in this file.\n");
     }
 }

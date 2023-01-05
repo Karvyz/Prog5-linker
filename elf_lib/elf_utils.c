@@ -168,10 +168,6 @@ char * read_from_shstrtab(uint32_t st_name) {
     if(!j){
         nSection[0] = '\0';
     }
-
-    if (j > 15) {
-        strcpy(&nSection[12], "[...]\0");
-    }
     return nSection;
 }
 
@@ -328,6 +324,9 @@ char * revert_define_type_relocation(int val){
         break;
     case 1:
         strcpy(type, "R_ARM_PC24");
+        break;
+    case 40:
+        strcpy(type, "R_ARM_V4BX");
         break;
     default:
         break;
