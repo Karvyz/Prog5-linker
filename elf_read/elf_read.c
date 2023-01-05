@@ -157,7 +157,7 @@ int main(int argc, char *argv[]) {
         }
     }
     if(show_relocations) {
-        //print_relocations(stdout, header, sections);
+        print_relocation(header, sections, symbols, file);
     }
     if(sectionsAAfficher_nb > 0) {
         for(i = 0; i < sectionsAAfficher_nb; i++) {
