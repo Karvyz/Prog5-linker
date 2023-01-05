@@ -6,6 +6,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <elf.h>
+#include <string.h>
 #include "elf_lib/elf_lib.h"
 #include "elf_lib/elf_utils.h"
 #include "elf_lib/Phase2.h"
@@ -202,6 +203,19 @@ int main(int argc, char *argv[]) {
         printf("Fusion effectuée\n");
         for(i = 0; i < header2.e_shnum; i++){
             printf("changes[%d] : old = %d, new = %d, offset = %d\n", i, sectionsFusion->changes[i].old_index, sectionsFusion->changes[i].new_index, sectionsFusion->changes[i].offset);
+        }
+        char *chaine_hexa = NULL;
+        for(i = 0; i < sectionsFusion->nb_sections; i++){
+            chaine_hexa = malloc(2 * strlen(sectionsFusion->data[i]) + 1);
+            if (chaine_hexa == NULL) {
+                perror("Erreur lors de l'allocation de mémoire pour la chaîne hexadécimale");
+                exit(EXIT_FAILURE);
+            }
+            for (size_t j = 0; j < strlen(sectionsFusion->data[j]); j++) {
+                sprintf(chaine_hexa + 2*j, "%02x", sectionsFusion->data[i][j]);
+            }
+            chaine_hexa[2*strlen(sectionsFusion->data[i])] = '\0';
+            printf("sectionsFusion[%d] : data = %s\n", i, chaine_hexa);
         }
 
         // TODO

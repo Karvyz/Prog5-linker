@@ -42,7 +42,18 @@ SectionFusion *fusion_sections(FILE *f1, FILE *f2, Elf32_Ehdr header1, Elf32_Shd
     int nb_sym = 0;
 
     // Noms des sections pour comparaison
+    char **names1 = NULL;
+    names1 = malloc(nb_sym1 * sizeof(char *));
+    for(int i=0; i<nb_sym1; i++){
+        names1[i] = malloc(sizeof(char) * 100);
+    }
     char *name1 = NULL;
+
+    char **names2 = NULL;
+    names2 = malloc(nb_sym2 * sizeof(char *));
+    for(int i=0; i<nb_sym2; i++){
+        names2[i] = malloc(sizeof(char) * 100);
+    }
     char *name2 = NULL;
 
     // data contiendra les données de la section ou des sections concaténées
@@ -105,12 +116,13 @@ SectionFusion *fusion_sections(FILE *f1, FILE *f2, Elf32_Ehdr header1, Elf32_Shd
             exit(1);
         }
         name1 = read_from_shstrtab(sections1[i].sh_name);
+        names1[i] = name1;
 
         if(sections1[i].sh_type == SHT_PROGBITS) {
             // test si chaque section du 2ème fichier est de type PROGBIT
             // Booleen pour vérifier si la section 1 peut être ajoutée si pas de fusion possible
             int bool = 0;
-            for(int j = 0; j < nb_sym2; j++) {
+            for(int j = 1; j < nb_sym2; j++) {
                 fprintf(stderr, "j=%d\n", j);
                 // Nom de la section courant du fichier 2
                 name2 = malloc(sizeof(char) * 30);
@@ -119,14 +131,14 @@ SectionFusion *fusion_sections(FILE *f1, FILE *f2, Elf32_Ehdr header1, Elf32_Shd
                     exit(1);
                 }
                 name2 = read_from_shstrtab(sections2[j].sh_name);
+                names2[j] = name2;
                 // Debug
-                fprintf(stderr, "name 1 = %s name2 = %s\n", name1, name2);
-                // test si type = PROGBIT et même nom que la section du 1
-                if(strcmp(name1, "\0") == 0 || strcmp(name2, "\0") == 0){
-                    //fprintf(stderr, "Erreur lecture name1 ou name2, i=%d, j=%d\n", i, j);
+                if(strcmp(names1[i], "\0") == 0 || strcmp(names2[j], "\0") == 0){
                     continue;
                 }
-                if(sections2[j].sh_type == SHT_PROGBITS && (strcmp(name1, name2) == 0)) {
+                fprintf(stderr, "name 1 = %s name2 = %s\n", names1[i], names2[j]);
+                // test si type = PROGBIT et même nom que la section du 1
+                if(sections2[j].sh_type == SHT_PROGBITS && (strcmp(names1[i], names2[j]) == 0)) {
                     // Mis à jour du booleen
                     bool = 1;
                     // allocation mémoire à data

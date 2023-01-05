@@ -174,11 +174,15 @@ char * read_from_shstrtab(uint32_t st_name) {
 int get_section_by_name(char *name, int shnum, Elf32_Shdr *sections, Elf32_Shdr *section) {
     int i = 0;
     for (i = 0; i < shnum; i++) {
-        char *name2 = read_from_shstrtab(sections[i].sh_name);
-        // check if name2 is empty
-        /*if(strcmp(name2, "") != 0){
+        char *name2 = NULL;
+        name2 = malloc(MAX_STRTAB_LEN);
+        if(!name2)
+            fprintf(stderr, "Error: malloc failed\n");
+        name2 = read_from_shstrtab(sections[i].sh_name);
+        // check name2
+        if(strcmp(name2, "\0") == 0 || strcmp(name2, "") == 0 || name2==NULL){
+            continue;
         }
-         */
         if (strcmp(name2, name) == 0) { // Si le nom de la section correspond au nom recherché
             *section = sections[i]; // On modifie la section (vide) passée en paramètre par la section trouvée
             return 1;
