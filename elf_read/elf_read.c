@@ -22,6 +22,7 @@ void usage(char *name) {
         "\t-x <num|text>\tDisplay the content of the section <num|text>\n"
         "\t-r\t\tDisplay the relocation table\n"
         "\t-F file2\t\tFusion of file2's sections in the file\n"
+        "\t-w\t\tWrite elf file\n"
         "\t--debug\t\tDisplay debug information\n"
         , name);
 }
@@ -49,6 +50,7 @@ int main(int argc, char *argv[]) {
             {"relocations", no_argument,       NULL, 'r'},
             {"help",        no_argument,       NULL, 'H'},
             {"fusion",      required_argument, NULL, 'F'},
+            {"write",       no_argument,       NULL, 'w'},
             {"debug",       no_argument,       NULL, 'd'},
             {NULL,          0,                 NULL, 0}
     };
@@ -57,6 +59,7 @@ int main(int argc, char *argv[]) {
 
     int show_header = 0, show_sections = 0, show_symbols = 0, show_relocations = 0, show_section = 0;
     int fusion = 0;
+    int write = 0;
 
     while ( (opt = getopt_long(argc, argv, "hSsrx:F:Hd", longopts, NULL)) != -1 ) {
         switch (opt) {
@@ -87,6 +90,9 @@ int main(int argc, char *argv[]) {
                     fprintf(stderr, "Error: cannot open file %s", file2_name);
                     exit(1);
                 }
+                break;
+            case 'w':
+                write = 1;
                 break;
             case 'H':
                 usage(argv[0]);
@@ -158,7 +164,6 @@ int main(int argc, char *argv[]) {
         }
     }
     if(show_relocations) {
-        print_hello_world();
         //print_relocations(stdout, header, sections);
     }
     if(sectionsAAfficher_nb > 0) {
@@ -209,6 +214,10 @@ int main(int argc, char *argv[]) {
         // TODO
         // - Afficher les sections fusionnées
         free(sectionsFusion);
+    }
+
+    if(write) {
+        write_main();
     }
 
     // TODO
