@@ -3,8 +3,6 @@
 #include <elf.h>
 #include <string.h>
 #include <stdlib.h>
-#include <arpa/inet.h>
-
 
 /* Etape 6 */
 
@@ -100,7 +98,7 @@ SectionFusion *fusion_sections(FILE *f1, FILE *f2, Elf32_Ehdr header1, Elf32_Shd
         }
         name1 = read_from_shstrtab(sections1[i].sh_name);
 
-        if(sections[i].sh_type == SHT_PROGBITS) {
+        if(sections1[i].sh_type == SHT_PROGBITS) {
             // test si chaque section du 2ème fichier est de type PROGBIT
             // Booleen pour vérifier si la section 1 peut être ajoutée si pas de fusion possible
             int bool = 0;
