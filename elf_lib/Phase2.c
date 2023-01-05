@@ -109,6 +109,7 @@ SectionFusion *fusion_sections(FILE *f1, FILE *f2, Elf32_Ehdr header1, Elf32_Shd
                     perror("Erreur allcoation name2\n");
                     exit(1);
                 }
+                name2 = "";
                 name2 = read_from_shstrtab(sections2[j].sh_name);
                 // Debug
                 fprintf(stderr, "name 1 = %s name2 = %s\n", name1, name2);
@@ -212,7 +213,6 @@ SectionFusion *fusion_sections(FILE *f1, FILE *f2, Elf32_Ehdr header1, Elf32_Shd
         // Incrémentation du nombre de sections
         nb_sym++;
         // Libérer la mémoire
-        free(data);
         free(name1);
     }
     // Pour chaque section non concaténéé du fichier 2
@@ -251,9 +251,6 @@ SectionFusion *fusion_sections(FILE *f1, FILE *f2, Elf32_Ehdr header1, Elf32_Shd
     fusion->sections = sections;
     fusion->changes = changes;
     fusion->nb_sections = nb_sym;
-
-    // Libérer la mémoire
-    free(data);
 
     return fusion;
 }
