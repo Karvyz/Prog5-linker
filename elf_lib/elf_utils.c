@@ -168,6 +168,10 @@ char * read_from_shstrtab(uint32_t st_name) {
     if(!j){
         nSection[0] = '\0';
     }
+
+    if (j > 15) {
+        strcpy(&nSection[12], "[...]\0");
+    }
     return nSection;
 }
 

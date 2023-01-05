@@ -32,4 +32,5 @@ do
     cmp_elf -h $file
     cmp_elf -s $file
     cmp_elfx
+    cmp_elf -S $file
 done

@@ -4,6 +4,7 @@
  * @date     14 Decembre 2022
  */
 
+#include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
 #include <assert.h>
@@ -111,128 +112,111 @@ void print_sections_header(FILE *fout, Elf32_Ehdr elf_h, Elf32_Shdr *arr_elf_SH)
 
     // Les noms de chaque section
     fprintf(fout,"Section Headers:\n");
-    fprintf(fout, "  [Nr]\tNom\t\t   Type\t\t\tAdr\tDécala. Taille ES Fan\tLN Inf  Al\n");
+    fprintf(fout, "  [Nr] Name              Type            Addr     Off    Size   ES Flg Lk Inf Al\n");
     
     for (int i = 0; i < elf_h.e_shnum; i++) {
         // Numéro sections
-        fprintf(fout,"  [%d]\t",i);
+        fprintf(fout,"  [%2d] ",i);
 
         // Nom de la section
-        fprintf(fout,"%-20s", read_from_shstrtab(arr_elf_SH[i].sh_name));
+        fprintf(fout,"%-18s", read_from_shstrtab(arr_elf_SH[i].sh_name));
 
         // Gestion du type
         switch (arr_elf_SH[i].sh_type) {
 	      case SHT_PROGBITS:
-		    fprintf(fout,"PROGBITS\t");
+		    fprintf(fout, "%-16s", "PROGBITS");
 		    break;
 	      case SHT_SYMTAB:
-            fprintf(fout,"SYMTAB\t");
+            fprintf(fout, "%-16s", "SYMTAB");
             break;
 	      case SHT_STRTAB:
-            fprintf(fout,"STRTAB\t");
+            fprintf(fout, "%-16s", "STRTAB");
             break;
 	      case SHT_RELA:
-            fprintf(fout,"RELA\t");
+            fprintf(fout, "%-16s", "RELA");
             break;
           case SHT_HASH:
-            fprintf(fout,"HASH\t");
+            fprintf(fout, "%-16s", "HASH");
             break;
 	      case SHT_DYNAMIC:
-            fprintf(fout,"DYNAMIC\t");
+            fprintf(fout, "%-16s", "DYNAMIC");
             break;	      
           case SHT_NOTE:
-            fprintf(fout,"NOTE\t");
+            fprintf(fout, "%-16s", "NOTE");
             break;
           case SHT_NOBITS:
-            fprintf(fout,"NOBITS\t");
+            fprintf(fout, "%-16s", "NOBITS");
             break;
 	      case SHT_REL:
-            fprintf(fout,"REL\t\t");
+            fprintf(fout, "%-16s", "REL");
             break;
 	      case SHT_SHLIB:
-            fprintf(fout,"SHLIB\t");
+            fprintf(fout, "%-16s", "SHLIB");
             break;
 	      case SHT_DYNSYM:
-            fprintf(fout,"DYNSYM\t");
+            fprintf(fout, "%-16s", "DYNSYM");
             break;	      
           case SHT_LOPROC:
-            fprintf(fout,"LOPROC\t");
+            fprintf(fout, "%-16s", "LOPROC");
             break;
 	      case SHT_HIPROC:
-            fprintf(fout,"HIPROC\t");
+            fprintf(fout, "%-16s", "HIPROC");
             break;
 	      case SHT_LOUSER:
-            fprintf(fout,"LOUSER\t");
+            fprintf(fout, "%-16s", "LOUSER");
             break;
 	      case SHT_HIUSER:
-            fprintf(fout,"HIUSER\t");
+            fprintf(fout, "%-16s", "HIUSER");
             break;
           case SHT_ARM_ATTRIBUTES:
-            fprintf(fout,"ARM_ATTRIBUTES");
+            fprintf(fout, "%-16s", "ARM_ATTRIBUTES");
             break;
 	      case SHT_NULL:
-            fprintf(fout,"NULL\t");
+            fprintf(fout, "%-16s", "NULL");
             break;
 	    }
 
-        // Affichage de Adr , Decala. , Taille et ES
-        fprintf(fout, "\t%08x ", arr_elf_SH[i].sh_addr);
+        // Affichage de Addr ,Offset ,Size et ES
+        fprintf(fout, "%08x ", arr_elf_SH[i].sh_addr);
         fprintf(fout, "%06x ", arr_elf_SH[i].sh_offset);
         fprintf(fout, "%06x ", arr_elf_SH[i].sh_size);
         fprintf(fout, "%02x ", arr_elf_SH[i].sh_entsize);
 
 
 
-    ///////////////////// Gestion des flags/Fanions /////////////////////////
-        if (arr_elf_SH[i].sh_flags & SHF_WRITE)
-                        fprintf(fout,"W");
-        if (arr_elf_SH[i].sh_flags & SHF_ALLOC)
-                        fprintf(fout,"A");
-        if (arr_elf_SH[i].sh_flags & SHF_EXECINSTR)
-                        fprintf(fout,"X");
-        if (arr_elf_SH[i].sh_flags & SHF_MERGE)
-                        fprintf(fout,"M");
-        if (arr_elf_SH[i].sh_flags & SHF_STRINGS)
-                        fprintf(fout,"S");
-        if (arr_elf_SH[i].sh_flags & SHF_INFO_LINK)
-                        fprintf(fout,"I");
-        if (arr_elf_SH[i].sh_flags & SHF_LINK_ORDER)
-                        fprintf(fout,"L");
-        if (arr_elf_SH[i].sh_flags & SHF_OS_NONCONFORMING)
-                        fprintf(fout,"Nos");
-        if (arr_elf_SH[i].sh_flags & SHF_GROUP)
-                        fprintf(fout,"G");
-        if (arr_elf_SH[i].sh_flags & SHF_TLS)
-                        fprintf(fout,"T");
-        if (arr_elf_SH[i].sh_flags & SHF_COMPRESSED)
-                        fprintf(fout,"C");
-        if (arr_elf_SH[i].sh_flags & SHF_MASKOS)
-                        fprintf(fout,"o");
-        if (arr_elf_SH[i].sh_flags & SHF_MASKPROC)
-                        fprintf(fout,"p");
-        if (arr_elf_SH[i].sh_flags & SHF_GNU_RETAIN)
-                        fprintf(fout,"GNU");
-        if (arr_elf_SH[i].sh_flags & SHF_ORDERED)
-                        fprintf(fout,"O");  
-        if (arr_elf_SH[i].sh_flags & SHF_EXCLUDE)
-                        fprintf(fout,"E");
-        if (arr_elf_SH[i].sh_flags & SHF_EXCLUDE)
-                        fprintf(fout,"E");
+    ///////////////////// Gestion des flags///////////////////////////////
+        char f[] = "\0\0\0";
+        int j = 0;
+        if (arr_elf_SH[i].sh_flags & SHF_WRITE) {f[j] = 'W'; j++;}
+        if (arr_elf_SH[i].sh_flags & SHF_ALLOC) {f[j] = 'A'; j++;}
+        if (arr_elf_SH[i].sh_flags & SHF_EXECINSTR) {f[j] = 'X'; j++;}
+        if (arr_elf_SH[i].sh_flags & SHF_MERGE) {f[j] = 'M'; j++;}
+        if (arr_elf_SH[i].sh_flags & SHF_STRINGS) {f[j] = 'S'; j++;}
+        if (arr_elf_SH[i].sh_flags & SHF_INFO_LINK) {f[j] = 'I'; j++;}
+        if (arr_elf_SH[i].sh_flags & SHF_LINK_ORDER) {f[j] = 'L'; j++;}
+        if (arr_elf_SH[i].sh_flags & SHF_GROUP) {f[j] = 'G'; j++;}
+        if (arr_elf_SH[i].sh_flags & SHF_TLS) {f[j] = 'T'; j++;}
+        if (arr_elf_SH[i].sh_flags & SHF_COMPRESSED) {f[j] = 'C'; j++;}
+        if (arr_elf_SH[i].sh_flags & SHF_MASKOS) {f[j] = 'o'; j++;}
+        if (arr_elf_SH[i].sh_flags & SHF_MASKPROC) {f[j] = 'p'; j++;}
+        if (arr_elf_SH[i].sh_flags & SHF_ORDERED) {f[j] = 'O'; j++;}
+        if (arr_elf_SH[i].sh_flags & SHF_EXCLUDE) {f[j] = 'E'; j++;}
+        fprintf(fout, "%3s ", f);
     /////////////////////////////////////////////////////////////////////
 
-        // Affichage de LN , Inf et Al
-        fprintf(fout, "\t%2d", arr_elf_SH[i].sh_link);
+        // Affichage de Lk , Inf et Al
+        fprintf(fout, "%2d", arr_elf_SH[i].sh_link);
         fprintf(fout, "%4d", arr_elf_SH[i].sh_info);
-        fprintf(fout, "%4d", arr_elf_SH[i].sh_addralign);
+        fprintf(fout, "%3d", arr_elf_SH[i].sh_addralign);
 
         // Retour fin de ligne
         fprintf(fout,"\n");
     }
-    // Legende des Fan (A verifier)
-    fprintf(fout,"Key to Flags:\n W (write), A (alloc), X (execute), M (merge), S (strings), I (info),\n");
-    fprintf(fout," L (link order), O (extra OS processing required), G (group), T (TLS),\n");
-    fprintf(fout," C (compressed), x (unknown), o (OS specific), GNU ( Not to be GCed by linker),\n");
-    fprintf(fout," E (exclude), Nos (Non-standard OS specific handling required), p (processor specific)\n");
+    // Legende des Flags (A verifier)
+    fprintf(fout,"Key to Flags:\n  W (write), A (alloc), X (execute), M (merge), S (strings), I (info),\n");
+    fprintf(fout,"  L (link order), O (extra OS processing required), G (group), T (TLS),\n");
+    fprintf(fout,"  C (compressed), x (unknown), o (OS specific), E (exclude),\n");
+    fprintf(fout,"  D (mbind), y (purecode), p (processor specific)\n");
 }
 
 /* Etape 3 */
