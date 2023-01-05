@@ -192,7 +192,21 @@ int main(int argc, char *argv[]) {
         sections2 = malloc(sizeof(Elf32_Shdr) * 400);
         read_sections(file2, header2, sections2);
 
-        fusion_sections(file, file2, header, sections, header2, sections2);
+        SectionFusion *sectionsFusion = NULL;
+        sectionsFusion = malloc(sizeof(SectionFusion));
+        if(sectionsFusion == NULL){
+            perror("malloc");
+            exit(1);
+        }
+        sectionsFusion = fusion_sections(file, file2, header, sections, header2, sections2);
+        printf("Fusion effectuée\n");
+        for(i = 0; i < header2.e_shnum; i++){
+            printf("changes[%d] : old = %d, new = %d, offset = %d\n", i, sectionsFusion->changes[i].old_index, sectionsFusion->changes[i].new_index, sectionsFusion->changes[i].offset);
+        }
+
+        // TODO
+        // - Afficher les sections fusionnées
+        free(sectionsFusion);
     }
 
     // TODO

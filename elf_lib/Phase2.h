@@ -12,6 +12,25 @@ typedef struct {
     Elf32_Off offset;
 } SectionChanges;
 
+typedef struct {
+    Elf32_Shdr *sections;
+    int nb_sections;
+    char **data;
+    SectionChanges *changes;
+} SectionFusion;
+
+/**
+ * @brief   Ecris en big endian
+ *          dans le fichier f
+ *
+ * @param   ptr   pointeur vers les données à écrire
+ * @param   size  taille d'un bloc unitaire à écrire
+ * @param   nmemb nombre de blocs unitaires à écrire
+ * @param   f     flux dans lequel écrire
+ * @return
+ */
+int bwrite(void *ptr, size_t size, size_t nmemb, FILE *f);
+
 // Fusion et numérotation des sections
 
 /**
@@ -25,6 +44,17 @@ typedef struct {
  * @param   header2 en-tête du fichier 2
  * @param   sections2 table des sections du fichier 2
  */
-void fusion_sections(FILE *f1, FILE *f2, Elf32_Ehdr header1, Elf32_Shdr *sections1, Elf32_Ehdr header2, Elf32_Shdr *sections2);
+SectionFusion *fusion_sections(FILE *f1, FILE *f2, Elf32_Ehdr header1, Elf32_Shdr *sections1, Elf32_Ehdr header2, Elf32_Shdr *sections2);
+
+/**
+ * @brief   Fusion, renumérotation et corrrection des symboles
+ *         du fichier ELF
+ *
+ *         Cette fonction est appelée après la fusion des sections
+ *
+ *
+ *
+ */
+void fusion_symbols(FILE *f1, FILE *f2, Elf32_Ehdr header1, Elf32_Shdr *sections1, Elf32_Ehdr header2, Elf32_Shdr *sections2);
 
 #endif //PROG5_LINKER_PHASE_2_H
