@@ -8,6 +8,7 @@
 #include <elf.h>
 #include "elf_lib/elf_lib.h"
 #include "elf_lib/elf_utils.h"
+#include "elf_lib/Phase2.h"
 
 void usage(char *name) {
     fprintf(stderr, "Usage: \n"
@@ -194,6 +195,8 @@ int main(int argc, char *argv[]) {
         fusion_sections(file, file2, header, sections, header2, sections2);
     }
 
-
+    // TODO
+    // Free memory
+    // Close files
     return 0;
 }

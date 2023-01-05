@@ -139,4 +139,17 @@ void print_st_shndx(FILE *fout, Elf32_Word st_shndx);
  */
 char * read_from_strtab(Elf32_Word st_name);
 
+/* Etape 6 */
+
+/**
+ * @brief Ecrit les données du buffer dans le fichier
+ *        en big endian
+ * @param buffer
+ * @param size
+ * @param nmemb
+ * @param f
+ * @return 0 si tout s'est bien passé, -1 sinon
+ */
+int bwrite(void * buffer, size_t size, size_t nmemb, FILE *f);
+
 #endif
