@@ -9,6 +9,7 @@
 #include "elf_lib/elf_lib.h"
 #include "elf_lib/elf_utils.h"
 #include "elf_lib/Phase2.h"
+#include "elf_lib/elf_write.h"
 
 void usage(char *name) {
     fprintf(stderr, "Usage: \n"
@@ -157,6 +158,7 @@ int main(int argc, char *argv[]) {
         }
     }
     if(show_relocations) {
+        print_hello_world();
         //print_relocations(stdout, header, sections);
     }
     if(sectionsAAfficher_nb > 0) {

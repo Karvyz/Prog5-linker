@@ -17,7 +17,7 @@ SUBDIRS+=. Examples_fusion
 bin_PROGRAMS=
 bin_PROGRAMS+=Options_and_debug_example read_elf
 
-read_elf_SOURCES=elf_lib/elf_lib.h elf_lib/elf_lib.c elf_lib/elf_utils.h elf_lib/elf_utils.c elf_read/elf_read.c elf_lib/Phase2.h elf_lib/Phase2.c
+read_elf_SOURCES=elf_lib/elf_lib.h elf_lib/elf_lib.c elf_lib/elf_utils.h elf_lib/elf_utils.c elf_read/elf_read.c elf_lib/Phase2.h elf_lib/Phase2.c elf_lib/elf_write.h elf_lib/elf_write.c
 
 
 COMMON=debug.h debug.c util.h util.c
