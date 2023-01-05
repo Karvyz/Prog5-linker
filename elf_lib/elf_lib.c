@@ -318,28 +318,7 @@ void print_symbols(FILE *fout, Elf32_Ehdr elf_h, Elf32_Shdr *arr_elf_SH, Elf32_S
 
 /* Etape 5 */
 
-char * revert_define_type_relocation(int val){
-    char * type = malloc(sizeof("R_ARM_JUMP24"));
-    sprintf(type, "%d", val);
-    switch (val)
-    {
-    case 2:
-        strcpy(type, "R_ARM_ABS32");
-        break;
-    case 29:
-        strcpy(type, "R_ARM_JUMP24");
-        break;
-    case 28:
-        strcpy(type, "R_ARM_CALL");
-        break;
-    case 1:
-        strcpy(type, "R_ARM_PC24");
-        break;
-    default:
-        break;
-    }
-    return type;
-}
+
 
 void print_relocation(Elf32_Ehdr elf_h, Elf32_Shdr* elf_SH, Elf32_Sym *elf_Sym, FILE *file){
     //parcours des sections en cherchant les relocalisations
@@ -363,7 +342,7 @@ void print_relocation(Elf32_Ehdr elf_h, Elf32_Shdr* elf_SH, Elf32_Sym *elf_Sym, 
                 printf("  %d:\t%08x\t%08x\t%s\t%08x\t%s\n", j, relocations->r_offset, relocations->r_info, 
                         typechar,
                         elf_Sym[symb].st_value,
-                        read_from_strtab(elf_Sym[symb].st_name)
+                        read_from_shstrtab(elf_SH[elf_Sym[symb].st_shndx].sh_name)
                         );
 
             }
