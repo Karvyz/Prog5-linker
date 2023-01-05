@@ -300,3 +300,35 @@ void print_symbols(FILE *fout, Elf32_Ehdr elf_h, Elf32_Shdr *arr_elf_SH, Elf32_S
 }
 
 /* Etape 5 */
+
+
+
+void print_relocation(Elf32_Ehdr elf_h, Elf32_Shdr* elf_SH, Elf32_Sym *elf_Sym, FILE *file){
+    //parcours des sections en cherchant les relocalisations
+    for (int i = 0; i < elf_h.e_shnum; i++) {
+        if (elf_SH[i].sh_type == SHT_REL) {
+            printf("Section de relocations %s à l'adresse de décalage 0x%x contient %ld entrées:\n", read_from_shstrtab(elf_SH[i].sh_name), elf_SH[i].sh_offset, elf_SH[i].sh_size / sizeof(Elf32_Rel));
+            printf("   Num:\tDecalage\tInfo\t\tType\t\tVal.-sym\tNoms-symboles\n");
+            fseek(file, elf_SH[i].sh_offset, SEEK_SET);
+            Elf32_Rel* relocations = malloc(elf_SH->sh_size);
+            if (!relocations) {
+                perror("malloc");
+                return;
+            }
+            
+            for (int j = 0; j < elf_SH[i].sh_size / sizeof(Elf32_Rel); j++) {
+                assert(bread(&relocations->r_offset, sizeof(relocations->r_offset), 1, file));
+                assert(bread(&relocations->r_info, sizeof(relocations->r_info), 1, file));
+                int symb = ELF32_R_SYM(relocations->r_info);
+                int typint = ELF32_R_TYPE(relocations->r_info);
+                char* typechar = revert_define_type_relocation(typint);
+                printf("  %d:\t%08x\t%08x\t%s\t%08x\t%s\n", j, relocations->r_offset, relocations->r_info, 
+                        typechar,
+                        elf_Sym[symb].st_value,
+                        read_from_shstrtab(elf_SH[elf_Sym[symb].st_shndx].sh_name)
+                        );
+
+            }
+        }
+    }
+}
