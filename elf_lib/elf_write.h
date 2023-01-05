@@ -12,6 +12,8 @@
 #include <stdio.h>
 #include <elf.h>
 
+void write_header(Elf32_Ehdr elf_h, FILE *f);
+
 void write_main(Elf32_Ehdr elf_h);
 
 #endif
