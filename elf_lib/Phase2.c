@@ -42,8 +42,8 @@ SectionFusion *fusion_sections(FILE *f1, FILE *f2, Elf32_Ehdr header1, Elf32_Shd
     int nb_sym = 0;
 
     // Noms des sections pour comparaison
-    char *name1 = "";
-    char *name2 = "";
+    char *name1 = NULL;
+    char *name2 = NULL;
 
     // data contiendra les données de la section ou des sections concaténées
     char *data = NULL;
@@ -122,6 +122,10 @@ SectionFusion *fusion_sections(FILE *f1, FILE *f2, Elf32_Ehdr header1, Elf32_Shd
                 // Debug
                 fprintf(stderr, "name 1 = %s name2 = %s\n", name1, name2);
                 // test si type = PROGBIT et même nom que la section du 1
+                if(strcmp(name1, "\0") == 0 || strcmp(name2, "\0") == 0){
+                    //fprintf(stderr, "Erreur lecture name1 ou name2, i=%d, j=%d\n", i, j);
+                    continue;
+                }
                 if(sections2[j].sh_type == SHT_PROGBITS && (strcmp(name1, name2) == 0)) {
                     // Mis à jour du booleen
                     bool = 1;
