@@ -42,8 +42,8 @@ SectionFusion *fusion_sections(FILE *f1, FILE *f2, Elf32_Ehdr header1, Elf32_Shd
     int nb_sym = 0;
 
     // Noms des sections pour comparaison
-    char *name1 = NULL;
-    char *name2 = NULL;
+    char *name1 = "";
+    char *name2 = "";
 
     // data contiendra les données de la section ou des sections concaténées
     char *data = NULL;
@@ -81,7 +81,16 @@ SectionFusion *fusion_sections(FILE *f1, FILE *f2, Elf32_Ehdr header1, Elf32_Shd
     }
     fusion->nb_sections = 0;
     fusion->sections = NULL;
-    fusion->changes = NULL;
+    fusion->changes=malloc(sizeof(SectionChanges) * nb_sym2);
+    if(!fusion->changes){
+        perror("Erreur lors de l'allocation de la structure SectionFusion->changes");
+        exit(EXIT_FAILURE);
+    }
+    for(int i=0; i<nb_sym2; i++){
+        fusion->changes[i].old_index = -1;
+        fusion->changes[i].new_index = -1;
+        fusion->changes[i].offset = -1;
+    }
 
     for (int i = 0; i < nb_sym1; i++){
         fprintf(stderr, "i=%d\n", i);
@@ -109,7 +118,6 @@ SectionFusion *fusion_sections(FILE *f1, FILE *f2, Elf32_Ehdr header1, Elf32_Shd
                     perror("Erreur allcoation name2\n");
                     exit(1);
                 }
-                name2 = "";
                 name2 = read_from_shstrtab(sections2[j].sh_name);
                 // Debug
                 fprintf(stderr, "name 1 = %s name2 = %s\n", name1, name2);
@@ -224,6 +232,7 @@ SectionFusion *fusion_sections(FILE *f1, FILE *f2, Elf32_Ehdr header1, Elf32_Shd
                 exit(EXIT_FAILURE);
             }
             // On met à jour le tableau changes
+            fprintf(stderr, "section 2 non concat : j = %d\n", j);
             changes[j].old_index = j;
             changes[j].new_index = nb_sym1 + j;
             changes[j].offset = offset;
@@ -246,10 +255,11 @@ SectionFusion *fusion_sections(FILE *f1, FILE *f2, Elf32_Ehdr header1, Elf32_Shd
             // On met à jour l'offset courant
             offset += sections2[j].sh_size;
         }
+        // Copie de changes
+        fusion->changes[j] = changes[j];
     }
     // Mise à jour de fusion avec les éléments finaux
     fusion->sections = sections;
-    fusion->changes = changes;
     fusion->nb_sections = nb_sym;
 
     return fusion;
