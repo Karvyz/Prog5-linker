@@ -106,118 +106,131 @@ void read_sections(FILE *f, Elf32_Ehdr elf_h, Elf32_Shdr *arr_elf_SH){
 /* Print the section header table */
 
 void print_sections_header(FILE *fout, Elf32_Ehdr elf_h, Elf32_Shdr *arr_elf_SH) {
-	  // Allouez de la mémoire pour stocker le nom de chaque section
-	  char* section_names = malloc(elf_h.e_shentsize * elf_h.e_shnum);
+    //Intro
+    fprintf(fout,"There are %d section headers, starting at offset 0x%x:\n\n",elf_h.e_shnum,elf_h.e_shoff);
 
-	  // Allouez un tableau de pointeurs de chaînes de caractères pour stocker les noms de sections
-	  char** section_name_ptrs = malloc(sizeof(char*) * elf_h.e_shnum);
+    // Les noms de chaque section
+    fprintf(fout,"Section Headers:\n");
+    fprintf(fout, "  [Nr]\tNom\t\t   Type\t\t\tAdr\tDécala. Taille ES Fan\tLN Inf  Al\n");
 
-	  // Allouez un tableau de pointeurs de chaînes de caractères pour stocker les types de sections
-	  char** section_type_names = malloc(sizeof(char*) * elf_h.e_shnum);
+    for (int i = 0; i < elf_h.e_shnum; i++) {
+        // Numéro sections
+        fprintf(fout,"  [%d]\t",i);
 
-	  // Allouez un tableau de pointeurs de chaînes de caractères pour stocker les attributs de sections
-	  char** section_flag_names = malloc(sizeof(char*) * elf_h.e_shnum);
-      for(int i = 0; i<elf_h.e_shnum; i++){
-          section_flag_names[i] = malloc(sizeof(char) * 100);
-      }
+        // Nom de la section
+        fprintf(fout,"%-20s", read_from_shstrtab(arr_elf_SH[i].sh_name));
 
-	  // Recherchez et stockez les noms et les types de chaque section
-	  for (int i = 0; i < elf_h.e_shnum; i++) {
-	    section_name_ptrs[i] = &section_names[arr_elf_SH[i].sh_name];
-	    section_type_names[i] = "UNKNOWN";
-	    section_flag_names[i] = "";
+        // Gestion du type
+        switch (arr_elf_SH[i].sh_type) {
+            case SHT_PROGBITS:
+                fprintf(fout,"PROGBITS\t");
+                break;
+            case SHT_SYMTAB:
+                fprintf(fout,"SYMTAB\t");
+                break;
+            case SHT_STRTAB:
+                fprintf(fout,"STRTAB\t");
+                break;
+            case SHT_RELA:
+                fprintf(fout,"RELA\t");
+                break;
+            case SHT_HASH:
+                fprintf(fout,"HASH\t");
+                break;
+            case SHT_DYNAMIC:
+                fprintf(fout,"DYNAMIC\t");
+                break;
+            case SHT_NOTE:
+                fprintf(fout,"NOTE\t");
+                break;
+            case SHT_NOBITS:
+                fprintf(fout,"NOBITS\t");
+                break;
+            case SHT_REL:
+                fprintf(fout,"REL\t\t");
+                break;
+            case SHT_SHLIB:
+                fprintf(fout,"SHLIB\t");
+                break;
+            case SHT_DYNSYM:
+                fprintf(fout,"DYNSYM\t");
+                break;
+            case SHT_LOPROC:
+                fprintf(fout,"LOPROC\t");
+                break;
+            case SHT_HIPROC:
+                fprintf(fout,"HIPROC\t");
+                break;
+            case SHT_LOUSER:
+                fprintf(fout,"LOUSER\t");
+                break;
+            case SHT_HIUSER:
+                fprintf(fout,"HIUSER\t");
+                break;
+            case SHT_ARM_ATTRIBUTES:
+                fprintf(fout,"ARM_ATTRIBUTES");
+                break;
+            case SHT_NULL:
+                fprintf(fout,"NULL\t");
+                break;
+        }
 
-	    switch (arr_elf_SH[i].sh_type) {
-	      case SHT_PROGBITS:
-		section_type_names[i] = "PROGBITS";
-		break;
-	      case SHT_SYMTAB:
-		section_type_names[i] = "SYMTAB";
-		break;
-	      case SHT_STRTAB:
-		section_type_names[i] = "STRTAB";
-		break;
-	      case SHT_RELA:
-        section_type_names[i] = "RELA";
-        break;
-          case SHT_HASH:
-        section_type_names[i] = "HASH";
-        break;
-	      case SHT_DYNAMIC:
-        section_type_names[i] = "DYNAMIC";
-        break;	      
-          case SHT_NOTE:
-        section_type_names[i] = "NOTE";
-        break;
-          case SHT_NOBITS:
-        section_type_names[i] = "NOBITS";
-        break;
-	      case SHT_REL:
-        section_type_names[i] = "REL";
-        break;
-	      case SHT_SHLIB:
-        section_type_names[i] = "SHLIB";
-        break;
-	      case SHT_DYNSYM:
-        section_type_names[i] = "DYNSYM";
-        break;	      
-          case SHT_LOPROC:
-        section_type_names[i] = "LOPROC";
-        break;
-	      case SHT_HIPROC:
-        section_type_names[i] = "HIPROC";
-        break;
-	      case SHT_LOUSER:
-        section_type_names[i] = "LOUSER";
-        break;
-	      case SHT_HIUSER:
-        section_type_names[i] = "HIUSER";
-        break;
-	      case SHT_NULL:
-        section_type_names[i] = "NULL";
-        break;
-	    }
+        // Affichage de Adr , Decala. , Taille et ES
+        fprintf(fout, "\t%08x ", arr_elf_SH[i].sh_addr);
+        fprintf(fout, "%06x ", arr_elf_SH[i].sh_offset);
+        fprintf(fout, "%06x ", arr_elf_SH[i].sh_size);
+        fprintf(fout, "%02x ", arr_elf_SH[i].sh_entsize);
 
-	    if (arr_elf_SH[i].sh_flags & SHF_ALLOC) {
-            section_flag_names[i] = "ALLOC";
-	    } else if (arr_elf_SH[i].sh_flags & SHF_EXECINSTR) {
-            if (strlen(section_flag_names[i]) > 0) {
-              strcat(section_flag_names[i], ", ");
-	        }
-	        strcat(section_flag_names[i], "EXECINSTR");
-	    } else if (arr_elf_SH[i].sh_flags & SHF_WRITE) {
-	        if (strlen(section_flag_names[i]) > 0) {
-              strcat(section_flag_names[i], ", ");
-	        }
-	      strcat(section_flag_names[i], "WRITE");
-	    } else if (arr_elf_SH[i].sh_flags & SHF_MASKPROC) {
-	        if (strlen(section_flag_names[i]) > 0) {
-		        strcat(section_flag_names[i], ", ");
-	        }
-	        strcat(section_flag_names[i], "MASKPROC");
-	    }
 
-	  // Recherchez et stockez les noms de chaque section
-	  fseek(fout, arr_elf_SH[elf_h.e_shstrndx].sh_offset, SEEK_SET);
-	  assert(fread(section_names, arr_elf_SH[elf_h.e_shstrndx].sh_size, 1, fout));
 
-	  // Parcourez le tableau de sections et affichez les informations de chaque section
-	  for (int i = 0; i < elf_h.e_shnum; i++) {
-	    printf("Section #%d:\n", i);
-	    printf("  Name: %s\n", section_name_ptrs[i]);
-	    printf("  Size: %d\n", arr_elf_SH[i].sh_size);
-	    printf("  Type: %s\n", section_type_names[i]);
-	    printf("  Flags: %s\n", section_flag_names[i]);
-	    printf("  Addr: 0x%08x\n", arr_elf_SH[i].sh_addr);
-	    printf("  Offset: 0x%08x\n", arr_elf_SH[i].sh_offset);
-	  }
+        ///////////////////// Gestion des flags/Fanions /////////////////////////
+        if (arr_elf_SH[i].sh_flags & SHF_WRITE)
+            fprintf(fout,"W");
+        if (arr_elf_SH[i].sh_flags & SHF_ALLOC)
+            fprintf(fout,"A");
+        if (arr_elf_SH[i].sh_flags & SHF_EXECINSTR)
+            fprintf(fout,"X");
+        if (arr_elf_SH[i].sh_flags & SHF_MERGE)
+            fprintf(fout,"M");
+        if (arr_elf_SH[i].sh_flags & SHF_STRINGS)
+            fprintf(fout,"S");
+        if (arr_elf_SH[i].sh_flags & SHF_INFO_LINK)
+            fprintf(fout,"I");
+        if (arr_elf_SH[i].sh_flags & SHF_LINK_ORDER)
+            fprintf(fout,"L");
+        if (arr_elf_SH[i].sh_flags & SHF_OS_NONCONFORMING)
+            fprintf(fout,"Nos");
+        if (arr_elf_SH[i].sh_flags & SHF_GROUP)
+            fprintf(fout,"G");
+        if (arr_elf_SH[i].sh_flags & SHF_TLS)
+            fprintf(fout,"T");
+        if (arr_elf_SH[i].sh_flags & SHF_COMPRESSED)
+            fprintf(fout,"C");
+        if (arr_elf_SH[i].sh_flags & SHF_MASKOS)
+            fprintf(fout,"o");
+        if (arr_elf_SH[i].sh_flags & SHF_MASKPROC)
+            fprintf(fout,"p");
+        if (arr_elf_SH[i].sh_flags & SHF_GNU_RETAIN)
+            fprintf(fout,"GNU");
+        if (arr_elf_SH[i].sh_flags & SHF_ORDERED)
+            fprintf(fout,"O");
+        if (arr_elf_SH[i].sh_flags & SHF_EXCLUDE)
+            fprintf(fout,"E");
+        /////////////////////////////////////////////////////////////////////
 
-	  // Libérez la mémoire allouée
-	  free(section_names);
-	  free(section_name_ptrs);
-	  free(section_type_names);
-	  free(section_flag_names);
-	}
+        // Affichage de LN , Inf et Al
+        fprintf(fout, "\t%2d", arr_elf_SH[i].sh_link);
+        fprintf(fout, "%4d", arr_elf_SH[i].sh_info);
+        fprintf(fout, "%4d", arr_elf_SH[i].sh_addralign);
+
+        // Retour fin de ligne
+        fprintf(fout,"\n");
+    }
+    // Legende des Fan (A verifier)
+    fprintf(fout,"Key to Flags:\n W (write), A (alloc), X (execute), M (merge), S (strings), I (info),\n");
+    fprintf(fout," L (link order), O (extra OS processing required), G (group), T (TLS),\n");
+    fprintf(fout," C (compressed), x (unknown), o (OS specific), GNU ( Not to be GCed by linker),\n");
+    fprintf(fout," E (exclude), Nos (Non-standard OS specific handling required), p (processor specific)\n");
 }
 
 /* Etape 3 */
