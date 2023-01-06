@@ -142,23 +142,22 @@ int main(int argc, char *argv[]) {
         read_symbols(file, header, sections, symbols, &nb_symbols);
 
     }
-    char shstrtab[MAX_STRTAB_LEN];
-    strcpy(shstrtab, read_section_names(file, sections[header.e_shstrndx]));
 
     if(show_header) {
         print_elf(stdout, header);
     }
     if(show_sections) {
-        print_sections_header(file, stdout, header, sections, shstrtab);
+        print_sections_header(file, stdout, header, sections, read_section_names(file, sections[header.e_shstrndx]));
     }
     if(show_symbols) {
         Elf32_Shdr strtab;
-        char *symstrtab = NULL;
-        symstrtab = malloc(sizeof(char) * MAX_STRTAB_LEN);
-        if (get_section_by_name(".strtab", header.e_shnum, sections, &strtab, shstrtab)){
+        //char *symstrtab = NULL;
+        //symstrtab = malloc(sizeof(char) * MAX_STRTAB_LEN);
+        if (get_section_by_name(".strtab", header.e_shnum, sections, &strtab, read_section_names(file, sections[header.e_shstrndx]))){
             // -- lecture des noms de symboles avant affichage
-            strcpy(symstrtab, read_symbol_names(file, strtab));
-            print_symbols(stdout, header, sections, symbols, nb_symbols, shstrtab, symstrtab);
+            fprintf(stderr, "Reading symbols names...\n");
+            //strcpy(symstrtab, read_symbol_names(file, strtab));
+            print_symbols(stdout, header, sections, symbols, nb_symbols, read_section_names(file, sections[header.e_shstrndx]), read_symbol_names(file, strtab));
         }
     }
     if(show_relocations) {
@@ -175,13 +174,13 @@ int main(int argc, char *argv[]) {
             int res = sscanf(name, "%d", &num);
             if(res == 1) {
                 if (num >= 0 && num < header.e_shnum)
-                    print_section_content(file, stdout, &sections[num], shstrtab);
+                    print_section_content(file, stdout, &sections[num], read_section_names(file, sections[header.e_shstrndx]));
                 else
                     printf("-- No section number %d was found", num);
             } else {
                 Elf32_Shdr section;
-                if(get_section_by_name(name, header.e_shnum, sections, &section, shstrtab)) {
-                    print_section_content(file, stdout, &section, shstrtab);
+                if(get_section_by_name(name, header.e_shnum, sections, &section, read_section_names(file, sections[header.e_shstrndx]))) {
+                    print_section_content(file, stdout, &section, read_section_names(file, sections[header.e_shstrndx]));
                 } else
                     printf("-- No section named %s was found", name);
             }
