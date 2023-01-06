@@ -4,6 +4,7 @@
  * @date     14 Decembre 2022
  */
 
+#include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
 #include <assert.h>
@@ -58,29 +59,29 @@ void print_elf(FILE *fout, Elf32_Ehdr elf_h){
     }
     fprintf(fout, "\n");
 
-    fprintf(fout, "  Class:\t\t\t     ");
+    fprintf(fout, "  Class:                             ");
     if (elf_h.e_ident[EI_CLASS] == ELFCLASS32) fprintf(fout, "ELF32\n");
     else fprintf(fout, "None\n");
-    fprintf(fout, "  Data:\t\t\t\t     ");
+    fprintf(fout, "  Data:                              ");
 
     if (elf_h.e_ident[EI_DATA] == ELFDATA2MSB) fprintf(fout, "2's complement, big endian\n");
     else if(elf_h.e_ident[EI_DATA] == ELFDATA2LSB) fprintf(fout, "2's complement, little endian\n");
 
     print_elf_version(fout, elf_h.e_version);
     print_OS_ABI(fout, elf_h.e_ident[EI_OSABI]);
-    fprintf(fout, "  ABI Version:\t\t\t     %d\n", elf_h.e_ident[EI_ABIVERSION]);
+    fprintf(fout, "  ABI Version:                       %d\n", elf_h.e_ident[EI_ABIVERSION]);
     print_elf_type(fout, elf_h.e_type);
     print_elf_machine(fout, elf_h.e_machine);
-    fprintf(fout, "  Version:\t\t\t     0x%1.x\n", elf_h.e_version);
-    fprintf(fout, "  Entry point address:\t\t     0x%.1x\n", elf_h.e_entry);
-    fprintf(fout, "  Start of program headers:\t     %d (bytes into file)\n", elf_h.e_phoff);
-    fprintf(fout, "  Start of section headers:\t     %d (bytes into file)\n", elf_h.e_shoff);
-    fprintf(fout, "  Flags:\t\t\t     %#x, Version5 EABI\n",elf_h.e_flags);
-    fprintf(fout, "  Size of this header:\t\t     %d (bytes)\n", elf_h.e_ehsize);
-    fprintf(fout, "  Size of program headers:\t     %d (bytes)\n", elf_h.e_phentsize);
-    fprintf(fout, "  Number of program headers:\t     %d\n", elf_h.e_phnum);
-    fprintf(fout, "  Size of section headers:\t     %d (bytes)\n", elf_h.e_shentsize);
-    fprintf(fout, "  Number of section headers:\t     %d\n", elf_h.e_shnum);
+    fprintf(fout, "  Version:                           0x%1.x\n", elf_h.e_version);
+    fprintf(fout, "  Entry point address:               0x%.1x\n", elf_h.e_entry);
+    fprintf(fout, "  Start of program headers:          %d (bytes into file)\n", elf_h.e_phoff);
+    fprintf(fout, "  Start of section headers:          %d (bytes into file)\n", elf_h.e_shoff);
+    fprintf(fout, "  Flags:                             %#x, Version5 EABI\n",elf_h.e_flags);
+    fprintf(fout, "  Size of this header:               %d (bytes)\n", elf_h.e_ehsize);
+    fprintf(fout, "  Size of program headers:           %d (bytes)\n", elf_h.e_phentsize);
+    fprintf(fout, "  Number of program headers:         %d\n", elf_h.e_phnum);
+    fprintf(fout, "  Size of section headers:           %d (bytes)\n", elf_h.e_shentsize);
+    fprintf(fout, "  Number of section headers:         %d\n", elf_h.e_shnum);
     fprintf(fout, "  Section header string table index: %d\n", elf_h.e_shstrndx);
 }
 
@@ -104,26 +105,141 @@ void read_sections(FILE *f, Elf32_Ehdr elf_h, Elf32_Shdr *arr_elf_SH){
 }
 
 /* Print the section header table */
+
 void print_sections_header(FILE *fout, Elf32_Ehdr elf_h, Elf32_Shdr *arr_elf_SH) {
-    // TODO : Print the section header table
+    //Intro
+    fprintf(fout,"There are %d section headers, starting at offset 0x%x:\n\n",elf_h.e_shnum,elf_h.e_shoff);
+
+    // Les noms de chaque section
+    fprintf(fout,"Section Headers:\n");
+    fprintf(fout, "  [Nr] Name              Type            Addr     Off    Size   ES Flg Lk Inf Al\n");
+    
+    for (int i = 0; i < elf_h.e_shnum; i++) {
+        // Numéro sections
+        fprintf(fout,"  [%2d] ",i);
+
+        // Nom de la section
+        char* section_name = read_from_shstrtab(arr_elf_SH[i].sh_name);
+        int k = 0;
+        for (; section_name[k] != '\0'; k++) {}
+        if (k > 15) {
+            strcpy(&section_name[12], "[...]\0");
+        }
+        fprintf(fout,"%-18s", section_name);
+
+        // Gestion du type
+        switch (arr_elf_SH[i].sh_type) {
+	      case SHT_PROGBITS:
+		    fprintf(fout, "%-16s", "PROGBITS");
+		    break;
+	      case SHT_SYMTAB:
+            fprintf(fout, "%-16s", "SYMTAB");
+            break;
+	      case SHT_STRTAB:
+            fprintf(fout, "%-16s", "STRTAB");
+            break;
+	      case SHT_RELA:
+            fprintf(fout, "%-16s", "RELA");
+            break;
+          case SHT_HASH:
+            fprintf(fout, "%-16s", "HASH");
+            break;
+	      case SHT_DYNAMIC:
+            fprintf(fout, "%-16s", "DYNAMIC");
+            break;	      
+          case SHT_NOTE:
+            fprintf(fout, "%-16s", "NOTE");
+            break;
+          case SHT_NOBITS:
+            fprintf(fout, "%-16s", "NOBITS");
+            break;
+	      case SHT_REL:
+            fprintf(fout, "%-16s", "REL");
+            break;
+	      case SHT_SHLIB:
+            fprintf(fout, "%-16s", "SHLIB");
+            break;
+	      case SHT_DYNSYM:
+            fprintf(fout, "%-16s", "DYNSYM");
+            break;	      
+          case SHT_LOPROC:
+            fprintf(fout, "%-16s", "LOPROC");
+            break;
+	      case SHT_HIPROC:
+            fprintf(fout, "%-16s", "HIPROC");
+            break;
+	      case SHT_LOUSER:
+            fprintf(fout, "%-16s", "LOUSER");
+            break;
+	      case SHT_HIUSER:
+            fprintf(fout, "%-16s", "HIUSER");
+            break;
+          case SHT_ARM_ATTRIBUTES:
+            fprintf(fout, "%-16s", "ARM_ATTRIBUTES");
+            break;
+	      case SHT_NULL:
+            fprintf(fout, "%-16s", "NULL");
+            break;
+	    }
+
+        // Affichage de Addr ,Offset ,Size et ES
+        fprintf(fout, "%08x ", arr_elf_SH[i].sh_addr);
+        fprintf(fout, "%06x ", arr_elf_SH[i].sh_offset);
+        fprintf(fout, "%06x ", arr_elf_SH[i].sh_size);
+        fprintf(fout, "%02x ", arr_elf_SH[i].sh_entsize);
+
+
+
+    ///////////////////// Gestion des flags///////////////////////////////
+        char f[] = "\0\0\0";
+        int j = 0;
+        if (arr_elf_SH[i].sh_flags & SHF_WRITE) {f[j] = 'W'; j++;}
+        if (arr_elf_SH[i].sh_flags & SHF_ALLOC) {f[j] = 'A'; j++;}
+        if (arr_elf_SH[i].sh_flags & SHF_EXECINSTR) {f[j] = 'X'; j++;}
+        if (arr_elf_SH[i].sh_flags & SHF_MERGE) {f[j] = 'M'; j++;}
+        if (arr_elf_SH[i].sh_flags & SHF_STRINGS) {f[j] = 'S'; j++;}
+        if (arr_elf_SH[i].sh_flags & SHF_INFO_LINK) {f[j] = 'I'; j++;}
+        if (arr_elf_SH[i].sh_flags & SHF_LINK_ORDER) {f[j] = 'L'; j++;}
+        if (arr_elf_SH[i].sh_flags & SHF_GROUP) {f[j] = 'G'; j++;}
+        if (arr_elf_SH[i].sh_flags & SHF_TLS) {f[j] = 'T'; j++;}
+        if (arr_elf_SH[i].sh_flags & SHF_COMPRESSED) {f[j] = 'C'; j++;}
+        if (arr_elf_SH[i].sh_flags & SHF_MASKOS) {f[j] = 'o'; j++;}
+        if (arr_elf_SH[i].sh_flags & SHF_MASKPROC) {f[j] = 'p'; j++;}
+        if (arr_elf_SH[i].sh_flags & SHF_ORDERED) {f[j] = 'O'; j++;}
+        if (arr_elf_SH[i].sh_flags & SHF_EXCLUDE) {f[j] = 'E'; j++;}
+        fprintf(fout, "%3s ", f);
+    /////////////////////////////////////////////////////////////////////
+
+        // Affichage de Lk , Inf et Al
+        fprintf(fout, "%2d", arr_elf_SH[i].sh_link);
+        fprintf(fout, "%4d", arr_elf_SH[i].sh_info);
+        fprintf(fout, "%3d", arr_elf_SH[i].sh_addralign);
+
+        // Retour fin de ligne
+        fprintf(fout,"\n");
+    }
+    // Legende des Flags (A verifier)
+    fprintf(fout,"Key to Flags:\n  W (write), A (alloc), X (execute), M (merge), S (strings), I (info),\n");
+    fprintf(fout,"  L (link order), O (extra OS processing required), G (group), T (TLS),\n");
+    fprintf(fout,"  C (compressed), x (unknown), o (OS specific), E (exclude),\n");
+    fprintf(fout,"  D (mbind), y (purecode), p (processor specific)\n");
 }
 
 /* Etape 3 */
 
 void print_section_content(FILE *f, FILE *fout, Elf32_Shdr *elf_SH) {
     if(elf_SH->sh_size == 0) {
-        fprintf(fout, "Section '%s' has no data.\n", read_from_shstrtab(elf_SH->sh_name));
+        fprintf(fout, "Section '%s' has no data to dump.", read_from_shstrtab(elf_SH->sh_name));
         return;
     }
     fprintf(fout, "\n");
     fprintf(fout, "Hex dump of section '%s':", read_from_shstrtab(elf_SH->sh_name));
-    fprintf(fout, "\n");
 
     fseek(f, elf_SH->sh_offset, SEEK_SET);
 
     for (int i = 0; i < elf_SH->sh_size; i++) {
         if (i%4 == 0) fprintf(fout, " ");
-        if (i%16 == 0) fprintf(fout, "\n0x%08x ", i);
+        if (i%16 == 0) fprintf(fout, "\n  0x%08x ", i);
         fprintf(fout, "%.2x", fgetc(f));
     }
     fprintf(fout, "\n");
@@ -158,8 +274,8 @@ void read_symbols(FILE *f, Elf32_Ehdr elf_h, Elf32_Shdr *arr_elf_SH, Elf32_Sym *
 
 /* Print one symbol */
 void print_symbol(FILE *fout, Elf32_Shdr *arr_elf_Sym, Elf32_Sym elf_Sym) {
-    fprintf(fout, "\t%08x", elf_Sym.st_value);
-    fprintf(fout, "\t   0");
+    fprintf(fout, " %08x", elf_Sym.st_value);
+    fprintf(fout, "     0");
 
     print_st_type(fout, elf_Sym.st_info);
     print_st_bind(fout, elf_Sym.st_info);
@@ -167,16 +283,16 @@ void print_symbol(FILE *fout, Elf32_Shdr *arr_elf_Sym, Elf32_Sym elf_Sym) {
     print_st_shndx(fout, elf_Sym.st_shndx);
 
     if(ELF32_ST_TYPE(elf_Sym.st_info) == STT_SECTION) {
-        fprintf(fout, "\t%s", read_from_shstrtab(arr_elf_Sym[elf_Sym.st_shndx].sh_name));
+        fprintf(fout, " %s", read_from_shstrtab(arr_elf_Sym[elf_Sym.st_shndx].sh_name));
     } else {
-        fprintf(fout, "\t%s", read_from_strtab(elf_Sym.st_name));
+        fprintf(fout, " %s", read_from_strtab(elf_Sym.st_name));
     }
 }
 
 /* Print the symbol table */
 void print_symbols(FILE *fout, Elf32_Ehdr elf_h, Elf32_Shdr *arr_elf_SH, Elf32_Sym *arr_elf_ST, int nb_sym) {
     fprintf(fout, "\nSymbol table '.symtab' contains %d entries:\n", nb_sym);
-    fprintf(fout, "   Num:\tValue\t\tSize\tType\tBind\tVis\tNdx\tName\n");
+    fprintf(fout, "   Num:    Value  Size Type    Bind   Vis      Ndx Name\n");
 
     for (int i = 0; i < nb_sym; i++) {
         fprintf(fout, "   ");
@@ -191,35 +307,16 @@ void print_symbols(FILE *fout, Elf32_Ehdr elf_h, Elf32_Shdr *arr_elf_SH, Elf32_S
 
 /* Etape 5 */
 
-char * revert_define_type_relocation(int val){
-    char * type = malloc(sizeof("R_ARM_JUMP24"));
-    sprintf(type, "%d", val);
-    switch (val)
-    {
-    case 2:
-        strcpy(type, "R_ARM_ABS32");
-        break;
-    case 29:
-        strcpy(type, "R_ARM_JUMP24");
-        break;
-    case 28:
-        strcpy(type, "R_ARM_CALL");
-        break;
-    case 1:
-        strcpy(type, "R_ARM_PC24");
-        break;
-    default:
-        break;
-    }
-    return type;
-}
+
 
 void print_relocation(Elf32_Ehdr elf_h, Elf32_Shdr* elf_SH, Elf32_Sym *elf_Sym, FILE *file){
     //parcours des sections en cherchant les relocalisations
+    int bool = 1;
     for (int i = 0; i < elf_h.e_shnum; i++) {
         if (elf_SH[i].sh_type == SHT_REL) {
-            printf("Section de relocations %s à l'adresse de décalage 0x%x contient %ld entrées:\n", read_from_shstrtab(elf_SH[i].sh_name), elf_SH[i].sh_offset, elf_SH[i].sh_size / sizeof(Elf32_Rel));
-            printf("   Num:\tDecalage\tInfo\t\tType\t\tVal.-sym\tNoms-symboles\n");
+            bool = 0;
+            printf("\nRelocation section '%s' at offset 0x%x contains %ld entr%s:\n", read_from_shstrtab(elf_SH[i].sh_name), elf_SH[i].sh_offset, elf_SH[i].sh_size / sizeof(Elf32_Rel), (elf_SH[i].sh_size / sizeof(Elf32_Rel) < 2) ? "y" : "ies");
+            printf(" Offset     Info    Type            Sym.Value  Sym. Name\n");
             fseek(file, elf_SH[i].sh_offset, SEEK_SET);
             Elf32_Rel* relocations = malloc(elf_SH->sh_size);
             if (!relocations) {
@@ -233,27 +330,25 @@ void print_relocation(Elf32_Ehdr elf_h, Elf32_Shdr* elf_SH, Elf32_Sym *elf_Sym, 
                 int symb = ELF32_R_SYM(relocations->r_info);
                 int typint = ELF32_R_TYPE(relocations->r_info);
                 char* typechar = revert_define_type_relocation(typint);
-                printf("  %d:\t%08x\t%08x\t%s\t%08x\t%s\n", j, relocations->r_offset, relocations->r_info, 
-                        typechar,
-                        elf_Sym[symb].st_value,
-                        read_from_strtab(elf_Sym[symb].st_name)
-                        );
+                char * nomSymb;
+                if(ELF32_ST_TYPE(elf_Sym[symb].st_info) == STT_SECTION) {
+                    nomSymb = read_from_shstrtab(elf_SH[elf_Sym[symb].st_shndx].sh_name);
+                } else {
+                    nomSymb = read_from_strtab(elf_Sym[symb].st_name);
+                }
+                printf("%08x  %08x %-17s",
+                        relocations->r_offset,
+                        relocations->r_info, 
+                        typechar);
+                if (typint == 1 || typint == 2 || typint == 28 || typint == 29) {
+                    printf(" %08x   %s", elf_Sym[symb].st_value, nomSymb);
+                }
+                printf("\n");
 
             }
         }
     }
+    if (bool) {
+        printf("\nThere are no relocations in this file.\n");
+    }
 }
-
-/* Etape 6 
-
-void fusion_sections(FILE *f1, FILE *f2) {
-    // TODO : Fusionner les deux fichiers elf en un seul
-    int nb_sym1 = 0;
-    int nb_sym2 = 0;
-
-    Elf32_Ehdr elf_h1;
-    Elf32_Ehdr elf_h2;
-
-
-}
-*/
