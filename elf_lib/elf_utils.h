@@ -139,4 +139,25 @@ void print_st_shndx(FILE *fout, Elf32_Word st_shndx);
  */
 char * read_from_strtab(Elf32_Word st_name);
 
+/*Etape 5 */
+/**
+ * * @brief renvoie le nom du type correspondant au numero dans la table des macros
+ * @param val le numero de type present dans les macros
+ * @return le nom du type
+ */
+char * revert_define_type_relocation(int val);
+
+/* Etape 6 */
+
+/**
+ * @brief Ecrit les données du buffer dans le fichier
+ *        en big endian
+ * @param buffer
+ * @param size
+ * @param nmemb
+ * @param f
+ * @return 0 si tout s'est bien passé, -1 sinon
+ */
+int bwrite(void * buffer, size_t size, size_t nmemb, FILE *f);
+
 #endif

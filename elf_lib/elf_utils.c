@@ -287,3 +287,39 @@ char * read_from_strtab(Elf32_Word st_name) {
     }
     return nSection;
 }
+
+/* Etape 6 */
+
+// TODO : bwrite
+int bwrite(void *ptr, size_t size, size_t nmemb, FILE *f) {
+    int i = 0;
+    // Ecrire en big endian
+    for (i = 0; i < nmemb; i++) {
+        fwrite(ptr, size, 1, f);
+        ptr += size;
+    }
+    return 0;
+}
+
+char * revert_define_type_relocation(int val){
+    char * type = malloc(sizeof("R_ARM_JUMP24"));
+    sprintf(type, "%d", val);
+    switch (val)
+    {
+    case 2:
+        strcpy(type, "R_ARM_ABS32");
+        break;
+    case 29:
+        strcpy(type, "R_ARM_JUMP24");
+        break;
+    case 28:
+        strcpy(type, "R_ARM_CALL");
+        break;
+    case 1:
+        strcpy(type, "R_ARM_PC24");
+        break;
+    default:
+        break;
+    }
+    return type;
+}
