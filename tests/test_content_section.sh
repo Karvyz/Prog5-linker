@@ -9,7 +9,6 @@ do
         for word in $(cat tmp1)
         do
             if ! grep -q "$word" tmp2; then
-                printf 'Test fail on file "%s" with the argument "-x %s"\n' "$file" "$num_section"
                 rm tmp1 tmp2 error.txt
                 exit 1
             fi
