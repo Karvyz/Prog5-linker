@@ -153,10 +153,12 @@ int main(int argc, char *argv[]) {
     }
     if(show_symbols) {
         Elf32_Shdr strtab;
+        char *symstrtab = NULL;
+        symstrtab = malloc(sizeof(char) * MAX_STRTAB_LEN);
         if (get_section_by_name(".strtab", header.e_shnum, sections, &strtab, shstrtab)){
             // -- lecture des noms de symboles avant affichage
-            read_symbol_names(file, strtab);
-            print_symbols(stdout, header, sections, symbols, nb_symbols, shstrtab);
+            strcpy(symstrtab, read_symbol_names(file, strtab));
+            print_symbols(stdout, header, sections, symbols, nb_symbols, shstrtab, symstrtab);
         }
     }
     if(show_relocations) {

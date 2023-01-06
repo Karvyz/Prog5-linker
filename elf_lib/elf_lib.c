@@ -258,7 +258,6 @@ void print_section_content(FILE *f, FILE *fout, Elf32_Shdr *elf_SH, char *shstrt
 /* Etape 4 */
 
 void read_symbols(FILE *f, Elf32_Ehdr elf_h, Elf32_Shdr *arr_elf_SH, Elf32_Sym *arr_elf_ST, int *nb_sym){
-    char shstrtab[MAX_STRTAB_LEN];
     // Check if there is a symbol table
     Elf32_Shdr SymTab;
     if(!get_section_by_name(".symtab", elf_h.e_shnum, arr_elf_SH,&SymTab, read_section_names(f, arr_elf_SH[elf_h.e_shstrndx]))) {
@@ -283,7 +282,7 @@ void read_symbols(FILE *f, Elf32_Ehdr elf_h, Elf32_Shdr *arr_elf_SH, Elf32_Sym *
 }
 
 /* Print one symbol */
-void print_symbol(FILE *fout, Elf32_Shdr *arr_elf_Sym, Elf32_Sym elf_Sym, char *shstrtab) {
+void print_symbol(FILE *fout, Elf32_Shdr *arr_elf_Sym, Elf32_Sym elf_Sym, const char *shstrtab, const char *symstrtab) {
     fprintf(fout, "\t%08x", elf_Sym.st_value);
     fprintf(fout, "\t   0");
 
@@ -295,12 +294,12 @@ void print_symbol(FILE *fout, Elf32_Shdr *arr_elf_Sym, Elf32_Sym elf_Sym, char *
     if(ELF32_ST_TYPE(elf_Sym.st_info) == STT_SECTION) {
         fprintf(fout, "\t%s", read_from_shstrtab(arr_elf_Sym[elf_Sym.st_shndx].sh_name, shstrtab));
     } else {
-        fprintf(fout, "\t%s", read_from_strtab(elf_Sym.st_name));
+        fprintf(fout, "\t%s", read_from_strtab(elf_Sym.st_name, symstrtab));
     }
 }
 
 /* Print the symbol table */
-void print_symbols(FILE *fout, Elf32_Ehdr elf_h, Elf32_Shdr *arr_elf_SH, Elf32_Sym *arr_elf_ST, int nb_sym, char *shstrtab) {
+void print_symbols(FILE *fout, Elf32_Ehdr elf_h, Elf32_Shdr *arr_elf_SH, Elf32_Sym *arr_elf_ST, int nb_sym, const char *shstrtab, const char *symstrtab) {
     fprintf(fout, "\nSymbol table '.symtab' contains %d entries:\n", nb_sym);
     fprintf(fout, "   Num:\tValue\t\tSize\tType\tBind\tVis\tNdx\tName\n");
 
@@ -310,7 +309,7 @@ void print_symbols(FILE *fout, Elf32_Ehdr elf_h, Elf32_Shdr *arr_elf_SH, Elf32_S
             fprintf(fout, " %d:", i);
         else
             fprintf(fout, "  %d:", i);
-        print_symbol(fout, arr_elf_SH, arr_elf_ST[i], shstrtab);
+        print_symbol(fout, arr_elf_SH, arr_elf_ST[i], shstrtab, symstrtab);
         fprintf(fout, "\n");
     }
 }

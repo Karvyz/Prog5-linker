@@ -59,7 +59,7 @@ void print_OS_ABI(FILE *fout, unsigned char OSABI);
 
 /**
  * @brief   Lit tous les noms de sections depuis la section
- *          'shstrtab' et les renvoi dans le tableau 'shrstrtab'
+ *          'shstrtab' et les stocke dans le tableau 'shrstrtab'
  *
  * @param   f flux
  * @param   STable section `shstrtab`
@@ -69,12 +69,13 @@ char * read_section_names(FILE *f, Elf32_Shdr STable);
 
 /**
  * @brief   Lit le nom de tous les symboles depuis la section
- *          'strtab' et les renvoi dans le tableau 'symstrtab'
+ *          'strtab' et les stocke dans le tableau 'symstrtab'
  *
  * @param   f flux
  * @param   STable section strtab
+ * @return  char* tableau contenant tous les noms de symboles
  */
-void read_symbol_names(FILE *f, Elf32_Shdr STable);
+char * read_symbol_names(FILE *f, Elf32_Shdr STable);
 
 /**
  * @brief  Retourne le nom de la section, dont l'index de table
@@ -85,7 +86,7 @@ void read_symbol_names(FILE *f, Elf32_Shdr STable);
  * @param  shstrtab table des chaînes de caractères
  * @return châine de caractères (nom de la section)
  */
-char * read_from_shstrtab(uint32_t st_name, char * shstrtab);
+char * read_from_shstrtab(uint32_t st_name, const char * shstrtab);
 
 /**
  * @brief Recherche une section par son nom
@@ -140,6 +141,6 @@ void print_st_shndx(FILE *fout, Elf32_Word st_shndx);
  * @param st_name index du nom de symbole
  * @return châine de caractères
  */
-char * read_from_strtab(Elf32_Word st_name);
+char * read_from_strtab(Elf32_Word st_name, const char * symstrtab);
 
 #endif
