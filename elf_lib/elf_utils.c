@@ -184,7 +184,7 @@ int get_section_by_name(char *name, int shnum, Elf32_Shdr *sections, Elf32_Shdr 
         name2 = malloc(MAX_STRTAB_LEN);
         if(!name2)
             fprintf(stderr, "Error: malloc failed\n");
-        name2 = read_from_shstrtab(sections[i].sh_name, shstrtab);
+        strcpy(name2,read_from_shstrtab(sections[i].sh_name, shstrtab));
         // check name2
         if(strcmp(name2, "\0") == 0 || strcmp(name2, "") == 0 || name2==NULL || strcmp(name, "\0") == 0 || strcmp(name, "") == 0 || name==NULL){
             continue;

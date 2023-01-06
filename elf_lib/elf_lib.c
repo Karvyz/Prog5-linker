@@ -105,7 +105,7 @@ void read_sections(FILE *f, Elf32_Ehdr elf_h, Elf32_Shdr *arr_elf_SH){
 
 /* Print the section header table */
 
-void print_sections_header(FILE *fout, Elf32_Ehdr elf_h, Elf32_Shdr *arr_elf_SH, char *shstrtab){
+void print_sections_header(FILE *fin, FILE *fout, Elf32_Ehdr elf_h, Elf32_Shdr *arr_elf_SH, char *shstrtab){
     //Intro
     fprintf(fout,"There are %d section headers, starting at offset 0x%x:\n\n",elf_h.e_shnum,elf_h.e_shoff);
 
@@ -118,7 +118,7 @@ void print_sections_header(FILE *fout, Elf32_Ehdr elf_h, Elf32_Shdr *arr_elf_SH,
         fprintf(fout,"  [%d]\t",i);
 
         // Nom de la section
-        fprintf(fout,"%-20s", read_from_shstrtab(arr_elf_SH[i].sh_name, shstrtab));
+        fprintf(fout,"%-20s", read_from_shstrtab(arr_elf_SH[i].sh_name,read_section_names(fin, arr_elf_SH[elf_h.e_shstrndx])));
 
         // Gestion du type
         switch (arr_elf_SH[i].sh_type) {
@@ -276,7 +276,8 @@ void read_symbols(FILE *f, Elf32_Ehdr elf_h, Elf32_Shdr *arr_elf_SH, Elf32_Sym *
         assert(bread(&arr_elf_ST[i].st_size, sizeof(arr_elf_ST[i].st_size), 1, f));
         assert(bread(&arr_elf_ST[i].st_info, sizeof(arr_elf_ST[i].st_info), 1, f));
         assert(bread(&arr_elf_ST[i].st_other, sizeof(arr_elf_ST[i].st_other), 1, f));
-        assert(bread(&arr_elf_ST[i].st_shndx, sizeof(arr_elf_ST[i].st_shndx), 1, f));
+        //assert(bread(&arr_elf_ST[i].st_shndx, sizeof(arr_elf_ST[i].st_shndx), 1, f));
+        bread(&arr_elf_ST[i].st_shndx, sizeof(arr_elf_ST[i].st_shndx), 1, f);
     }
     *nb_sym = i;
 }
