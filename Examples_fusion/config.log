@@ -118,7 +118,7 @@ configure:3562: $? = 0
 configure:3585: result: 
 configure:3607: checking whether we are cross compiling
 configure:3615: arm-none-eabi-gcc -o conftest   -nostdlib -Wl,--entry=0 conftest.c  >&5
-/usr/bin/../lib/gcc/arm-none-eabi/11.3.1/../../../../arm-none-eabi/bin/ld: /tmp/cc2wHL72.o: in function `main':
+/usr/bin/../lib/gcc/arm-none-eabi/11.3.1/../../../../arm-none-eabi/bin/ld: /tmp/cchZX5fe.o: in function `main':
 conftest.c:(.text+0x14): undefined reference to `fopen'
 /usr/bin/../lib/gcc/arm-none-eabi/11.3.1/../../../../arm-none-eabi/bin/ld: conftest.c:(.text+0x3c): undefined reference to `fclose'
 collect2: error: ld returned 1 exit status
@@ -180,7 +180,6 @@ on tibo-pc
 
 config.status:847: creating Makefile
 config.status:847: creating config.h
-config.status:1028: config.h is unchanged
 config.status:1076: executing depfiles commands
 config.status:1153: cd .       && sed -e '/# am--include-marker/d' Makefile         | make -f - am--depfiles
 config.status:1158: $? = 0

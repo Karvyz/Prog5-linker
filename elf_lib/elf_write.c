@@ -38,7 +38,7 @@ void write_header(FILE *f, Elf32_Ehdr elf_h){
     assert(bwrite(&elf_h.e_shentsize, sizeof(elf_h.e_shentsize), 1, f));
     assert(bwrite(&elf_h.e_shnum, sizeof(elf_h.e_shnum), 1, f));
     assert(bwrite(&elf_h.e_shstrndx, sizeof(elf_h.e_shstrndx), 1, f));
-
+    printf("ecriture du header ok\n");
 }
 
 void write_sections(FILE *f, Elf32_Ehdr elf_h, Elf32_Shdr *arr_elf_SH){
@@ -58,14 +58,16 @@ void write_sections(FILE *f, Elf32_Ehdr elf_h, Elf32_Shdr *arr_elf_SH){
         assert(bwrite(&arr_elf_SH[i].sh_addralign, sizeof(arr_elf_SH[i].sh_addralign), 1, f));
         assert(bwrite(&arr_elf_SH[i].sh_entsize, sizeof(arr_elf_SH[i].sh_entsize), 1, f));
     }
+    printf("ecriture des section ok\n");
 }
 
 void write_sections_header(FILE *f, Elf32_Ehdr elf_h, Elf32_Shdr *arr_elf_SH){
     //TODO section name à recupèrer
-    /* Recherchez et ecrire les noms de chaque section
-	  fseek(f, arr_elf_SH[elf_h.e_shstrndx].sh_offset, SEEK_SET);
-	  assert(fread(section_names, arr_elf_SH[elf_h.e_shstrndx].sh_size, 1, fout));
-      */ 
+    //Recherchez et ecrire les noms de chaque section
+	//fseek(f, arr_elf_SH[elf_h.e_shstrndx].sh_offset, SEEK_SET);
+    //read_from_shstrtab(arr_elf_SH[i].sh_name,read_section_names(fin, arr_elf_SH[elf_h.e_shstrndx])));
+	//assert(fwrite(arr_elf_SH->sh_name, arr_elf_SH[elf_h.e_shstrndx].sh_size, 1, fout));
+     
 }
 
 
