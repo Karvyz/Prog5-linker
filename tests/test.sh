@@ -10,19 +10,18 @@ cmp_elf() {
 }
 
 cmp_elfx() {
-    for num_section in {0..5}
+    for num_section in {-1..20}
     do
-        ./read_elf -x $num_section $file > tmp1
-        arm-none-eabi-readelf -x $num_section $file > tmp2
+        ./read_elf -x $num_section $file 1> tmp1 2> error.txt
+        arm-none-eabi-readelf -x $num_section $file 1> tmp2 2> error.txt
 
         for word in $(cat tmp1)
         do
             if ! grep -q "$word" tmp2; then
-                printf 'Test fail on file "%s" with the argument "%s"\n' "$word" "$1"
-                
+                printf 'Test fail on file "%s" with the argument "-x %s"\n' "$file" "$num_section"
             fi
         done
-        rm tmp1 tmp2
+        rm tmp1 tmp2 error.txt
     done
 }
 

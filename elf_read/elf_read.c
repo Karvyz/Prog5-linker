@@ -177,13 +177,13 @@ int main(int argc, char *argv[]) {
                 if (num >= 0 && num < header.e_shnum)
                     print_section_content(file, stdout, &sections[num]);
                 else
-                    printf("-- No section number %d was found", num);
+                    fprintf(stderr, "-- No section number %d was found", num);
             } else {
                 Elf32_Shdr section;
                 if(get_section_by_name(name, header.e_shnum, sections, &section))
                     print_section_content(file, stdout, &section);
                 else
-                    printf("-- No section named %s was found", name);
+                    fprintf(stderr, "-- No section named %s was found", name);
             }
             fprintf(stdout, "\n");
         }
