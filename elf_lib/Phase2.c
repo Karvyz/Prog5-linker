@@ -95,7 +95,7 @@ SectionFusion *fusion_sections(FILE *f1, FILE *f2, Elf32_Ehdr header1, Elf32_Shd
             perror("Erreur allocation name1\n");
             exit(1);
         }
-        name1 = read_from_shstrtab(sections1[i].sh_name);
+        name1 = read_from_shstrtab(sections1[i].sh_name, read_section_names(f1, sections1[header1.e_shstrndx]));
 
         if(sections1[i].sh_type == SHT_PROGBITS) {
             // test si chaque section du 2ème fichier est de type PROGBIT
@@ -110,7 +110,7 @@ SectionFusion *fusion_sections(FILE *f1, FILE *f2, Elf32_Ehdr header1, Elf32_Shd
                     exit(1);
                 }
                 name2 = "";
-                name2 = read_from_shstrtab(sections2[j].sh_name);
+                name2 = read_from_shstrtab(sections2[j].sh_name, read_section_names(f2, sections2[header2.e_shstrndx]));
                 // Debug
                 fprintf(stderr, "name 1 = %s name2 = %s\n", name1, name2);
                 // test si type = PROGBIT et même nom que la section du 1

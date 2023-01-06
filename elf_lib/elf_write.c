@@ -8,8 +8,7 @@
 
 
 
-void write_header(Elf32_Ehdr elf_h, FILE *f){
-
+void write_header(FILE *f, Elf32_Ehdr elf_h){
     unsigned char e_ident[EI_NIDENT];
 
     e_ident[EI_MAG0] = ELFMAG0;
@@ -21,9 +20,11 @@ void write_header(Elf32_Ehdr elf_h, FILE *f){
     e_ident[EI_VERSION] = EV_CURRENT;
     e_ident[EI_PAD] = 0;
 
-    // Ecriture du header dans le fichier resultat
+    //ecriture des nombres magiques en little endian
     fwrite(&e_ident, EI_NIDENT, 1, f);
 
+
+    //ecriture du reste du header en big endian
     assert(bwrite(&elf_h.e_type, sizeof(elf_h.e_type), 1, f));
     assert(bwrite(&elf_h.e_machine, sizeof(elf_h.e_machine), 1, f));
     assert(bwrite(&elf_h.e_version, sizeof(elf_h.e_version), 1, f));
@@ -40,16 +41,44 @@ void write_header(Elf32_Ehdr elf_h, FILE *f){
 
 }
 
+void write_sections(FILE *f, Elf32_Ehdr elf_h, Elf32_Shdr *arr_elf_SH){
+    // Go to the beginning of the section header table
+    assert(fseek(f, elf_h.e_shoff, SEEK_SET) == 0);
+
+    // Read the section header table
+    for (int i = 0; i < elf_h.e_shnum; i++){
+        assert(bwrite(&arr_elf_SH[i].sh_name, sizeof(arr_elf_SH[i].sh_name), 1, f));
+        assert(bwrite(&arr_elf_SH[i].sh_type, sizeof(arr_elf_SH[i].sh_type), 1, f));
+        assert(bwrite(&arr_elf_SH[i].sh_flags, sizeof(arr_elf_SH[i].sh_flags), 1, f));
+        assert(bwrite(&arr_elf_SH[i].sh_addr, sizeof(arr_elf_SH[i].sh_addr), 1, f));
+        assert(bwrite(&arr_elf_SH[i].sh_offset, sizeof(arr_elf_SH[i].sh_offset), 1, f));
+        assert(bwrite(&arr_elf_SH[i].sh_size, sizeof(arr_elf_SH[i].sh_size), 1, f));
+        assert(bwrite(&arr_elf_SH[i].sh_link, sizeof(arr_elf_SH[i].sh_link), 1, f));
+        assert(bwrite(&arr_elf_SH[i].sh_info, sizeof(arr_elf_SH[i].sh_info), 1, f));
+        assert(bwrite(&arr_elf_SH[i].sh_addralign, sizeof(arr_elf_SH[i].sh_addralign), 1, f));
+        assert(bwrite(&arr_elf_SH[i].sh_entsize, sizeof(arr_elf_SH[i].sh_entsize), 1, f));
+    }
+}
+
+void write_sections_header(FILE *f, Elf32_Ehdr elf_h, Elf32_Shdr *arr_elf_SH){
+    //TODO section name à recupèrer
+    /* Recherchez et ecrire les noms de chaque section
+	  fseek(f, arr_elf_SH[elf_h.e_shstrndx].sh_offset, SEEK_SET);
+	  assert(fread(section_names, arr_elf_SH[elf_h.e_shstrndx].sh_size, 1, fout));
+      */ 
+}
 
 
-void write_main(Elf32_Ehdr elf_h){
+
+void write_main(Elf32_Ehdr elf_h, Elf32_Shdr *arr_elf_SH){
     FILE* out = fopen("test_ecriture_elf.o", "wb");
     if (!out) {
         perror("fopen");
         return;
     }
-    write_header(elf_h, out);
+    write_header(out, elf_h);
+    write_sections(out, elf_h, arr_elf_SH);
+    write_sections_header(out, elf_h, arr_elf_SH);
     fclose(out);
-
 }
 
