@@ -42,7 +42,20 @@ SectionFusion *fusion_sections(FILE *f1, FILE *f2, Elf32_Ehdr header1, Elf32_Shd
     int nb_sym = 0;
 
     // Noms des sections pour comparaison
+    char **names1 = NULL;
+    names1 = malloc(nb_sym1 * sizeof(char *));
+    for(int i=0; i<nb_sym1; i++){
+        names1[i] = malloc(sizeof(char) * 100);
+        names1[i]  = "";
+    }
     char *name1 = NULL;
+
+    char **names2 = NULL;
+    names2 = malloc(nb_sym2 * sizeof(char *));
+    for(int i=0; i<nb_sym2; i++){
+        names2[i] = malloc(sizeof(char) * 100);
+        names2[i]  = "";
+    }
     char *name2 = NULL;
 
     // data contiendra les données de la section ou des sections concaténées
@@ -81,7 +94,16 @@ SectionFusion *fusion_sections(FILE *f1, FILE *f2, Elf32_Ehdr header1, Elf32_Shd
     }
     fusion->nb_sections = 0;
     fusion->sections = NULL;
-    fusion->changes = NULL;
+    fusion->changes=malloc(sizeof(SectionChanges) * nb_sym2);
+    if(!fusion->changes){
+        perror("Erreur lors de l'allocation de la structure SectionFusion->changes");
+        exit(EXIT_FAILURE);
+    }
+    for(int i=0; i<nb_sym2; i++){
+        fusion->changes[i].old_index = -1;
+        fusion->changes[i].new_index = -1;
+        fusion->changes[i].offset = -1;
+    }
 
     for (int i = 0; i < nb_sym1; i++){
         fprintf(stderr, "i=%d\n", i);
@@ -96,12 +118,13 @@ SectionFusion *fusion_sections(FILE *f1, FILE *f2, Elf32_Ehdr header1, Elf32_Shd
             exit(1);
         }
         name1 = read_from_shstrtab(sections1[i].sh_name, read_section_names(f1, sections1[header1.e_shstrndx]));
+        names1[i] = name1;
 
         if(sections1[i].sh_type == SHT_PROGBITS) {
             // test si chaque section du 2ème fichier est de type PROGBIT
             // Booleen pour vérifier si la section 1 peut être ajoutée si pas de fusion possible
             int bool = 0;
-            for(int j = 0; j < nb_sym2; j++) {
+            for(int j = 1; j < nb_sym2; j++) {
                 fprintf(stderr, "j=%d\n", j);
                 // Nom de la section courant du fichier 2
                 name2 = malloc(sizeof(char) * 30);
@@ -109,12 +132,15 @@ SectionFusion *fusion_sections(FILE *f1, FILE *f2, Elf32_Ehdr header1, Elf32_Shd
                     perror("Erreur allcoation name2\n");
                     exit(1);
                 }
-                name2 = "";
                 name2 = read_from_shstrtab(sections2[j].sh_name, read_section_names(f2, sections2[header2.e_shstrndx]));
+                names2[j] = name2;
                 // Debug
-                fprintf(stderr, "name 1 = %s name2 = %s\n", name1, name2);
+                if(strcmp(names1[i], "\0") == 0 || strcmp(names2[j], "\0") == 0 || names1[i] == NULL || names2[j] == NULL || strcmp(names1[i], "") == 0 || strcmp(names2[j], "") == 0){
+                    continue;
+                }
+                fprintf(stderr, "name 1 = %s name2 = %s\n", names1[i], names2[j]);
                 // test si type = PROGBIT et même nom que la section du 1
-                if(sections2[j].sh_type == SHT_PROGBITS && (strcmp(name1, name2) == 0)) {
+                if(sections2[j].sh_type == SHT_PROGBITS && (strcmp(names1[i], names2[j]) == 0)) {
                     // Mis à jour du booleen
                     bool = 1;
                     // allocation mémoire à data
@@ -142,12 +168,13 @@ SectionFusion *fusion_sections(FILE *f1, FILE *f2, Elf32_Ehdr header1, Elf32_Shd
                     // On met à jour le tableau changes
                     changes[j].old_index = j;
                     changes[j].new_index = i;
-                    changes[j].offset = offset;
+                    changes[j].offset = sections1[i].sh_size;
                     // On met à jour l'offset courant
                     offset += sections1[i].sh_size + sections2[j].sh_size;
                     // On met le data contenant la fusion des 2 sections dans la structure de fusion
                     fusion->data[i] = data;
                     free(data);
+                    break;
                 }
                 free(name2);
             }
@@ -216,40 +243,51 @@ SectionFusion *fusion_sections(FILE *f1, FILE *f2, Elf32_Ehdr header1, Elf32_Shd
         free(name1);
     }
     // Pour chaque section non concaténéé du fichier 2
-    for (int j = 0; j < nb_sym2; j++) {
+    int current = 0;
+    int new = 0;
+    for (int j = 1; j < nb_sym2; j++) {
         if (changes[j].old_index == -1) {
             data = malloc(sections2[j].sh_size);
             if (!data) {
                 perror("Erreur lors de l'allocation de la mémoire");
                 exit(EXIT_FAILURE);
             }
+            // On se déplace à l'offset de la section du 2
+            fseek(f2, sections2[j].sh_offset, SEEK_SET);
+            // On copie dans data la section du 2
+            memcpy(data, f2, sections2[j].sh_size);
             // On met à jour le tableau changes
+            fprintf(stderr, "section 2 non concat : j = %d, new numero = %d\n", j, nb_sym1 + current);
+            new = nb_sym1 + current;
             changes[j].old_index = j;
-            changes[j].new_index = nb_sym1 + j;
-            changes[j].offset = offset;
+            changes[j].new_index = new;
+            current++;
             // On met à jour la section finale
-            sections[nb_sym1 + j].sh_offset = offset;
-            sections[nb_sym1 + j].sh_size = sections2[j].sh_size;
-            sections[nb_sym1 + j].sh_type = sections2[j].sh_type;
-            sections[nb_sym1 + j].sh_flags = sections2[j].sh_flags;
-            sections[nb_sym1 + j].sh_addr = sections2[j].sh_addr;
-            sections[nb_sym1 + j].sh_name = sections2[j].sh_name;
-            sections[nb_sym1 + j].sh_flags = sections2[j].sh_flags;
-            sections[nb_sym1 + j].sh_link = sections2[j].sh_link;
-            sections[nb_sym1 + j].sh_info = sections2[j].sh_info;
-            sections[nb_sym1 + j].sh_addralign = sections2[j].sh_addralign;
-            sections[nb_sym1 + j].sh_entsize = sections2[j].sh_entsize;
+            sections[new].sh_offset = offset;
+            sections[new].sh_size = sections2[j].sh_size;
+            sections[new].sh_type = sections2[j].sh_type;
+            sections[new].sh_flags = sections2[j].sh_flags;
+            sections[new].sh_addr = sections2[j].sh_addr;
+            sections[new].sh_name = sections2[j].sh_name;
+            sections[new].sh_flags = sections2[j].sh_flags;
+            sections[new].sh_link = sections2[j].sh_link;
+            sections[new].sh_info = sections2[j].sh_info;
+            sections[new].sh_addralign = sections2[j].sh_addralign;
+            sections[new].sh_entsize = sections2[j].sh_entsize;
             // On met les données dans fusion
-            fusion->data[nb_sym1 + j] = data;
+            fusion->data[new] = data;
+            // Mise à jour du nombre de sections
+            nb_sym++;
             // Libérer la mémoire
             free(data);
             // On met à jour l'offset courant
             offset += sections2[j].sh_size;
         }
+        // Copie de changes
+        fusion->changes[j] = changes[j];
     }
     // Mise à jour de fusion avec les éléments finaux
     fusion->sections = sections;
-    fusion->changes = changes;
     fusion->nb_sections = nb_sym;
 
     return fusion;

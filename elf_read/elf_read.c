@@ -6,6 +6,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <elf.h>
+#include <string.h>
 #include "elf_lib/elf_lib.h"
 #include "elf_lib/elf_utils.h"
 #include "elf_lib/Phase2.h"
@@ -166,14 +167,6 @@ int main(int argc, char *argv[]) {
             print_symbols(stdout, header, sections, symbols, nb_symbols, read_section_names(file, sections[header.e_shstrndx]), read_symbol_names(file, strtab));
         }
     }
-    if(show_relocations) {
-        Elf32_Shdr strtab;
-        if (get_section_by_name(".strtab", header.e_shnum, sections, &strtab)){
-            // -- lecture des noms de symboles avant affichage
-            read_symbol_names(file, strtab);
-            print_relocation(header, sections, symbols, file);
-        }
-    }
     if(sectionsAAfficher_nb > 0) {
         for(i = 0; i < sectionsAAfficher_nb; i++) {
             char * name = sectionsAAfficher[i];
@@ -215,8 +208,26 @@ int main(int argc, char *argv[]) {
         }
         sectionsFusion = fusion_sections(file, file2, header, sections, header2, sections2);
         printf("Fusion effectuée\n");
-        for(i = 0; i < header2.e_shnum; i++){
-            printf("changes[%d] : old = %d, new = %d, offset = %d\n", i, sectionsFusion->changes[i].old_index, sectionsFusion->changes[i].new_index, sectionsFusion->changes[i].offset);
+        for(i = 1; i < header2.e_shnum; i++){
+            printf("Section %d du 2ème fichier à pour nouveau numéro %d, offset de concat = %d\n", i, sectionsFusion->changes[i].new_index, sectionsFusion->changes[i].offset);
+        }
+        char *chaine_hexa = NULL;
+        for(i = 0; i < sectionsFusion->nb_sections; i++){
+            if(sectionsFusion->data[i] == NULL){
+                continue;
+            }
+            size_t size = strlen(sectionsFusion->data[i]);
+            fprintf(stderr, "size = %zu\n", size);
+            chaine_hexa = malloc(2 * size + 1);
+            if (chaine_hexa == NULL) {
+                perror("Erreur lors de l'allocation de mémoire pour la chaîne hexadécimale");
+                exit(EXIT_FAILURE);
+            }
+            for (size_t j = 0; j < strlen(sectionsFusion->data[j]); j++) {
+                sprintf(chaine_hexa + 2*j, "%02x", sectionsFusion->data[i][j]);
+            }
+            chaine_hexa[2*size] = '\0';
+            fprintf(stderr, "sectionsFusion[%d] : data = %s\n", i, chaine_hexa);
         }
 
         // TODO

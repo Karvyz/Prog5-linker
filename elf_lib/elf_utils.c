@@ -134,29 +134,35 @@ void print_OS_ABI(FILE *fout, unsigned char OSABI){
 
 /* Etape 3 */
 
-char shstrtab[MAX_STRTAB_LEN];
-char symstrtab[MAX_STRTAB_LEN];
+//char shstrtab[MAX_STRTAB_LEN];
+//char symstrtab[MAX_STRTAB_LEN];
 
-void read_section_names(FILE *f, Elf32_Shdr STable) {
+char * read_section_names(FILE *f, Elf32_Shdr STable) {
+    char *shstrtab = NULL;
+    shstrtab = malloc(sizeof(char) * MAX_STRTAB_LEN);
     int s = 0;
     fseek(f, STable.sh_offset, SEEK_SET);
     while (s != STable.sh_size) {
         bread(&shstrtab[s], sizeof(char), 1, f);
         s++;
     }
+    return shstrtab;
 }
 
-void read_symbol_names(FILE *f, Elf32_Shdr STable) {
+char * read_symbol_names(FILE *f, Elf32_Shdr STable) {
+    char *symstrtab = NULL;
+    symstrtab = malloc(sizeof(char) * MAX_STRTAB_LEN);
     int s = 0;
     fseek(f, STable.sh_offset, SEEK_SET);
     while (s != STable.sh_size) {
         bread(&symstrtab[s], sizeof(char), 1, f);
         s++;
     }
+    return symstrtab;
 }
 
-char * read_from_shstrtab(uint32_t st_name) {
-    int i = st_name;
+char * read_from_shstrtab(uint32_t st_name, const char * shstrtab) {
+    int i = (int) st_name;
     char *nSection = malloc(MAX_STRTAB_LEN); // Max 150 char
     int j = 0;
 
@@ -171,15 +177,18 @@ char * read_from_shstrtab(uint32_t st_name) {
     return nSection;
 }
 
-int get_section_by_name(char *name, int shnum, Elf32_Shdr *sections, Elf32_Shdr *section) {
+int get_section_by_name(char *name, int shnum, Elf32_Shdr *sections, Elf32_Shdr *section, char *shstrtab) {
     int i = 0;
     for (i = 0; i < shnum; i++) {
-        char *name2 = read_from_shstrtab(sections[i].sh_name);
-        // check if name2 is empty
-        /*if(strcmp(name2, "") != 0){
-        }
-         */
-        if (strcmp(name2, name) == 0) { // Si le nom de la section correspond au nom recherché
+        char *name2 = NULL;
+        name2 = malloc(MAX_STRTAB_LEN);
+        if(!name2)
+            fprintf(stderr, "Error: malloc failed\n");
+        strcpy(name2,read_from_shstrtab(sections[i].sh_name, shstrtab));
+        // check name2
+        if(strcmp(name2, "\0") == 0 || strcmp(name2, "") == 0 || name2==NULL || strcmp(name, "\0") == 0 || strcmp(name, "") == 0 || name==NULL){
+            continue;
+        } else if (strcmp(name2, name) == 0) { // Si le nom de la section correspond au nom recherché
             *section = sections[i]; // On modifie la section (vide) passée en paramètre par la section trouvée
             return 1;
         }
@@ -277,7 +286,7 @@ void print_st_shndx(FILE *fout, Elf32_Word st_shndx){
     }
 }
 
-char * read_from_strtab(Elf32_Word st_name) {
+char * read_from_strtab(Elf32_Word st_name, const char * symstrtab) {
     int i = (int) st_name;
     char *nSection = malloc(MAX_STRTAB_LEN); // Max 150 char
 
