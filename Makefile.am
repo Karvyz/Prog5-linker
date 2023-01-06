@@ -27,3 +27,4 @@ Options_and_debug_example_SOURCES=$(COMMON) Options_and_debug_example.c
 
 EXTRA_DIST+=
 
+TESTS = ./tests/test_headers.sh ./tests/test_section_headers.sh ./tests/test_realocations.sh ./tests/test_symbols.sh ./tests/test_content_section.sh
