@@ -108,7 +108,7 @@ int main(int argc, char *argv[]) {
         fprintf(stderr, "No file given !\n");
         usage(argv[0]);
         exit(1);
-    } else {
+    }
         file_name = argv[optind];
 
         char *mode;
@@ -140,7 +140,7 @@ int main(int argc, char *argv[]) {
         // - Lecture des en-têtes de symboles
         read_symbols(file, header, sections, symbols, &nb_symbols);
 
-    }
+    
 
     if(show_header) {
         print_elf(stdout, header);
@@ -176,14 +176,10 @@ int main(int argc, char *argv[]) {
             if(res == 1) {
                 if (num >= 0 && num < header.e_shnum)
                     print_section_content(file, stdout, &sections[num]);
-                else
-                    fprintf(stderr, "-- No section number %d was found", num);
             } else {
                 Elf32_Shdr section;
                 if(get_section_by_name(name, header.e_shnum, sections, &section))
                     print_section_content(file, stdout, &section);
-                else
-                    fprintf(stderr, "-- No section named %s was found", name);
             }
             fprintf(stdout, "\n");
         }
@@ -202,6 +198,8 @@ int main(int argc, char *argv[]) {
 
     // TODO
     // Free memory
+    free(sections);
+    free(symbols);
     // Close files
     return 0;
 }

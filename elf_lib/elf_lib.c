@@ -229,11 +229,17 @@ void print_sections_header(FILE *fout, Elf32_Ehdr elf_h, Elf32_Shdr *arr_elf_SH)
 
 void print_section_content(FILE *f, FILE *fout, Elf32_Shdr *elf_SH) {
     if(elf_SH->sh_size == 0) {
-        fprintf(fout, "Section '%s' has no data to dump.", read_from_shstrtab(elf_SH->sh_name));
+        char* tmp = read_from_shstrtab(elf_SH->sh_name);
+        if (tmp == NULL) {return;}
+        fprintf(fout, "Section '%s' has no data to dump.", tmp);
+        free(tmp);
         return;
     }
     fprintf(fout, "\n");
-    fprintf(fout, "Hex dump of section '%s':", read_from_shstrtab(elf_SH->sh_name));
+    char* tmp = read_from_shstrtab(elf_SH->sh_name);
+    if (tmp == NULL) {return;}
+    fprintf(fout, "Hex dump of section '%s':", tmp);
+    free(tmp);
 
     fseek(f, elf_SH->sh_offset, SEEK_SET);
 
@@ -283,9 +289,15 @@ void print_symbol(FILE *fout, Elf32_Shdr *arr_elf_Sym, Elf32_Sym elf_Sym) {
     print_st_shndx(fout, elf_Sym.st_shndx);
 
     if(ELF32_ST_TYPE(elf_Sym.st_info) == STT_SECTION) {
-        fprintf(fout, " %s", read_from_shstrtab(arr_elf_Sym[elf_Sym.st_shndx].sh_name));
+        char* tmp = read_from_shstrtab(arr_elf_Sym[elf_Sym.st_shndx].sh_name);
+        if (tmp == NULL) {return;} 
+        fprintf(fout, " %s", tmp);
+        free(tmp);
     } else {
-        fprintf(fout, " %s", read_from_strtab(elf_Sym.st_name));
+        char* tmp = read_from_strtab(elf_Sym.st_name);
+        if (tmp == NULL) {return;} 
+        fprintf(fout, " %s", tmp);
+        free(tmp);
     }
 }
 
@@ -315,20 +327,20 @@ void print_relocation(Elf32_Ehdr elf_h, Elf32_Shdr* elf_SH, Elf32_Sym *elf_Sym, 
     for (int i = 0; i < elf_h.e_shnum; i++) {
         if (elf_SH[i].sh_type == SHT_REL) {
             bool = 0;
-            printf("\nRelocation section '%s' at offset 0x%x contains %ld entr%s:\n", read_from_shstrtab(elf_SH[i].sh_name), elf_SH[i].sh_offset, elf_SH[i].sh_size / sizeof(Elf32_Rel), (elf_SH[i].sh_size / sizeof(Elf32_Rel) < 2) ? "y" : "ies");
+            char* tmp = read_from_shstrtab(elf_SH[i].sh_name);
+            printf("\nRelocation section '%s' at offset 0x%x contains %ld entr%s:\n", (tmp != NULL) ? tmp : "", elf_SH[i].sh_offset, elf_SH[i].sh_size / sizeof(Elf32_Rel), (elf_SH[i].sh_size / sizeof(Elf32_Rel) < 2) ? "y" : "ies");
+            if (tmp != NULL) {
+                free(tmp);
+            }
             printf(" Offset     Info    Type            Sym.Value  Sym. Name\n");
             fseek(file, elf_SH[i].sh_offset, SEEK_SET);
-            Elf32_Rel* relocations = malloc(elf_SH->sh_size);
-            if (!relocations) {
-                perror("malloc");
-                return;
-            }
+            Elf32_Rel relocations;
             
             for (int j = 0; j < elf_SH[i].sh_size / sizeof(Elf32_Rel); j++) {
-                assert(bread(&relocations->r_offset, sizeof(relocations->r_offset), 1, file));
-                assert(bread(&relocations->r_info, sizeof(relocations->r_info), 1, file));
-                int symb = ELF32_R_SYM(relocations->r_info);
-                int typint = ELF32_R_TYPE(relocations->r_info);
+                assert(bread(&relocations.r_offset, sizeof(relocations.r_offset), 1, file));
+                assert(bread(&relocations.r_info, sizeof(relocations.r_info), 1, file));
+                int symb = ELF32_R_SYM(relocations.r_info);
+                int typint = ELF32_R_TYPE(relocations.r_info);
                 char* typechar = revert_define_type_relocation(typint);
                 char * nomSymb;
                 if(ELF32_ST_TYPE(elf_Sym[symb].st_info) == STT_SECTION) {
@@ -337,14 +349,16 @@ void print_relocation(Elf32_Ehdr elf_h, Elf32_Shdr* elf_SH, Elf32_Sym *elf_Sym, 
                     nomSymb = read_from_strtab(elf_Sym[symb].st_name);
                 }
                 printf("%08x  %08x %-17s",
-                        relocations->r_offset,
-                        relocations->r_info, 
+                        relocations.r_offset,
+                        relocations.r_info, 
                         typechar);
                 if (typint == 1 || typint == 2 || typint == 28 || typint == 29) {
                     printf(" %08x   %s", elf_Sym[symb].st_value, nomSymb);
                 }
                 printf("\n");
-
+                
+                free(typechar);
+                free(nomSymb);
             }
         }
     }

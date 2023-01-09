@@ -158,31 +158,30 @@ void read_symbol_names(FILE *f, Elf32_Shdr STable) {
 char * read_from_shstrtab(uint32_t st_name) {
     int i = st_name;
     char *nSection = malloc(MAX_STRTAB_LEN); // Max 150 char
-    int j = 0;
-
-    while (shstrtab[i] != '\0') {
-        nSection[i - st_name] = shstrtab[i]; // copy the name of the section in nSection
-        i++;
-        j++;
-    }
-    if(!j){
-        nSection[0] = '\0';
-    }
+    if (nSection == NULL) {return NULL;}
+    strcpy(nSection, &shstrtab[i]);
     return nSection;
 }
 
 int get_section_by_name(char *name, int shnum, Elf32_Shdr *sections, Elf32_Shdr *section) {
+    if (name == NULL) {
+        return 0;
+    }
     int i = 0;
     for (i = 0; i < shnum; i++) {
         char *name2 = read_from_shstrtab(sections[i].sh_name);
-        // TODO: check if name2 is null
-        /*if(strcmp(name2,"\0") == 0){
-            exit(1);
-        }
-        */
-        if (strcmp(name2, name) == 0) { // Si le nom de la section correspond au nom recherché
-            *section = sections[i]; // On modifie la section (vide) passée en paramètre par la section trouvée
-            return 1;
+        if (name2 != NULL) {
+            // TODO: check if name2 is null
+            /*if(strcmp(name2,"\0") == 0){
+                exit(1);
+            }
+            */
+            if (strcmp(name2, name) == 0) { // Si le nom de la section correspond au nom recherché
+                *section = sections[i]; // On modifie la section (vide) passée en paramètre par la section trouvée
+                free(name2);
+                return 1;
+            }
+            free(name2);
         }
     }
     return 0;
@@ -287,11 +286,8 @@ void print_st_shndx(FILE *fout, Elf32_Word st_shndx){
 char * read_from_strtab(Elf32_Word st_name) {
     int i = (int) st_name;
     char *nSection = malloc(MAX_STRTAB_LEN); // Max 150 char
-
-    while (symstrtab[i] != '\0') {
-        nSection[i - st_name] = symstrtab[i]; // copy the name of the section in nSection
-        i++;
-    }
+    if (nSection == NULL) {return NULL;}
+    strcpy(nSection, &symstrtab[i]);
     return nSection;
 }
 
