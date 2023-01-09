@@ -202,7 +202,6 @@ SectionFusion *fusion_sections(FILE *f1, FILE *f2, Elf32_Ehdr header1, Elf32_Shd
                 sections[i].sh_flags = sections1[i].sh_flags;
                 sections[i].sh_addr = sections1[i].sh_addr;
                 sections[i].sh_name = sections1[i].sh_name;
-                sections[i].sh_flags = sections1[i].sh_flags;
                 sections[i].sh_link = sections1[i].sh_link;
                 sections[i].sh_info = sections1[i].sh_info;
                 sections[i].sh_addralign = sections1[i].sh_addralign;
