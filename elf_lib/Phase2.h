@@ -1,17 +1,40 @@
 #ifndef PROG5_LINKER_PHASE_2_H
 #define PROG5_LINKER_PHASE_2_H
 
+/**
+ * @file    Phase2.h
+ * @author  groupe 14
+ * @date    14 Decembre 2022
+ * @brief   Fonctions de la phase 2
+ *          du projet
+ */
+
 #include <elf.h>
 #include <stdio.h>
 
 /* Etape 6 */
 
+/**
+ * @struct SectionChanges
+ * @brief  Changement de numéros de sections
+ *
+ * SectionChanges sert à stocker l'ancien et
+ * le nouveau numéro de section du 2ème fichier
+ * ainsi que l'offset de concaténation
+ */
 typedef struct {
     int old_index;
     int new_index;
     Elf32_Off offset;
 } SectionChanges;
 
+/**
+ * @struct SectionFusion
+ * @brief  Résultat de la fusion
+ *
+ * SectionFusion sert à stocker les
+ * résultats de la fusion des fichiers
+ */
 typedef struct {
     Elf32_Shdr *sections;
     int nb_sections;

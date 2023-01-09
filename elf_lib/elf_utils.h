@@ -5,7 +5,7 @@
  * @file     elf_utils.h
  * @author   groupe 14
  * @date     14 Decembre 2022
- * @brief    toutes les fonctions auxiliaires.
+ * @brief    Fonctions auxiliaires.
  */
 
 #include <stdio.h>
@@ -17,11 +17,11 @@
  * @brief   Lit un certain nombre d'octets à partir d'un flux.
  *          On lit en "big endian" (inverse les caractères)
  *
- * @param   buffer pointeur
- * @param   s taille (en octets) d'un bloc unitaire à lire.
+ * @param   buffer pointeur pour stocker ce qui est lu
+ * @param   s taille (en octets) d'un bloc unitaire à lire
  * @param   n nombre de blocs unitaires à lire
  * @param   f flux à partir duquel les octets doivent être lus
- * @return  size_t
+ * @return  size_t lue
  */
 size_t bread(void * buffer, size_t s, size_t n, FILE *f);
 
@@ -59,7 +59,7 @@ void print_OS_ABI(FILE *fout, unsigned char OSABI);
 
 /**
  * @brief   Lit tous les noms de sections depuis la section
- *          'shstrtab' et les stocke dans le tableau 'shrstrtab'
+ *          'shstrtab' et retourne les noms de sections
  *
  * @param   f flux
  * @param   STable section `shstrtab`
@@ -69,7 +69,7 @@ char * read_section_names(FILE *f, Elf32_Shdr STable);
 
 /**
  * @brief   Lit le nom de tous les symboles depuis la section
- *          'strtab' et les stocke dans le tableau 'symstrtab'
+ *          'strtab' et retourne les noms de symboles
  *
  * @param   f flux
  * @param   STable section strtab
@@ -93,8 +93,8 @@ char * read_from_shstrtab(uint32_t st_name, const char * shstrtab);
  *
  * @param  name nom de la section à rechercher
  * @param  shnum nombre de sections
- * @param  sections tableau d'en-têtes section
- * @param  section  section retournée
+ * @param  sections tableau d'en-tête de sections
+ * @param  section  section remplie par effet de bord
  * @param  shstrtab table des chaînes de caractères
  * @return int (1 si trouvée, 0 sinon)
  */
@@ -113,7 +113,7 @@ void print_st_type(FILE *fout, Elf32_Word st_type);
  * @brief Affiche la liaison du symbole
  *
  * @param fout flux de sortie
- * @param st_info type du symbole
+ * @param st_bind type du symbole
  */
 void print_st_bind(FILE *fout, Elf32_Word st_bind);
 
@@ -121,7 +121,7 @@ void print_st_bind(FILE *fout, Elf32_Word st_bind);
  * @brief Affiche la visibilité du symbole
  *
  * @param fout flux de sortie
- * @param st_info visibilité du symbole
+ * @param st_visibility visibilité du symbole
  */
 void print_st_visibility(FILE *fout, Elf32_Word st_visibility);
 
@@ -135,10 +135,10 @@ void print_st_shndx(FILE *fout, Elf32_Word st_shndx);
 
 /**
  * @brief Retourne le nom de symbole, dont l'index de table
- *        de chaîne de caractères est st_name, depuis la table des
- *        chaînes de caractères correspondante (ici, symtab)
+ *        de chaîne de caractères est st_name
  *
  * @param st_name index du nom de symbole
+ * @param symstrtab table des noms des symboles
  * @return châine de caractères
  */
 char * read_from_strtab(Elf32_Word st_name, char * symstrtab);

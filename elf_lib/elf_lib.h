@@ -5,7 +5,7 @@
  * @file    elf_lib.h
  * @author  groupe 14
  * @date    14 Decembre 2022
- * @brief   librarie qui contient toutes les fonctions
+ * @brief   Librarie contenant toutes les fonctions
  *          de lecture sur un fichier format ELF.
  */
 
