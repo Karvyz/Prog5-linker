@@ -84,12 +84,17 @@ SectionFusion *fusion_sections(FILE *f1, FILE *f2, Elf32_Ehdr header1, Elf32_Shd
         exit(EXIT_FAILURE);
     }
     // data contient les données des sections
-    fusion->data=malloc(sizeof(char) * 400);
+    fusion->data=malloc(sizeof(char *) * nb_sym1+nb_sym2);
     if (!fusion->data) {
         perror("Erreur lors de l'allocation de la structure SectionFusion->data");
         exit(EXIT_FAILURE);
     }
     for(int i=0; i<nb_sym1+nb_sym2; i++){
+        fusion->data[i] = malloc(sizeof(char) * 400);
+        if(!fusion->data[i]){
+            perror("Erreur d'allocation mémoire\n");
+            exit(EXIT_FAILURE);
+        }
         fusion->data[i] = NULL;
     }
     fusion->nb_sections = 0;
