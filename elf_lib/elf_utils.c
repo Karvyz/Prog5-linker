@@ -266,7 +266,7 @@ void print_st_visibility(FILE *fout, Elf32_Word st_visibility){
         default:
             fprintf(fout, "\tUNKNOWN");
             break;
-    }
+    } 
 }
 
 void print_st_shndx(FILE *fout, Elf32_Word st_shndx){

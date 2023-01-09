@@ -260,6 +260,7 @@ void print_section_content(FILE *f, FILE *fout, Elf32_Shdr *elf_SH, char *shstrt
 void read_symbols(FILE *f, Elf32_Ehdr elf_h, Elf32_Shdr *arr_elf_SH, Elf32_Sym *arr_elf_ST, int *nb_sym){
     // Check if there is a symbol table
     Elf32_Shdr SymTab;
+    // printf("\n%d\n",elf_h.e_shstrndx);
     if(!get_section_by_name(".symtab", elf_h.e_shnum, arr_elf_SH,&SymTab, read_section_names(f, arr_elf_SH[elf_h.e_shstrndx]))) {
         fprintf(stderr, "No symbol table found.\n");
         *nb_sym = 0;

@@ -1,6 +1,6 @@
 #ifndef __ELF_UTILS_H__
 #define __ELF_UTILS_H__
-
+#define SHF_GNU_RETAIN         (1 << 21)  /* Not to be GCed by linker.  */
 /**
  * @file     elf_utils.h
  * @author   groupe 14

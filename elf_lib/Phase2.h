@@ -7,15 +7,16 @@
 /* Etape 6 */
 
 typedef struct {
-    int old_index;
-    int new_index;
-    Elf32_Off offset;
+    int old_index; // ancien numero de section 
+    int new_index; // nouveau numero de section
+    Elf32_Off offset; //offset de concatenation (separation entre les deux sections)
 } SectionChanges;
 
 typedef struct {
-    Elf32_Shdr *sections;
-    int nb_sections;
-    char **data;
+    Elf32_Shdr *sections; // nouveau header section
+    char **sections_names;
+    int nb_sections;    // nombre de section
+    char **data;        // donné (fichier) des sections
     SectionChanges *changes;
 } SectionFusion;
 
@@ -55,6 +56,6 @@ SectionFusion *fusion_sections(FILE *f1, FILE *f2, Elf32_Ehdr header1, Elf32_Shd
  *
  *
  */
-void fusion_symbols(FILE *f1, FILE *f2, Elf32_Ehdr header1, Elf32_Shdr *sections1, Elf32_Ehdr header2, Elf32_Shdr *sections2);
+void fusion_symbols(FILE *f1, FILE *f2, Elf32_Ehdr header1, Elf32_Sym *symbole1, int nb_symbols, Elf32_Ehdr header2, Elf32_Sym *symbole2, int nb_symbols2, SectionFusion *sectionsFusion);
 
 #endif //PROG5_LINKER_PHASE_2_H

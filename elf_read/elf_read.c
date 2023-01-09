@@ -84,7 +84,7 @@ int main(int argc, char *argv[]) {
                 file2_name = optarg;
                 file2 = fopen(file2_name, "r");
                 if(file2 == NULL){
-                    fprintf(stderr, "Error: cannot open file %s", file2_name);
+                    fprintf(stderr, "Error: cannot open file %s\n", file2_name);
                     exit(1);
                 }
                 break;
@@ -96,7 +96,7 @@ int main(int argc, char *argv[]) {
                 fprintf(stderr, "Debug mode not implemented yet\n");
                 break;
             default:
-                fprintf(stderr, "Unrecognized option %c", opt);
+                fprintf(stderr, "Unrecognized option %c\n", opt);
                 usage(argv[0]);
                 exit(1);
         }
@@ -125,7 +125,7 @@ int main(int argc, char *argv[]) {
             exit(1);
         }
 
-        // TODO
+        // TODOprint_symbols
         // Define a macro SH_TABLE_MAX to 400
         //
         sections = malloc(sizeof(Elf32_Shdr) * 400);
@@ -225,12 +225,25 @@ int main(int argc, char *argv[]) {
             chaine_hexa[2*size] = '\0';
             fprintf(stderr, "sectionsFusion[%d] : data = %s\n", i, chaine_hexa);
         }
+       
+        // int nb_symbols2;
 
+        // Elf32_Shdr *symbols2;
+        // symbols2 = malloc(sizeof(Elf32_Sym) * 400);
+
+        // read_symbols(file2, header2, sections2, symbols2, &nb_symbols2);
+        // fusion_symbols(file, file2, header, symbols, nb_symbols, header2, symbols2, nb_symbols2, sectionsFusion);
+
+        for (int z=0; z<sectionsFusion->nb_sections;z++){
+            printf("%s\n",sectionsFusion->sections_names[z]);
+        }
+        
         // TODO
         // - Afficher les sections fusionnées
         free(sectionsFusion);
+        // free(symbols2);
+        // fclose(file2); 
     }
-
     // TODO
     // Free memory
     // Close files
