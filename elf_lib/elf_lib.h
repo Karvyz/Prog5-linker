@@ -107,6 +107,18 @@ void print_symbol(FILE *fout, Elf32_Shdr *arr_elf_SH, Elf32_Sym elf_Sym);
 void print_symbols(FILE *fout, Elf32_Ehdr elf_h, Elf32_Shdr *arr_elf_SH, Elf32_Sym *arr_elf_ST, int nb_sym);
 
 /* Etape 5 */
+/**
+ * @brief   Lecture de la table des symboles
+ *          du fichier ELF
+ *
+ * @param   elf_h en-tête ELF
+ * @param   elf_SH table des sections
+ * @param   elf_Sym table des symboles
+ * @param   elf_reloc table des relocations
+ * @param   indice indice de remplissage de elf_reloc
+ * @param   f flux
+ */
+void read_relocation(Elf32_Ehdr elf_h, Elf32_Shdr* elf_SH, Elf32_Sym *elf_Sym, Elf32_Rel* elf_reloc, int indice, FILE *file);
 
 /**
  * @brief   Affichage de la table des relocations
@@ -118,6 +130,6 @@ void print_symbols(FILE *fout, Elf32_Ehdr elf_h, Elf32_Shdr *arr_elf_SH, Elf32_S
  * @param   file flux
  */
 
-void print_relocation(Elf32_Ehdr elf_h, Elf32_Shdr* elf_SH, Elf32_Sym *elf_Sym, FILE *file);
+void print_relocation(Elf32_Ehdr elf_h, Elf32_Shdr* elf_SH, Elf32_Sym *elf_Sym, Elf32_Rel* elf_reloc, int nb_rel, FILE *file);
 
 #endif

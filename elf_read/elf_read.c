@@ -37,8 +37,10 @@ int main(int argc, char *argv[]) {
     Elf32_Ehdr header;
     Elf32_Shdr *sections;
     Elf32_Sym *symbols;
+    Elf32_Rel *reloc;
     int i;
     int nb_symbols;
+    int nb_relocation;
 
     struct option longopts[] = {
             {"header",      no_argument,       NULL, 'h'},
@@ -130,6 +132,8 @@ int main(int argc, char *argv[]) {
         sections = malloc(sizeof(Elf32_Shdr) * 400);
         symbols = malloc(sizeof(Elf32_Sym) * 400);
         nb_symbols = 0;
+        nb_relocation = 0;
+        reloc = malloc(sizeof(Elf32_Rel)*400);
 
         // - Lecture de l'en-tête
         init_header(file, &header);
@@ -139,9 +143,9 @@ int main(int argc, char *argv[]) {
         read_section_names(file, sections[header.e_shstrndx]);
         // - Lecture des en-têtes de symboles
         read_symbols(file, header, sections, symbols, &nb_symbols);
-
+        // - Lecture des relocations
+        read_relocation(header, sections, symbols, reloc, &nb_relocation, file);
     }
-
     if(show_header) {
         print_elf(stdout, header);
     }
