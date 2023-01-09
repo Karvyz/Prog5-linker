@@ -13,6 +13,7 @@
 size_t bread(void * buffer, size_t s, size_t n, FILE *f){
     char tmp[n][s];
     char c;
+    size_t lue = 0;
 
     for(int i = 0; i<n; i++){ // pour chaque bloc
         for(int j = 0; j<s; j++){ // pour chaque octet
@@ -20,6 +21,7 @@ size_t bread(void * buffer, size_t s, size_t n, FILE *f){
             if(c == EOF)
                 return 0;
             tmp[i][j] = c; // on stocke l'octet dans le tableau
+            lue += 1;
         }
     }
     for(int i = 0; i<n; i++){
@@ -27,8 +29,11 @@ size_t bread(void * buffer, size_t s, size_t n, FILE *f){
             ((char*)buffer)[i*s+j] = tmp[i][s-j-1]; // on inverse les octets
         }
     }
+    if(lue != s*n){
+        fprintf(stderr, "Mauvaise lecture des données avec bread\n");
+    }
 
-    return s * n;
+    return lue;
 }
 
 void print_elf_type(FILE *fout, Elf32_Word e_type){
