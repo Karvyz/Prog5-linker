@@ -92,7 +92,7 @@ void read_symbols(FILE *f, Elf32_Ehdr elf_h, Elf32_Shdr *arr_elf_SH, Elf32_Sym *
  * @param   elf_Sym symbole
  * @param   shstrtab table des chaines de caractères
  */
-void print_symbol(FILE *fout, Elf32_Shdr *arr_elf_Sym, Elf32_Sym elf_Sym, const char *shstrtab, const char *symstrtab);
+void print_symbol(FILE *fout, Elf32_Shdr *arr_elf_Sym, Elf32_Sym elf_Sym, const char *shstrtab, char *symstrtab);
 
 /**
  * @brief   Affichage de la table des symboles
@@ -105,7 +105,7 @@ void print_symbol(FILE *fout, Elf32_Shdr *arr_elf_Sym, Elf32_Sym elf_Sym, const 
  * @param   nb_sym nombre de symboles
  * @param   shstrtab table des chaines de caractères
  */
-void print_symbols(FILE *fout, Elf32_Ehdr elf_h, Elf32_Shdr *arr_elf_SH, Elf32_Sym *arr_elf_ST, int nb_sym, const char *shstrtab, const char *symstrtab);
+void print_symbols(FILE *fout, Elf32_Ehdr elf_h, Elf32_Shdr *arr_elf_SH, Elf32_Sym *arr_elf_ST, int nb_sym, const char *shstrtab, char *symstrtab);
 
 /* Etape 5 */
 

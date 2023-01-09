@@ -94,6 +94,7 @@ SectionFusion *fusion_sections(FILE *f1, FILE *f2, Elf32_Ehdr header1, Elf32_Shd
     }
     fusion->nb_sections = 0;
     fusion->sections = NULL;
+    fprintf(stderr, "res = %lu\n", sizeof(SectionChanges) * nb_sym2);
     fusion->changes=malloc(sizeof(SectionChanges) * nb_sym2);
     if(!fusion->changes){
         perror("Erreur lors de l'allocation de la structure SectionFusion->changes");

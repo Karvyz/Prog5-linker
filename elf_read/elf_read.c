@@ -129,7 +129,20 @@ int main(int argc, char *argv[]) {
         // Define a macro SH_TABLE_MAX to 400
         //
         sections = malloc(sizeof(Elf32_Shdr) * 400);
+        if(!sections){
+            perror("Erreur d'allocation mémoiren\n");
+            exit(EXIT_FAILURE);
+        }
+        memset(sections, 0, sizeof(Elf32_Shdr)* 400);
+
         symbols = malloc(sizeof(Elf32_Sym) * 400);
+        if(!symbols){
+            perror("Erreur d'allocation mémoire\n");
+            exit(EXIT_FAILURE);
+        }
+        memset(symbols, 0, sizeof(Elf32_Sym) * 400);
+
+
         nb_symbols = 0;
 
         // - Lecture de l'en-tête
@@ -229,10 +242,14 @@ int main(int argc, char *argv[]) {
         // TODO
         // - Afficher les sections fusionnées
         free(sectionsFusion);
+        free(sections2);
+        free(chaine_hexa);
     }
 
     // TODO
     // Free memory
+    free(sections);
+    free(symbols);
     // Close files
     return 0;
 }

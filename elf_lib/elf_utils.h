@@ -141,6 +141,6 @@ void print_st_shndx(FILE *fout, Elf32_Word st_shndx);
  * @param st_name index du nom de symbole
  * @return châine de caractères
  */
-char * read_from_strtab(Elf32_Word st_name, const char * symstrtab);
+char * read_from_strtab(Elf32_Word st_name, char * symstrtab);
 
 #endif

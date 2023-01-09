@@ -139,10 +139,15 @@ void print_OS_ABI(FILE *fout, unsigned char OSABI){
 
 char * read_section_names(FILE *f, Elf32_Shdr STable) {
     char *shstrtab = NULL;
-    shstrtab = malloc(sizeof(char) * MAX_STRTAB_LEN);
+    shstrtab = malloc(sizeof(char) * 20000);
+    if(shstrtab == NULL){
+        perror("Erreur d'allocation mémoire");
+        exit(EXIT_FAILURE);
+    }
     int s = 0;
     fseek(f, STable.sh_offset, SEEK_SET);
-    while (s != STable.sh_size) {
+    fprintf(stderr, "size = %d\n", STable.sh_size);
+    while (s < STable.sh_size) {
         bread(&shstrtab[s], sizeof(char), 1, f);
         s++;
     }
@@ -151,10 +156,15 @@ char * read_section_names(FILE *f, Elf32_Shdr STable) {
 
 char * read_symbol_names(FILE *f, Elf32_Shdr STable) {
     char *symstrtab = NULL;
-    symstrtab = malloc(sizeof(char) * MAX_STRTAB_LEN);
+    symstrtab = malloc(sizeof(char) * 3000);
+    if(symstrtab == NULL){
+        perror("Erreur d'allocation mémoire");
+        exit(EXIT_FAILURE);
+    }
     int s = 0;
     fseek(f, STable.sh_offset, SEEK_SET);
-    while (s != STable.sh_size) {
+    fprintf(stderr, "size = %d\n", STable.sh_size);
+    while (s < STable.sh_size) {
         bread(&symstrtab[s], sizeof(char), 1, f);
         s++;
     }
@@ -164,16 +174,18 @@ char * read_symbol_names(FILE *f, Elf32_Shdr STable) {
 char * read_from_shstrtab(uint32_t st_name, const char * shstrtab) {
     int i = (int) st_name;
     char *nSection = malloc(MAX_STRTAB_LEN); // Max 150 char
-    int j = 0;
 
+    strcpy(nSection, shstrtab+i);
+
+#if 0
+    int j = 0;
     while (shstrtab[i] != '\0') {
-        nSection[i - st_name] = shstrtab[i]; // copy the name of the section in nSection
-        i++;
+        nSection[j] = shstrtab[i]; // copy the name of the section in nSection
+        i++; /* hkjhkj */
         j++;
     }
-    if(!j){
-        nSection[0] = '\0';
-    }
+    nSection[j] = '\0';
+#endif
     return nSection;
 }
 
@@ -185,10 +197,9 @@ int get_section_by_name(char *name, int shnum, Elf32_Shdr *sections, Elf32_Shdr 
         if(!name2)
             fprintf(stderr, "Error: malloc failed\n");
         strcpy(name2,read_from_shstrtab(sections[i].sh_name, shstrtab));
-        // check name2
-        if(strcmp(name2, "\0") == 0 || strcmp(name2, "") == 0 || name2==NULL || strcmp(name, "\0") == 0 || strcmp(name, "") == 0 || name==NULL){
-            continue;
-        } else if (strcmp(name2, name) == 0) { // Si le nom de la section correspond au nom recherché
+        fprintf(stderr, "name2: %s\n", name2);
+        fprintf(stderr, "name: %s\n", name);
+        if (strcmp(name2, name) == 0) { // Si le nom de la section correspond au nom recherché
             *section = sections[i]; // On modifie la section (vide) passée en paramètre par la section trouvée
             return 1;
         }
@@ -286,13 +297,24 @@ void print_st_shndx(FILE *fout, Elf32_Word st_shndx){
     }
 }
 
-char * read_from_strtab(Elf32_Word st_name, const char * symstrtab) {
-    int i = (int) st_name;
-    char *nSection = malloc(MAX_STRTAB_LEN); // Max 150 char
+char * read_from_strtab(Elf32_Word st_name, char * symstrtab) {
+    char *nSection = malloc(MAX_STRTAB_LEN); // Max 300 char
+    if(!nSection){
+        perror("Erreur d'allocation mémoire\n");
+        exit(EXIT_FAILURE);
+    }
+
+    strcpy(nSection, symstrtab+st_name);
+
+#if 0
+    Elf32_Word i = st_name;
+
+    fprintf(stderr, "size = %lu\n", strlen(symstrtab+st_name));
 
     while (symstrtab[i] != '\0') {
         nSection[i - st_name] = symstrtab[i]; // copy the name of the section in nSection
         i++;
     }
+#endif
     return nSection;
 }
