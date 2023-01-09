@@ -114,7 +114,7 @@ Options_and_debug_example_DEPENDENCIES =
 am__dirstamp = $(am__leading_dot)dirstamp
 am_read_elf_OBJECTS = elf_lib/elf_lib.$(OBJEXT) \
 	elf_lib/elf_utils.$(OBJEXT) elf_read/elf_read.$(OBJEXT) \
-	elf_lib/Phase2.$(OBJEXT)
+	elf_lib/Phase2.$(OBJEXT) elf_lib/fusion_reloc.$(OBJEXT)
 read_elf_OBJECTS = $(am_read_elf_OBJECTS)
 read_elf_LDADD = $(LDADD)
 read_elf_DEPENDENCIES =
@@ -136,7 +136,9 @@ am__maybe_remake_depfiles = depfiles
 am__depfiles_remade = ./$(DEPDIR)/Options_and_debug_example.Po \
 	./$(DEPDIR)/debug.Po ./$(DEPDIR)/util.Po \
 	elf_lib/$(DEPDIR)/Phase2.Po elf_lib/$(DEPDIR)/elf_lib.Po \
-	elf_lib/$(DEPDIR)/elf_utils.Po elf_read/$(DEPDIR)/elf_read.Po
+	elf_lib/$(DEPDIR)/elf_utils.Po \
+	elf_lib/$(DEPDIR)/fusion_reloc.Po \
+	elf_read/$(DEPDIR)/elf_read.Po
 am__mv = mv -f
 COMPILE = $(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) \
 	$(CPPFLAGS) $(AM_CFLAGS) $(CFLAGS)
@@ -562,11 +564,11 @@ AM_CFLAGS = -Wall -g -D DEBUG -D WARNING
 LDADD = -lpthread
 AUTOMAKE_OPTIONS = subdir-objects
 SUBDIRS = . Examples_fusion
-read_elf_SOURCES = elf_lib/elf_lib.h elf_lib/elf_lib.c elf_lib/elf_utils.h elf_lib/elf_utils.c elf_read/elf_read.c elf_lib/Phase2.h elf_lib/Phase2.c
+read_elf_SOURCES = elf_lib/elf_lib.h elf_lib/elf_lib.c elf_lib/elf_utils.h elf_lib/elf_utils.c elf_read/elf_read.c elf_lib/Phase2.h elf_lib/Phase2.c elf_lib/fusion_reloc.h elf_lib/fusion_reloc.c
 COMMON = debug.h debug.c util.h util.c
 EXTRA_DIST = filtre.pl
 Options_and_debug_example_SOURCES = $(COMMON) Options_and_debug_example.c
-TESTS = ./tests/test_headers.sh ./tests/test_section_headers.sh ./tests/test_realocations.sh ./tests/test_symbols.sh ./tests/test_content_section.sh
+TESTS = ./tests/test_headers.sh ./tests/test_section_headers.sh ./tests/test_realocations.sh ./tests/test_symbols.sh ./tests/test_content_section.sh ./tests/mem_headers.sh ./tests/mem_realocations.sh ./tests/mem_symbols.sh ./tests/mem_sections_headers.sh ./tests/mem_content_section.sh
 all: all-recursive
 
 .SUFFIXES:
@@ -670,6 +672,8 @@ elf_read/elf_read.$(OBJEXT): elf_read/$(am__dirstamp) \
 	elf_read/$(DEPDIR)/$(am__dirstamp)
 elf_lib/Phase2.$(OBJEXT): elf_lib/$(am__dirstamp) \
 	elf_lib/$(DEPDIR)/$(am__dirstamp)
+elf_lib/fusion_reloc.$(OBJEXT): elf_lib/$(am__dirstamp) \
+	elf_lib/$(DEPDIR)/$(am__dirstamp)
 
 read_elf$(EXEEXT): $(read_elf_OBJECTS) $(read_elf_DEPENDENCIES) $(EXTRA_read_elf_DEPENDENCIES) 
 	@rm -f read_elf$(EXEEXT)
@@ -689,6 +693,7 @@ distclean-compile:
 @AMDEP_TRUE@@am__include@ @am__quote@elf_lib/$(DEPDIR)/Phase2.Po@am__quote@ # am--include-marker
 @AMDEP_TRUE@@am__include@ @am__quote@elf_lib/$(DEPDIR)/elf_lib.Po@am__quote@ # am--include-marker
 @AMDEP_TRUE@@am__include@ @am__quote@elf_lib/$(DEPDIR)/elf_utils.Po@am__quote@ # am--include-marker
+@AMDEP_TRUE@@am__include@ @am__quote@elf_lib/$(DEPDIR)/fusion_reloc.Po@am__quote@ # am--include-marker
 @AMDEP_TRUE@@am__include@ @am__quote@elf_read/$(DEPDIR)/elf_read.Po@am__quote@ # am--include-marker
 
 $(am__depfiles_remade):
@@ -995,6 +1000,41 @@ recheck: all
 	--log-file $$b.log --trs-file $$b.trs \
 	$(am__common_driver_flags) $(AM_LOG_DRIVER_FLAGS) $(LOG_DRIVER_FLAGS) -- $(LOG_COMPILE) \
 	"$$tst" $(AM_TESTS_FD_REDIRECT)
+./tests/mem_headers.sh.log: ./tests/mem_headers.sh
+	@p='./tests/mem_headers.sh'; \
+	b='./tests/mem_headers.sh'; \
+	$(am__check_pre) $(LOG_DRIVER) --test-name "$$f" \
+	--log-file $$b.log --trs-file $$b.trs \
+	$(am__common_driver_flags) $(AM_LOG_DRIVER_FLAGS) $(LOG_DRIVER_FLAGS) -- $(LOG_COMPILE) \
+	"$$tst" $(AM_TESTS_FD_REDIRECT)
+./tests/mem_realocations.sh.log: ./tests/mem_realocations.sh
+	@p='./tests/mem_realocations.sh'; \
+	b='./tests/mem_realocations.sh'; \
+	$(am__check_pre) $(LOG_DRIVER) --test-name "$$f" \
+	--log-file $$b.log --trs-file $$b.trs \
+	$(am__common_driver_flags) $(AM_LOG_DRIVER_FLAGS) $(LOG_DRIVER_FLAGS) -- $(LOG_COMPILE) \
+	"$$tst" $(AM_TESTS_FD_REDIRECT)
+./tests/mem_symbols.sh.log: ./tests/mem_symbols.sh
+	@p='./tests/mem_symbols.sh'; \
+	b='./tests/mem_symbols.sh'; \
+	$(am__check_pre) $(LOG_DRIVER) --test-name "$$f" \
+	--log-file $$b.log --trs-file $$b.trs \
+	$(am__common_driver_flags) $(AM_LOG_DRIVER_FLAGS) $(LOG_DRIVER_FLAGS) -- $(LOG_COMPILE) \
+	"$$tst" $(AM_TESTS_FD_REDIRECT)
+./tests/mem_sections_headers.sh.log: ./tests/mem_sections_headers.sh
+	@p='./tests/mem_sections_headers.sh'; \
+	b='./tests/mem_sections_headers.sh'; \
+	$(am__check_pre) $(LOG_DRIVER) --test-name "$$f" \
+	--log-file $$b.log --trs-file $$b.trs \
+	$(am__common_driver_flags) $(AM_LOG_DRIVER_FLAGS) $(LOG_DRIVER_FLAGS) -- $(LOG_COMPILE) \
+	"$$tst" $(AM_TESTS_FD_REDIRECT)
+./tests/mem_content_section.sh.log: ./tests/mem_content_section.sh
+	@p='./tests/mem_content_section.sh'; \
+	b='./tests/mem_content_section.sh'; \
+	$(am__check_pre) $(LOG_DRIVER) --test-name "$$f" \
+	--log-file $$b.log --trs-file $$b.trs \
+	$(am__common_driver_flags) $(AM_LOG_DRIVER_FLAGS) $(LOG_DRIVER_FLAGS) -- $(LOG_COMPILE) \
+	"$$tst" $(AM_TESTS_FD_REDIRECT)
 .test.log:
 	@p='$<'; \
 	$(am__set_b); \
@@ -1264,6 +1304,7 @@ distclean: distclean-recursive
 	-rm -f elf_lib/$(DEPDIR)/Phase2.Po
 	-rm -f elf_lib/$(DEPDIR)/elf_lib.Po
 	-rm -f elf_lib/$(DEPDIR)/elf_utils.Po
+	-rm -f elf_lib/$(DEPDIR)/fusion_reloc.Po
 	-rm -f elf_read/$(DEPDIR)/elf_read.Po
 	-rm -f Makefile
 distclean-am: clean-am distclean-compile distclean-generic \
@@ -1318,6 +1359,7 @@ maintainer-clean: maintainer-clean-recursive
 	-rm -f elf_lib/$(DEPDIR)/Phase2.Po
 	-rm -f elf_lib/$(DEPDIR)/elf_lib.Po
 	-rm -f elf_lib/$(DEPDIR)/elf_utils.Po
+	-rm -f elf_lib/$(DEPDIR)/fusion_reloc.Po
 	-rm -f elf_read/$(DEPDIR)/elf_read.Po
 	-rm -f Makefile
 maintainer-clean-am: distclean-am maintainer-clean-generic
