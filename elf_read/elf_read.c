@@ -163,14 +163,15 @@ int main(int argc, char *argv[]) {
         print_sections_header(file, stdout, header, sections, read_section_names(file, sections[header.e_shstrndx]));
     }
     if(show_symbols) {
-        Elf32_Shdr strtab;
+        Elf32_Shdr * strtab = NULL;
+        strtab = malloc(sizeof(Elf32_Shdr));
         //char *symstrtab = NULL;
         //symstrtab = malloc(sizeof(char) * MAX_STRTAB_LEN);
-        if (get_section_by_name(".strtab", header.e_shnum, sections, &strtab, read_section_names(file, sections[header.e_shstrndx]))){
+        if (get_section_by_name(".strtab", header.e_shnum, sections, strtab, read_section_names(file, sections[header.e_shstrndx]))){
             // -- lecture des noms de symboles avant affichage
             fprintf(stderr, "Reading symbols names...\n");
             //strcpy(symstrtab, read_symbol_names(file, strtab));
-            print_symbols(stdout, header, sections, symbols, nb_symbols, read_section_names(file, sections[header.e_shstrndx]), read_symbol_names(file, strtab));
+            print_symbols(stdout, header, sections, symbols, nb_symbols, read_section_names(file, sections[header.e_shstrndx]), read_symbol_names(file, *strtab));
         }
     }
     if(show_relocations) {

@@ -156,7 +156,7 @@ char * read_section_names(FILE *f, Elf32_Shdr STable) {
 
 char * read_symbol_names(FILE *f, Elf32_Shdr STable) {
     char *symstrtab = NULL;
-    symstrtab = malloc(sizeof(char) * 3000);
+    symstrtab = malloc(sizeof(char) * 100000);
     if(symstrtab == NULL){
         perror("Erreur d'allocation mémoire");
         exit(EXIT_FAILURE);
@@ -303,6 +303,7 @@ char * read_from_strtab(Elf32_Word st_name, char * symstrtab) {
         perror("Erreur d'allocation mémoire\n");
         exit(EXIT_FAILURE);
     }
+    fprintf(stderr, "size = %lu\n", strlen(symstrtab+st_name));
 
     strcpy(nSection, symstrtab+st_name);
 
