@@ -282,7 +282,7 @@ void    read_symbols(FILE *f, Elf32_Ehdr elf_h, Elf32_Shdr *arr_elf_SH, Elf32_Sy
         assert(bread(&arr_elf_ST[i].st_other, sizeof(arr_elf_ST[i].st_other), 1, f));
         // fprintf(stderr, "i = %d, st_other : %u\n", i, arr_elf_ST[i].st_other);
         //assert(bread(&arr_elf_ST[i].st_shndx, sizeof(arr_elf_ST[i].st_shndx), 1, f));
-        bread(&arr_elf_ST[i].st_shndx, sizeof(arr_elf_ST[i].st_shndx), 1, f);
+        assert(bread_abs(&arr_elf_ST[i].st_shndx, sizeof(arr_elf_ST[i].st_shndx), 1, f));
         // fprintf(stderr, "i = %d, st_shndx : %u\n", i, arr_elf_ST[i].st_shndx);
     }
     *nb_sym = i;
@@ -292,7 +292,7 @@ void    read_symbols(FILE *f, Elf32_Ehdr elf_h, Elf32_Shdr *arr_elf_SH, Elf32_Sy
 /* Print one symbol */
 void print_symbol(FILE *fout, Elf32_Shdr *arr_elf_Sym, Elf32_Sym elf_Sym, const char *shstrtab, char *symstrtab) {
     fprintf(fout, " %08x", elf_Sym.st_value);
-    fprintf(fout, "     0");
+    fprintf(fout, " %2d", elf_Sym.st_size);
 
     print_st_type(fout, elf_Sym.st_info);
     print_st_bind(fout, elf_Sym.st_info);
@@ -319,18 +319,13 @@ void print_symbols(FILE *fout, Elf32_Ehdr elf_h, Elf32_Shdr *arr_elf_SH, Elf32_S
 
     for (int i = 0; i < nb_sym; i++) {
         fprintf(fout, "   ");
-        if(i > 9)
-            fprintf(fout, " %d:", i);
-        else
-            fprintf(fout, "  %d:", i);
+        fprintf(fout, "%3d:", i);
         print_symbol(fout, arr_elf_SH, arr_elf_ST[i], shstrtab, symstrtab);
         fprintf(fout, "\n");
     }
 }
 
 /* Etape 5 */
-
-
 
 void print_relocation(Elf32_Ehdr elf_h, Elf32_Shdr* elf_SH, Elf32_Sym *elf_Sym, FILE *file, char* shstrtab, char* symstrtab){
     //parcours des sections en cherchant les relocalisations
@@ -349,7 +344,8 @@ void print_relocation(Elf32_Ehdr elf_h, Elf32_Shdr* elf_SH, Elf32_Sym *elf_Sym, 
             Elf32_Rel relocations;
             
             for (int j = 0; j < elf_SH[i].sh_size / sizeof(Elf32_Rel); j++) {
-                assert(bread(&relocations.r_offset, sizeof(relocations.r_offset), 1, file));
+                //assert(bread(&relocations.r_offset, sizeof(relocations.r_offset), 1, file));
+                bread(&relocations.r_offset, sizeof(relocations.r_offset), 1, file);
                 assert(bread(&relocations.r_info, sizeof(relocations.r_info), 1, file));
                 int symb = ELF32_R_SYM(relocations.r_info);
                 int typint = ELF32_R_TYPE(relocations.r_info);

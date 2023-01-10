@@ -25,6 +25,8 @@
  */
 size_t bread(void * buffer, size_t s, size_t n, FILE *f);
 
+size_t bread_abs(void * buffer, size_t s, size_t n, FILE *f);
+
 /**
  * @brief   Affiche le type du fichier ELF
  *

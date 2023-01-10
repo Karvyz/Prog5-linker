@@ -1,5 +1,7 @@
-/*
- * elf_read.c : Programme principal
+/**
+ * @file     elf_read.c
+ * @author   groupe 14
+ * @date     14 Decembre 2022
  */
 
 #include <getopt.h>
@@ -231,7 +233,7 @@ int main(int argc, char *argv[]) {
                 continue;
             }
             size_t size = strlen(sectionsFusion->data[i]);
-            fprintf(stderr, "size = %zu\n", size);
+            //fprintf(stderr, "size = %zu\n", size);
             chaine_hexa = malloc(2 * size + 1);
             if (chaine_hexa == NULL) {
                 perror("Erreur lors de l'allocation de mémoire pour la chaîne hexadécimale");
@@ -241,7 +243,7 @@ int main(int argc, char *argv[]) {
                 sprintf(chaine_hexa + 2*j, "%02x", sectionsFusion->data[i][j]);
             }
             chaine_hexa[2*size] = '\0';
-            fprintf(stderr, "sectionsFusion[%d] : data = %s\n", i, chaine_hexa);
+            //fprintf(stderr, "sectionsFusion[%d] : data = %s\n", i, chaine_hexa);
         }
 
         // TODO

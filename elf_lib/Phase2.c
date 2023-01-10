@@ -1,3 +1,9 @@
+/**
+ * @file     Phase2.c
+ * @author   groupe 14
+ * @date     14 Decembre 2022
+ */
+
 #include "Phase2.h"
 #include "elf_utils.h"
 #include <elf.h>
@@ -99,7 +105,7 @@ SectionFusion *fusion_sections(FILE *f1, FILE *f2, Elf32_Ehdr header1, Elf32_Shd
     }
     fusion->nb_sections = 0;
     fusion->sections = NULL;
-    fprintf(stderr, "res = %lu\n", sizeof(SectionChanges) * nb_sym2);
+    //fprintf(stderr, "res = %lu\n", sizeof(SectionChanges) * nb_sym2);
     fusion->changes=malloc(sizeof(SectionChanges) * nb_sym2);
     if(!fusion->changes){
         perror("Erreur lors de l'allocation de la structure SectionFusion->changes");
@@ -112,7 +118,7 @@ SectionFusion *fusion_sections(FILE *f1, FILE *f2, Elf32_Ehdr header1, Elf32_Shd
     }
 
     for (int i = 0; i < nb_sym1; i++){
-        fprintf(stderr, "i=%d\n", i);
+        //fprintf(stderr, "i=%d\n", i);
 
         if(sections1[i].sh_type == SHT_STRTAB && sections[i].sh_name == header1.e_shstrndx){
             //new_header.e_shstrndx = sections1[i].sh_offset;
@@ -131,7 +137,7 @@ SectionFusion *fusion_sections(FILE *f1, FILE *f2, Elf32_Ehdr header1, Elf32_Shd
             // Booleen pour vérifier si la section 1 peut être ajoutée si pas de fusion possible
             int bool = 0;
             for(int j = 1; j < nb_sym2; j++) {
-                fprintf(stderr, "j=%d\n", j);
+                //fprintf(stderr, "j=%d\n", j);
                 // Nom de la section courant du fichier 2
                 name2 = malloc(sizeof(char) * 30);
                 if(!name2) {
@@ -144,7 +150,7 @@ SectionFusion *fusion_sections(FILE *f1, FILE *f2, Elf32_Ehdr header1, Elf32_Shd
                 if(strcmp(names1[i], "\0") == 0 || strcmp(names2[j], "\0") == 0 || names1[i] == NULL || names2[j] == NULL || strcmp(names1[i], "") == 0 || strcmp(names2[j], "") == 0){
                     continue;
                 }
-                fprintf(stderr, "name 1 = %s name2 = %s\n", names1[i], names2[j]);
+                //fprintf(stderr, "name 1 = %s name2 = %s\n", names1[i], names2[j]);
                 // test si type = PROGBIT et même nom que la section du 1
                 if(sections2[j].sh_type == SHT_PROGBITS && (strcmp(names1[i], names2[j]) == 0)) {
                     // Mis à jour du booleen
@@ -262,7 +268,7 @@ SectionFusion *fusion_sections(FILE *f1, FILE *f2, Elf32_Ehdr header1, Elf32_Shd
             // On copie dans data la section du 2
             memcpy(data, f2, sections2[j].sh_size);
             // On met à jour le tableau changes
-            fprintf(stderr, "section 2 non concat : j = %d, new numero = %d\n", j, nb_sym1 + current);
+            //fprintf(stderr, "section 2 non concat : j = %d, new numero = %d\n", j, nb_sym1 + current);
             new = nb_sym1 + current;
             changes[j].old_index = j;
             changes[j].new_index = new;
