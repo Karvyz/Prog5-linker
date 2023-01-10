@@ -1,8 +1,9 @@
 #!/bin/bash
 for file in Exemples_ELF32_Files/*.o
 do
-    valgrind -q ./read_elf -s $file 1> tmp1 2> error.txt
+    valgrind -q --leak-check=full --show-leak-kinds=all ./read_elf -s $file 1> tmp1 2> error.txt
     if [ -s error.txt ]; then
+        echo Memory leak on file $file with option -s
         rm tmp1 error.txt
         exit 1
     fi
