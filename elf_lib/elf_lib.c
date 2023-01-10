@@ -4,11 +4,12 @@
  * @date     14 Decembre 2022
  */
 
+#include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
 #include <assert.h>
-#include "elf_lib/elf_lib.h"
-#include "elf_lib/elf_utils.h"
+#include "elf_lib.h"
+#include "elf_utils.h"
 
 void init_header(FILE *f, Elf32_Ehdr *elf_h){
     unsigned char e_ident[EI_NIDENT];
@@ -58,29 +59,29 @@ void print_elf(FILE *fout, Elf32_Ehdr elf_h){
     }
     fprintf(fout, "\n");
 
-    fprintf(fout, "  Class:\t\t\t     ");
+    fprintf(fout, "  Class:                             ");
     if (elf_h.e_ident[EI_CLASS] == ELFCLASS32) fprintf(fout, "ELF32\n");
     else fprintf(fout, "None\n");
-    fprintf(fout, "  Data:\t\t\t\t     ");
+    fprintf(fout, "  Data:                              ");
 
     if (elf_h.e_ident[EI_DATA] == ELFDATA2MSB) fprintf(fout, "2's complement, big endian\n");
     else if(elf_h.e_ident[EI_DATA] == ELFDATA2LSB) fprintf(fout, "2's complement, little endian\n");
 
     print_elf_version(fout, elf_h.e_version);
     print_OS_ABI(fout, elf_h.e_ident[EI_OSABI]);
-    fprintf(fout, "  ABI Version:\t\t\t     %d\n", elf_h.e_ident[EI_ABIVERSION]);
+    fprintf(fout, "  ABI Version:                       %d\n", elf_h.e_ident[EI_ABIVERSION]);
     print_elf_type(fout, elf_h.e_type);
     print_elf_machine(fout, elf_h.e_machine);
-    fprintf(fout, "  Version:\t\t\t     0x%1.x\n", elf_h.e_version);
-    fprintf(fout, "  Entry point address:\t\t     0x%.1x\n", elf_h.e_entry);
-    fprintf(fout, "  Start of program headers:\t     %d (bytes into file)\n", elf_h.e_phoff);
-    fprintf(fout, "  Start of section headers:\t     %d (bytes into file)\n", elf_h.e_shoff);
-    fprintf(fout, "  Flags:\t\t\t     %#x, Version5 EABI\n",elf_h.e_flags);
-    fprintf(fout, "  Size of this header:\t\t     %d (bytes)\n", elf_h.e_ehsize);
-    fprintf(fout, "  Size of program headers:\t     %d (bytes)\n", elf_h.e_phentsize);
-    fprintf(fout, "  Number of program headers:\t     %d\n", elf_h.e_phnum);
-    fprintf(fout, "  Size of section headers:\t     %d (bytes)\n", elf_h.e_shentsize);
-    fprintf(fout, "  Number of section headers:\t     %d\n", elf_h.e_shnum);
+    fprintf(fout, "  Version:                           0x%1.x\n", elf_h.e_version);
+    fprintf(fout, "  Entry point address:               0x%.1x\n", elf_h.e_entry);
+    fprintf(fout, "  Start of program headers:          %d (bytes into file)\n", elf_h.e_phoff);
+    fprintf(fout, "  Start of section headers:          %d (bytes into file)\n", elf_h.e_shoff);
+    fprintf(fout, "  Flags:                             %#x, Version5 EABI\n",elf_h.e_flags);
+    fprintf(fout, "  Size of this header:               %d (bytes)\n", elf_h.e_ehsize);
+    fprintf(fout, "  Size of program headers:           %d (bytes)\n", elf_h.e_phentsize);
+    fprintf(fout, "  Number of program headers:         %d\n", elf_h.e_phnum);
+    fprintf(fout, "  Size of section headers:           %d (bytes)\n", elf_h.e_shentsize);
+    fprintf(fout, "  Number of section headers:         %d\n", elf_h.e_shnum);
     fprintf(fout, "  Section header string table index: %d\n", elf_h.e_shstrndx);
 }
 
@@ -94,7 +95,9 @@ void read_sections(FILE *f, Elf32_Ehdr elf_h, Elf32_Shdr *arr_elf_SH){
         assert(bread(&arr_elf_SH[i].sh_type, sizeof(arr_elf_SH[i].sh_type), 1, f));
         assert(bread(&arr_elf_SH[i].sh_flags, sizeof(arr_elf_SH[i].sh_flags), 1, f));
         assert(bread(&arr_elf_SH[i].sh_addr, sizeof(arr_elf_SH[i].sh_addr), 1, f));
-        assert(bread(&arr_elf_SH[i].sh_offset, sizeof(arr_elf_SH[i].sh_offset), 1, f));
+        // assert(bread(&arr_elf_SH[i].sh_offset, sizeof(arr_elf_SH[i].sh_offset), 1, f));
+        bread(&arr_elf_SH[i].sh_offset, sizeof(arr_elf_SH[i].sh_offset), 1, f);
+
         assert(bread(&arr_elf_SH[i].sh_size, sizeof(arr_elf_SH[i].sh_size), 1, f));
         assert(bread(&arr_elf_SH[i].sh_link, sizeof(arr_elf_SH[i].sh_link), 1, f));
         assert(bread(&arr_elf_SH[i].sh_info, sizeof(arr_elf_SH[i].sh_info), 1, f));
@@ -111,144 +114,140 @@ void print_sections_header(FILE *fin, FILE *fout, Elf32_Ehdr elf_h, Elf32_Shdr *
 
     // Les noms de chaque section
     fprintf(fout,"Section Headers:\n");
-    fprintf(fout, "  [Nr]\tNom\t\t   Type\t\t\tAdr\tDécala. Taille ES Fan\tLN Inf  Al\n");
-
+    fprintf(fout, "  [Nr] Name              Type            Addr     Off    Size   ES Flg Lk Inf Al\n");
+    
     for (int i = 0; i < elf_h.e_shnum; i++) {
         // Numéro sections
-        fprintf(fout,"  [%d]\t",i);
+        fprintf(fout,"  [%2d] ",i);
 
         // Nom de la section
-        fprintf(fout,"%-20s", read_from_shstrtab(arr_elf_SH[i].sh_name,read_section_names(fin, arr_elf_SH[elf_h.e_shstrndx])));
+        char* section_name = read_from_shstrtab(arr_elf_SH[i].sh_name, shstrtab);
+        int k = 0;
+        for (; section_name[k] != '\0'; k++) {}
+        if (k > 15) {
+            strcpy(&section_name[12], "[...]\0");
+        }
+        fprintf(fout,"%-18s", section_name);
 
         // Gestion du type
         switch (arr_elf_SH[i].sh_type) {
-            case SHT_PROGBITS:
-                fprintf(fout,"PROGBITS\t");
-                break;
-            case SHT_SYMTAB:
-                fprintf(fout,"SYMTAB\t");
-                break;
-            case SHT_STRTAB:
-                fprintf(fout,"STRTAB\t");
-                break;
-            case SHT_RELA:
-                fprintf(fout,"RELA\t");
-                break;
-            case SHT_HASH:
-                fprintf(fout,"HASH\t");
-                break;
-            case SHT_DYNAMIC:
-                fprintf(fout,"DYNAMIC\t");
-                break;
-            case SHT_NOTE:
-                fprintf(fout,"NOTE\t");
-                break;
-            case SHT_NOBITS:
-                fprintf(fout,"NOBITS\t");
-                break;
-            case SHT_REL:
-                fprintf(fout,"REL\t\t");
-                break;
-            case SHT_SHLIB:
-                fprintf(fout,"SHLIB\t");
-                break;
-            case SHT_DYNSYM:
-                fprintf(fout,"DYNSYM\t");
-                break;
-            case SHT_LOPROC:
-                fprintf(fout,"LOPROC\t");
-                break;
-            case SHT_HIPROC:
-                fprintf(fout,"HIPROC\t");
-                break;
-            case SHT_LOUSER:
-                fprintf(fout,"LOUSER\t");
-                break;
-            case SHT_HIUSER:
-                fprintf(fout,"HIUSER\t");
-                break;
-            case SHT_ARM_ATTRIBUTES:
-                fprintf(fout,"ARM_ATTRIBUTES");
-                break;
-            case SHT_NULL:
-                fprintf(fout,"NULL\t");
-                break;
-        }
+	      case SHT_PROGBITS:
+		    fprintf(fout, "%-16s", "PROGBITS");
+		    break;
+	      case SHT_SYMTAB:
+            fprintf(fout, "%-16s", "SYMTAB");
+            break;
+	      case SHT_STRTAB:
+            fprintf(fout, "%-16s", "STRTAB");
+            break;
+	      case SHT_RELA:
+            fprintf(fout, "%-16s", "RELA");
+            break;
+          case SHT_HASH:
+            fprintf(fout, "%-16s", "HASH");
+            break;
+	      case SHT_DYNAMIC:
+            fprintf(fout, "%-16s", "DYNAMIC");
+            break;	      
+          case SHT_NOTE:
+            fprintf(fout, "%-16s", "NOTE");
+            break;
+          case SHT_NOBITS:
+            fprintf(fout, "%-16s", "NOBITS");
+            break;
+	      case SHT_REL:
+            fprintf(fout, "%-16s", "REL");
+            break;
+	      case SHT_SHLIB:
+            fprintf(fout, "%-16s", "SHLIB");
+            break;
+	      case SHT_DYNSYM:
+            fprintf(fout, "%-16s", "DYNSYM");
+            break;	      
+          case SHT_LOPROC:
+            fprintf(fout, "%-16s", "LOPROC");
+            break;
+	      case SHT_HIPROC:
+            fprintf(fout, "%-16s", "HIPROC");
+            break;
+	      case SHT_LOUSER:
+            fprintf(fout, "%-16s", "LOUSER");
+            break;
+	      case SHT_HIUSER:
+            fprintf(fout, "%-16s", "HIUSER");
+            break;
+          case SHT_ARM_ATTRIBUTES:
+            fprintf(fout, "%-16s", "ARM_ATTRIBUTES");
+            break;
+	      case SHT_NULL:
+            fprintf(fout, "%-16s", "NULL");
+            break;
+	    }
 
-        // Affichage de Adr , Decala. , Taille et ES
-        fprintf(fout, "\t%08x ", arr_elf_SH[i].sh_addr);
+        // Affichage de Addr ,Offset ,Size et ES
+        fprintf(fout, "%08x ", arr_elf_SH[i].sh_addr);
         fprintf(fout, "%06x ", arr_elf_SH[i].sh_offset);
         fprintf(fout, "%06x ", arr_elf_SH[i].sh_size);
         fprintf(fout, "%02x ", arr_elf_SH[i].sh_entsize);
 
 
 
-        ///////////////////// Gestion des flags/Fanions /////////////////////////
-        if (arr_elf_SH[i].sh_flags & SHF_WRITE)
-            fprintf(fout,"W");
-        if (arr_elf_SH[i].sh_flags & SHF_ALLOC)
-            fprintf(fout,"A");
-        if (arr_elf_SH[i].sh_flags & SHF_EXECINSTR)
-            fprintf(fout,"X");
-        if (arr_elf_SH[i].sh_flags & SHF_MERGE)
-            fprintf(fout,"M");
-        if (arr_elf_SH[i].sh_flags & SHF_STRINGS)
-            fprintf(fout,"S");
-        if (arr_elf_SH[i].sh_flags & SHF_INFO_LINK)
-            fprintf(fout,"I");
-        if (arr_elf_SH[i].sh_flags & SHF_LINK_ORDER)
-            fprintf(fout,"L");
-        if (arr_elf_SH[i].sh_flags & SHF_OS_NONCONFORMING)
-            fprintf(fout,"Nos");
-        if (arr_elf_SH[i].sh_flags & SHF_GROUP)
-            fprintf(fout,"G");
-        if (arr_elf_SH[i].sh_flags & SHF_TLS)
-            fprintf(fout,"T");
-        if (arr_elf_SH[i].sh_flags & SHF_COMPRESSED)
-            fprintf(fout,"C");
-        if (arr_elf_SH[i].sh_flags & SHF_MASKOS)
-            fprintf(fout,"o");
-        if (arr_elf_SH[i].sh_flags & SHF_MASKPROC)
-            fprintf(fout,"p");
-        if (arr_elf_SH[i].sh_flags & SHF_GNU_RETAIN)
-            fprintf(fout,"GNU");
-        if (arr_elf_SH[i].sh_flags & SHF_ORDERED)
-            fprintf(fout,"O");
-        if (arr_elf_SH[i].sh_flags & SHF_EXCLUDE)
-            fprintf(fout,"E");
-        /////////////////////////////////////////////////////////////////////
+    ///////////////////// Gestion des flags///////////////////////////////
+        char f[] = "\0\0\0";
+        int j = 0;
+        if (arr_elf_SH[i].sh_flags & SHF_WRITE) {f[j] = 'W'; j++;}
+        if (arr_elf_SH[i].sh_flags & SHF_ALLOC) {f[j] = 'A'; j++;}
+        if (arr_elf_SH[i].sh_flags & SHF_EXECINSTR) {f[j] = 'X'; j++;}
+        if (arr_elf_SH[i].sh_flags & SHF_MERGE) {f[j] = 'M'; j++;}
+        if (arr_elf_SH[i].sh_flags & SHF_STRINGS) {f[j] = 'S'; j++;}
+        if (arr_elf_SH[i].sh_flags & SHF_INFO_LINK) {f[j] = 'I'; j++;}
+        if (arr_elf_SH[i].sh_flags & SHF_LINK_ORDER) {f[j] = 'L'; j++;}
+        if (arr_elf_SH[i].sh_flags & SHF_GROUP) {f[j] = 'G'; j++;}
+        if (arr_elf_SH[i].sh_flags & SHF_TLS) {f[j] = 'T'; j++;}
+        if (arr_elf_SH[i].sh_flags & SHF_COMPRESSED) {f[j] = 'C'; j++;}
+        if (arr_elf_SH[i].sh_flags & SHF_MASKOS) {f[j] = 'o'; j++;}
+        if (arr_elf_SH[i].sh_flags & SHF_MASKPROC) {f[j] = 'p'; j++;}
+        if (arr_elf_SH[i].sh_flags & SHF_ORDERED) {f[j] = 'O'; j++;}
+        if (arr_elf_SH[i].sh_flags & SHF_EXCLUDE) {f[j] = 'E'; j++;}
+        fprintf(fout, "%3s ", f);
+    /////////////////////////////////////////////////////////////////////
 
-        // Affichage de LN , Inf et Al
-        fprintf(fout, "\t%2d", arr_elf_SH[i].sh_link);
+        // Affichage de Lk , Inf et Al
+        fprintf(fout, "%2d", arr_elf_SH[i].sh_link);
         fprintf(fout, "%4d", arr_elf_SH[i].sh_info);
-        fprintf(fout, "%4d", arr_elf_SH[i].sh_addralign);
+        fprintf(fout, "%3d", arr_elf_SH[i].sh_addralign);
 
         // Retour fin de ligne
         fprintf(fout,"\n");
     }
-    // Legende des Fan (A verifier)
-    fprintf(fout,"Key to Flags:\n W (write), A (alloc), X (execute), M (merge), S (strings), I (info),\n");
-    fprintf(fout," L (link order), O (extra OS processing required), G (group), T (TLS),\n");
-    fprintf(fout," C (compressed), x (unknown), o (OS specific), GNU ( Not to be GCed by linker),\n");
-    fprintf(fout," E (exclude), Nos (Non-standard OS specific handling required), p (processor specific)\n");
+    // Legende des Flags (A verifier)
+    fprintf(fout,"Key to Flags:\n  W (write), A (alloc), X (execute), M (merge), S (strings), I (info),\n");
+    fprintf(fout,"  L (link order), O (extra OS processing required), G (group), T (TLS),\n");
+    fprintf(fout,"  C (compressed), x (unknown), o (OS specific), E (exclude),\n");
+    fprintf(fout,"  D (mbind), y (purecode), p (processor specific)\n");
 }
 
 /* Etape 3 */
 
 void print_section_content(FILE *f, FILE *fout, Elf32_Shdr *elf_SH, char *shstrtab) {
     if(elf_SH->sh_size == 0) {
-        fprintf(fout, "Section '%s' has no data.\n", read_from_shstrtab(elf_SH->sh_name, shstrtab));
+        char* tmp = read_from_shstrtab(elf_SH->sh_name, shstrtab);
+        if (tmp == NULL) {return;}
+        fprintf(fout, "Section '%s' has no data to dump.", tmp);
+        free(tmp);
         return;
     }
     fprintf(fout, "\n");
-    fprintf(fout, "Hex dump of section '%s':", read_from_shstrtab(elf_SH->sh_name, shstrtab));
-    fprintf(fout, "\n");
+    char* tmp = read_from_shstrtab(elf_SH->sh_name, shstrtab);
+    if (tmp == NULL) {return;}
+    fprintf(fout, "Hex dump of section '%s':", tmp);
+    free(tmp);
 
     fseek(f, elf_SH->sh_offset, SEEK_SET);
 
     for (int i = 0; i < elf_SH->sh_size; i++) {
         if (i%4 == 0) fprintf(fout, " ");
-        if (i%16 == 0) fprintf(fout, "\n0x%08x ", i);
+        if (i%16 == 0) fprintf(fout, "\n  0x%08x ", i);
         fprintf(fout, "%.2x", fgetc(f));
     }
     fprintf(fout, "\n");
@@ -257,7 +256,7 @@ void print_section_content(FILE *f, FILE *fout, Elf32_Shdr *elf_SH, char *shstrt
 
 /* Etape 4 */
 
-void read_symbols(FILE *f, Elf32_Ehdr elf_h, Elf32_Shdr *arr_elf_SH, Elf32_Sym *arr_elf_ST, int *nb_sym){
+void    read_symbols(FILE *f, Elf32_Ehdr elf_h, Elf32_Shdr *arr_elf_SH, Elf32_Sym *arr_elf_ST, int *nb_sym){
     // Check if there is a symbol table
     Elf32_Shdr *SymTab = NULL;
     SymTab = malloc(sizeof(Elf32_Shdr));
@@ -273,18 +272,18 @@ void read_symbols(FILE *f, Elf32_Ehdr elf_h, Elf32_Shdr *arr_elf_SH, Elf32_Sym *
     int i = 0; // Count the number of symbols
     for (i = 0; i < SymTab->sh_size / sizeof(Elf32_Sym) ; i++){ // Read all the symbols
         assert(bread(&arr_elf_ST[i].st_name, sizeof(arr_elf_ST[i].st_name), 1, f));
-        fprintf(stderr, "i = %d, st_name : %u\n", i, arr_elf_ST[i].st_name);
+        // fprintf(stderr, "i = %d, st_name : %u\n", i, arr_elf_ST[i].st_name);
         assert(bread(&arr_elf_ST[i].st_value, sizeof(arr_elf_ST[i].st_value), 1, f));
-        fprintf(stderr, "i = %d, st_value : %u\n", i, arr_elf_ST[i].st_value);
+        // fprintf(stderr, "i = %d, st_value : %u\n", i, arr_elf_ST[i].st_value);
         assert(bread(&arr_elf_ST[i].st_size, sizeof(arr_elf_ST[i].st_size), 1, f));
-        fprintf(stderr, "i = %d, st_size : %u\n", i, arr_elf_ST[i].st_size);
+        // fprintf(stderr, "i = %d, st_size : %u\n", i, arr_elf_ST[i].st_size);
         assert(bread(&arr_elf_ST[i].st_info, sizeof(arr_elf_ST[i].st_info), 1, f));
-        fprintf(stderr, "i = %d, st_info : %u\n", i, arr_elf_ST[i].st_info);
+        // fprintf(stderr, "i = %d, st_info : %u\n", i, arr_elf_ST[i].st_info);
         assert(bread(&arr_elf_ST[i].st_other, sizeof(arr_elf_ST[i].st_other), 1, f));
-        fprintf(stderr, "i = %d, st_other : %u\n", i, arr_elf_ST[i].st_other);
+        // fprintf(stderr, "i = %d, st_other : %u\n", i, arr_elf_ST[i].st_other);
         //assert(bread(&arr_elf_ST[i].st_shndx, sizeof(arr_elf_ST[i].st_shndx), 1, f));
         bread(&arr_elf_ST[i].st_shndx, sizeof(arr_elf_ST[i].st_shndx), 1, f);
-        fprintf(stderr, "i = %d, st_shndx : %u\n", i, arr_elf_ST[i].st_shndx);
+        // fprintf(stderr, "i = %d, st_shndx : %u\n", i, arr_elf_ST[i].st_shndx);
     }
     *nb_sym = i;
     free(SymTab);
@@ -292,8 +291,8 @@ void read_symbols(FILE *f, Elf32_Ehdr elf_h, Elf32_Shdr *arr_elf_SH, Elf32_Sym *
 
 /* Print one symbol */
 void print_symbol(FILE *fout, Elf32_Shdr *arr_elf_Sym, Elf32_Sym elf_Sym, const char *shstrtab, char *symstrtab) {
-    fprintf(fout, "\t%08x", elf_Sym.st_value);
-    fprintf(fout, "\t   0");
+    fprintf(fout, " %08x", elf_Sym.st_value);
+    fprintf(fout, "     0");
 
     print_st_type(fout, elf_Sym.st_info);
     print_st_bind(fout, elf_Sym.st_info);
@@ -301,16 +300,22 @@ void print_symbol(FILE *fout, Elf32_Shdr *arr_elf_Sym, Elf32_Sym elf_Sym, const 
     print_st_shndx(fout, elf_Sym.st_shndx);
 
     if(ELF32_ST_TYPE(elf_Sym.st_info) == STT_SECTION) {
-        fprintf(fout, "\t%s", read_from_shstrtab(arr_elf_Sym[elf_Sym.st_shndx].sh_name, shstrtab));
+        char* tmp = read_from_shstrtab(arr_elf_Sym[elf_Sym.st_shndx].sh_name, shstrtab);
+        if (tmp == NULL) {return;} 
+        fprintf(fout, " %s", tmp);
+        free(tmp);
     } else {
-        fprintf(fout, "\t%s", read_from_strtab(elf_Sym.st_name, symstrtab));
+        char* tmp = read_from_strtab(elf_Sym.st_name, symstrtab);
+        if (tmp == NULL) {return;} 
+        fprintf(fout, " %s", tmp);
+        free(tmp);
     }
 }
 
 /* Print the symbol table */
 void print_symbols(FILE *fout, Elf32_Ehdr elf_h, Elf32_Shdr *arr_elf_SH, Elf32_Sym *arr_elf_ST, int nb_sym, const char *shstrtab, char *symstrtab) {
     fprintf(fout, "\nSymbol table '.symtab' contains %d entries:\n", nb_sym);
-    fprintf(fout, "   Num:\tValue\t\tSize\tType\tBind\tVis\tNdx\tName\n");
+    fprintf(fout, "   Num:    Value  Size Type    Bind   Vis      Ndx Name\n");
 
     for (int i = 0; i < nb_sym; i++) {
         fprintf(fout, "   ");
@@ -324,3 +329,52 @@ void print_symbols(FILE *fout, Elf32_Ehdr elf_h, Elf32_Shdr *arr_elf_SH, Elf32_S
 }
 
 /* Etape 5 */
+
+
+
+void print_relocation(Elf32_Ehdr elf_h, Elf32_Shdr* elf_SH, Elf32_Sym *elf_Sym, FILE *file, char* shstrtab, char* symstrtab){
+    //parcours des sections en cherchant les relocalisations
+
+    int bool = 1;
+    for (int i = 0; i < elf_h.e_shnum; i++) {
+        if (elf_SH[i].sh_type == SHT_REL) {
+            bool = 0;
+            char* tmp = read_from_shstrtab(elf_SH[i].sh_name, shstrtab);
+            printf("\nRelocation section '%s' at offset 0x%x contains %ld entr%s:\n", (tmp != NULL) ? tmp : "", elf_SH[i].sh_offset, elf_SH[i].sh_size / sizeof(Elf32_Rel), (elf_SH[i].sh_size / sizeof(Elf32_Rel) < 2) ? "y" : "ies");
+            if (tmp != NULL) {
+                free(tmp);
+            }
+            printf(" Offset     Info    Type            Sym.Value  Sym. Name\n");
+            fseek(file, elf_SH[i].sh_offset, SEEK_SET);
+            Elf32_Rel relocations;
+            
+            for (int j = 0; j < elf_SH[i].sh_size / sizeof(Elf32_Rel); j++) {
+                assert(bread(&relocations.r_offset, sizeof(relocations.r_offset), 1, file));
+                assert(bread(&relocations.r_info, sizeof(relocations.r_info), 1, file));
+                int symb = ELF32_R_SYM(relocations.r_info);
+                int typint = ELF32_R_TYPE(relocations.r_info);
+                char* typechar = revert_define_type_relocation(typint);
+                char * nomSymb;
+                if(ELF32_ST_TYPE(elf_Sym[symb].st_info) == STT_SECTION) {
+                    nomSymb = read_from_shstrtab(elf_SH[elf_Sym[symb].st_shndx].sh_name, shstrtab);
+                } else {
+                    nomSymb = read_from_strtab(elf_Sym[symb].st_name, symstrtab);
+                }
+                printf("%08x  %08x %-17s",
+                        relocations.r_offset,
+                        relocations.r_info, 
+                        typechar);
+                if (typint == 1 || typint == 2 || typint == 28 || typint == 29) {
+                    printf(" %08x   %s", elf_Sym[symb].st_value, nomSymb);
+                }
+                printf("\n");
+                
+                free(typechar);
+                free(nomSymb);
+            }
+        }
+    }
+    if (bool) {
+        printf("\nThere are no relocations in this file.\n");
+    }
+}

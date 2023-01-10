@@ -32,13 +32,13 @@ size_t bread(void * buffer, size_t s, size_t n, FILE *f){
 }
 
 void print_elf_type(FILE *fout, Elf32_Word e_type){
-    fprintf(fout, "  Type:\t\t\t\t     ");
+    fprintf(fout, "  Type:                              ");
     switch(e_type){
         case ET_NONE:
             fprintf(fout, "No file type\n");
             break;
         case ET_REL:
-            fprintf(fout, "Relocatable file\n");
+            fprintf(fout, "REL (Relocatable file)\n");
             break;
         case ET_EXEC:
             fprintf(fout, "Executable file\n");
@@ -62,13 +62,13 @@ void print_elf_type(FILE *fout, Elf32_Word e_type){
 }
 
 void print_elf_version(FILE *fout, Elf32_Word e_version){
-    fprintf(fout, "  Version:\t\t\t     ");
+    fprintf(fout, "  Version:                           ");
     switch(e_version){
         case EV_NONE:
             fprintf(fout, "Invalid version\n");
             break;
         case EV_CURRENT:
-            fprintf(fout, "Current version\n");
+            fprintf(fout, "1 (current)\n");
             break;
         default:
             fprintf(fout, "%x\n", e_version);
@@ -77,7 +77,7 @@ void print_elf_version(FILE *fout, Elf32_Word e_version){
 }
 
 void print_elf_machine(FILE *fout, Elf32_Half e_machine) {
-    fprintf(fout, "  Machine:\t\t\t     ");
+    fprintf(fout, "  Machine:                           ");
     switch (e_machine) {
         case ET_NONE:
             fprintf(fout, "No machine\n");
@@ -116,7 +116,7 @@ void print_elf_machine(FILE *fout, Elf32_Half e_machine) {
 }
 
 void print_OS_ABI(FILE *fout, unsigned char OSABI){
-    fprintf(fout, "  OS/ABI:\t\t\t     ");
+    fprintf(fout, "  OS/ABI:                            ");
     switch (OSABI) {
         case ELFOSABI_SYSV: fprintf(fout, "UNIX - System V\n"); break;
         case ELFOSABI_HPUX: fprintf(fout, "HP-UX ABI\n"); break;
@@ -146,7 +146,7 @@ char * read_section_names(FILE *f, Elf32_Shdr STable) {
     }
     int s = 0;
     fseek(f, STable.sh_offset, SEEK_SET);
-    fprintf(stderr, "size = %d\n", STable.sh_size);
+    // fprintf(stderr, "size = %d\n", STable.sh_size);
     while (s < STable.sh_size) {
         bread(&shstrtab[s], sizeof(char), 1, f);
         s++;
@@ -163,7 +163,7 @@ char * read_symbol_names(FILE *f, Elf32_Shdr STable) {
     }
     int s = 0;
     fseek(f, STable.sh_offset, SEEK_SET);
-    fprintf(stderr, "size = %d\n", STable.sh_size);
+    // fprintf(stderr, "size = %d\n", STable.sh_size);
     while (s < STable.sh_size) {
         bread(&symstrtab[s], sizeof(char), 1, f);
         s++;
@@ -174,34 +174,25 @@ char * read_symbol_names(FILE *f, Elf32_Shdr STable) {
 char * read_from_shstrtab(uint32_t st_name, const char * shstrtab) {
     int i = (int) st_name;
     char *nSection = malloc(MAX_STRTAB_LEN); // Max 150 char
-
-    strcpy(nSection, shstrtab+i);
-
-#if 0
-    int j = 0;
-    while (shstrtab[i] != '\0') {
-        nSection[j] = shstrtab[i]; // copy the name of the section in nSection
-        i++; /* hkjhkj */
-        j++;
-    }
-    nSection[j] = '\0';
-#endif
+    if (nSection == NULL) {return NULL;}
+    strcpy(nSection, &shstrtab[i]);
     return nSection;
 }
 
 int get_section_by_name(char *name, int shnum, Elf32_Shdr *sections, Elf32_Shdr *section, char *shstrtab) {
+    if (name == NULL) {
+        return 0;
+    }
     int i = 0;
     for (i = 0; i < shnum; i++) {
-        char *name2 = NULL;
-        name2 = malloc(MAX_STRTAB_LEN);
-        if(!name2)
-            fprintf(stderr, "Error: malloc failed\n");
-        strcpy(name2,read_from_shstrtab(sections[i].sh_name, shstrtab));
-        fprintf(stderr, "name2: %s\n", name2);
-        fprintf(stderr, "name: %s\n", name);
-        if (strcmp(name2, name) == 0) { // Si le nom de la section correspond au nom recherché
-            *section = sections[i]; // On modifie la section (vide) passée en paramètre par la section trouvée
-            return 1;
+        char *name2 = read_from_shstrtab(sections[i].sh_name, shstrtab);
+        if (name2 != NULL) {
+            if (strcmp(name2, name) == 0) { // Si le nom de la section correspond au nom recherché
+                *section = sections[i]; // On modifie la section (vide) passée en paramètre par la section trouvée
+                free(name2);
+                return 1;
+            }
+            free(name2);
         }
     }
     return 0;
@@ -209,113 +200,132 @@ int get_section_by_name(char *name, int shnum, Elf32_Shdr *sections, Elf32_Shdr 
 
 /* Etape 4 */
 void print_st_type(FILE *fout, Elf32_Word st_type){
+    printf(" ");
     switch(ELF32_ST_TYPE(st_type)){
         case STT_NOTYPE:
-            fprintf(fout, "\tNOTYPE");
+            fprintf(fout, "NOTYPE ");
             break;
         case STT_OBJECT:
-            fprintf(fout, "\tOBJECT");
+            fprintf(fout, "OBJECT ");
             break;
         case STT_FUNC:
-            fprintf(fout, "\tFUNC");
+            fprintf(fout, "FUNC   ");
             break;
         case STT_SECTION:
-            fprintf(fout, "\tSECTION");
+            fprintf(fout, "SECTION");
             break;
         case STT_FILE:
-            fprintf(fout, "\tFILE");
+            fprintf(fout, "FILE   ");
             break;
         case STT_LOPROC:
-            fprintf(fout, "\tLOPROC");
+            fprintf(fout, "LOPROC ");
             break;
         case STT_HIPROC:
-            fprintf(fout, "\tHIPROC");
+            fprintf(fout, "HIPROC ");
             break;
         default:
-            fprintf(fout, "\tUNKNOWN");
+            fprintf(fout, "UNKNOWN");
             break;
     }
 }
 
 void print_st_bind(FILE *fout, Elf32_Word st_bind){
+    printf(" ");
     switch(ELF32_ST_BIND(st_bind)){
         case STB_LOCAL:
-            fprintf(fout, "\tLOCAL");
+            fprintf(fout, "LOCAL ");
             break;
         case STB_GLOBAL:
-            fprintf(fout, "\tGLOBAL");
+            fprintf(fout, "GLOBAL");
             break;
         case STB_WEAK:
-            fprintf(fout, "\tWEAK");
+            fprintf(fout, "WEAK  ");
             break;
         case STB_LOPROC:
-            fprintf(fout, "\tLOPROC");
+            fprintf(fout, "LOPROC");
             break;
         case STB_HIPROC:
-            fprintf(fout, "\tHIPROC");
+            fprintf(fout, "HIPROC");
             break;
         default:
-            fprintf(fout, "\tUNKNOWN");
+            fprintf(fout, "UNKNOWN");
             break;
     }
 }
 
 void print_st_visibility(FILE *fout, Elf32_Word st_visibility){
+    printf(" ");
     switch(ELF32_ST_VISIBILITY(st_visibility)){
         case STV_DEFAULT:
-            fprintf(fout, "\tDEFAULT");
+            fprintf(fout, "DEFAULT ");
             break;
         case STV_INTERNAL:
-            fprintf(fout, "\tINTERNAL");
+            fprintf(fout, "INTERNAL");
             break;
         case STV_HIDDEN:
-            fprintf(fout, "\tHIDDEN");
+            fprintf(fout, "HIDDEN  ");
             break;
         case STV_PROTECTED:
-            fprintf(fout, "\tPROTECTED");
+            fprintf(fout, "PROTECTED");
             break;
         default:
-            fprintf(fout, "\tUNKNOWN");
+            fprintf(fout, "UNKNOWN ");
             break;
     }
 }
 
 void print_st_shndx(FILE *fout, Elf32_Word st_shndx){
+    printf(" ");
     switch(st_shndx){
         case SHN_UNDEF:
-            fprintf(fout, "\tUND");
+            fprintf(fout, "UND");
             break;
         case SHN_ABS:
-            fprintf(fout, "\tABS");
+            fprintf(fout, "ABS");
             break;
         case SHN_COMMON:
-            fprintf(fout, "\tCOM");
+            fprintf(fout, "COM");
             break;
         default:
-            fprintf(fout, "\t%d", st_shndx);
+            if (st_shndx < 100) {printf(" ");}
+            if (st_shndx < 10) {printf(" ");}
+            fprintf(fout, "%d", st_shndx);
             break;
     }
 }
 
 char * read_from_strtab(Elf32_Word st_name, char * symstrtab) {
-    char *nSection = malloc(MAX_STRTAB_LEN); // Max 300 char
-    if(!nSection){
-        perror("Erreur d'allocation mémoire\n");
-        exit(EXIT_FAILURE);
-    }
-    fprintf(stderr, "size = %lu\n", strlen(symstrtab+st_name));
-
-    strcpy(nSection, symstrtab+st_name);
-
-#if 0
-    Elf32_Word i = st_name;
-
-    fprintf(stderr, "size = %lu\n", strlen(symstrtab+st_name));
-
-    while (symstrtab[i] != '\0') {
-        nSection[i - st_name] = symstrtab[i]; // copy the name of the section in nSection
-        i++;
-    }
-#endif
+    int i = (int) st_name;
+    char *nSection = malloc(MAX_STRTAB_LEN); // Max 150 char
+    if (nSection == NULL) {return NULL;}
+    strcpy(nSection, &symstrtab[i]);
     return nSection;
+}
+
+/* Etape 6 */
+
+char * revert_define_type_relocation(int val){
+    char * type = malloc(sizeof("R_ARM_JUMP24"));
+    sprintf(type, "%d", val);
+    switch (val)
+    {
+    case 2:
+        strcpy(type, "R_ARM_ABS32");
+        break;
+    case 29:
+        strcpy(type, "R_ARM_JUMP24");
+        break;
+    case 28:
+        strcpy(type, "R_ARM_CALL");
+        break;
+    case 1:
+        strcpy(type, "R_ARM_PC24");
+        break;
+    case 40:
+        strcpy(type, "R_ARM_V4BX");
+        break;
+    default:
+        break;
+    }
+    return type;
 }

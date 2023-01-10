@@ -143,4 +143,15 @@ void print_st_shndx(FILE *fout, Elf32_Word st_shndx);
  */
 char * read_from_strtab(Elf32_Word st_name, char * symstrtab);
 
+/*Etape 5 */
+/**
+ * * @brief renvoie le nom du type correspondant au numero dans la table des macros
+ * @param val le numero de type present dans les macros
+ * @return le nom du type
+ */
+char * revert_define_type_relocation(int val);
+
+/* Etape 6 */
+
+
 #endif
