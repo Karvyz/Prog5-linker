@@ -36,6 +36,8 @@ size_t bread(void * buffer, size_t s, size_t n, FILE *f){
     return lue;
 }
 
+// TODO
+// Doc pour bread_abs
 size_t bread_abs(void * buffer, size_t s, size_t n, FILE *f){
     char tmp[n][s];
     char c;
