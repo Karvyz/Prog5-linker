@@ -11,7 +11,7 @@
 #include <stdio.h>
 #include <stdint.h>
 
-#define MAX_STRTAB_LEN 300
+#define MAX_STRTAB_LEN 500
 
 /**
  * @brief   Lit un certain nombre d'octets à partir d'un flux.

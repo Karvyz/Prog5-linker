@@ -17,8 +17,9 @@ size_t bread(void * buffer, size_t s, size_t n, FILE *f){
     for(int i = 0; i<n; i++){ // pour chaque bloc
         for(int j = 0; j<s; j++){ // pour chaque octet
             c = fgetc(f);
-            if(c == EOF)
+            if(c == EOF){
                 return 0;
+            }
             tmp[i][j] = c; // on stocke l'octet dans le tableau
         }
     }

@@ -324,7 +324,7 @@ void fusion_symbols(FILE *f1, FILE *f2, Elf32_Ehdr header1, Elf32_Sym *symbole1,
     Elf32_Sym* fusion_symbole = NULL;
     Elf32_Shdr SymTab;
     int current = 0;
-    int j,z,i,nouv_nb_symbols,plus_grand_nb_symbols;
+    int j,y,z,i,nouv_nb_symbols,plus_grand_nb_symbols;
     for(i = 0; i < sectionsFusion->nb_sections; i++){
         if (strcmp(sectionsFusion->sections_names[i],".symtab") == 0) { // Si le nom de la section correspond au nom recherché
             SymTab = sectionsFusion->sections[i]; // On modifie la section (vide) passée en paramètre par la section trouvée
@@ -343,82 +343,62 @@ void fusion_symbols(FILE *f1, FILE *f2, Elf32_Ehdr header1, Elf32_Sym *symbole1,
     }else{
         nouv_nb_symbols = nb_symbols2 + (nb_symbols2-nb_symbols1); 
     }
+
+    for(i = 0; i < nouv_nb_symbols; i++){
 //////////////// Routine de décision en cas de symbole GLOBAL 
- if(ELF32_ST_BIND(symbole1[i].st_info) == STB_GLOBAL){
-        for(j=i;j<nouv_nb_symbols;j++){
-            if(symbole1[i].st_name == symbole2[j].st_name){
-                if(ELF32_ST_TYPE(symbole1[i].st_shndx) == SHN_UNDEF && ELF32_ST_TYPE(symbole2[i].st_shndx) == SHN_UNDEF){
-                    fusion_symbole[current].st_name = symbole1[i].st_name;
-                    fusion_symbole[current].st_value = symbole1[i].st_value;
-                    fusion_symbole[current].st_size = symbole1[i].st_size;
-                    fusion_symbole[current].st_info = symbole1[i].st_info;
-                    fusion_symbole[current].st_other = symbole1[i].st_other;
-                }if else(ELF32_ST_TYPE(symbole1[i].st_shndx) != SHN_UNDEF && ELF32_ST_TYPE(symbole2[i].st_shndx) != SHN_UNDEF){
-                    fprintf(stderr,)
-                    return 0; //ERREUR FATALE POUR LA FUSION
-                }if else(ELF32_ST_TYPE(symbole1[i].st_shndx) != SHN_UNDEF){
-                    fusion_symbole[current].st_name = symbole1[i].st_name;
-                    fusion_symbole[current].st_value = symbole1[i].st_value;
-                    fusion_symbole[current].st_size = symbole1[i].st_size;
-                    fusion_symbole[current].st_info = symbole1[i].st_info;
-                    fusion_symbole[current].st_other = symbole1[i].st_other;
-                }if else(ELF32_ST_TYPE(symbole2[i].st_shndx) != SHN_UNDEF){
-                    fusion_symbole[current].st_name = symbole2[i].st_name;
-                    fusion_symbole[current].st_value = symbole2[i].st_value;
-                    fusion_symbole[current].st_size = symbole2[i].st_size;
-                    fusion_symbole[current].st_info = symbole2[i].st_info;
-                    fusion_symbole[current].st_other = symbole2[i].st_other;
-                }
+        if(ELF32_ST_BIND(symbole1[i].st_info) == STB_GLOBAL){
+            gestion_symbol_global(fusion_symbole,symbole1,symbole2,nouv_nb_symbols,i,&current);
+        }else if(ELF32_ST_BIND(symbole2[i].st_info) == STB_GLOBAL){
+            gestion_symbol_global(fusion_symbole,symbole2,symbole1,nouv_nb_symbols,i,&current);
         }
     }
-
-    while(i = 0; i < nouv_nb_symbols;i++){
-        if (symbole1[i].st_name == symbole2[i].st_name){
-            fusion_symbole[current].st_name = symbole1[i].st_name;
-            fusion_symbole[current].st_value = symbole1[i].st_value;
-            fusion_symbole[current].st_size = symbole1[i].st_size;
-            fusion_symbole[current].st_info = symbole1[i].st_info;
-            fusion_symbole[current].st_other = symbole1[i].st_other;
-            current++;
-        }else{
-            j=i;
-            while(j<nouv_nb_symbols){
-                z=j;
-                while(z<nouv_nb_symbols){
-                    if(symbole1[j].st_name == symbole2[z].st_name){
-                        break;
-                    }
-                    z++;
-                }
-                if(symbole1[j].st_name == symbole2[z].st_name){
-                    break;
-                }
-                j++
-            }
-            y=i;
-            while(y<j){
-                fusion_symbole[current].st_name = symbole1[y].st_name;
-                fusion_symbole[current].st_value = symbole1[y].st_value;
-                fusion_symbole[current].st_size = symbole1[y].st_size;
-                fusion_symbole[current].st_info = symbole1[y].st_info;
-                fusion_symbole[current].st_other = symbole1[y].st_other;
-                current++;
-                y++;
-            }
-            y=i;
-            while(y<z){
-                fusion_symbole[current].st_name = symbole2[y].st_name;
-                fusion_symbole[current].st_value = symbole2[y].st_value;
-                fusion_symbole[current].st_size = symbole2[y].st_size;
-                fusion_symbole[current].st_info = symbole2[y].st_info;
-                fusion_symbole[current].st_other = symbole2[y].st_other;
-                current++;
-                j++;
-            }
-        }
-    }
-
 }
+/////////////// Essaie de récuperation des symbole ==> faux deux symbole comme $a doive apparaitre 2 fois et ici il ne le font pas
+    // for(i = 0; i < nouv_nb_symbols; i++){
+    //     if (symbole1[i].st_name == symbole2[i].st_name){
+    //         fusion_symbole[current].st_name = symbole1[i].st_name;
+    //         fusion_symbole[current].st_value = symbole1[i].st_value;
+    //         fusion_symbole[current].st_size = symbole1[i].st_size;
+    //         fusion_symbole[current].st_info = symbole1[i].st_info;
+    //         fusion_symbole[current].st_other = symbole1[i].st_other;
+    //         current++;
+    //     }else{
+    //         j=i;
+    //         while(j<nouv_nb_symbols){
+    //             z=j;
+    //             while(z<nouv_nb_symbols){
+    //                 if(symbole1[j].st_name == symbole2[z].st_name){
+    //                     break;
+    //                 }
+    //                 z++;
+    //             }
+    //             if(symbole1[j].st_name == symbole2[z].st_name){
+    //                 break;
+    //             }
+    //             j++;
+    //         }
+    //         y=i;
+    //         while(y<j){
+    //             fusion_symbole[current].st_name = symbole1[y].st_name;
+    //             fusion_symbole[current].st_value = symbole1[y].st_value;
+    //             fusion_symbole[current].st_size = symbole1[y].st_size;
+    //             fusion_symbole[current].st_info = symbole1[y].st_info;
+    //             fusion_symbole[current].st_other = symbole1[y].st_other;
+    //             current++;
+    //             y++;
+    //         }
+    //         y=i;
+    //         while(y<z){
+    //             fusion_symbole[current].st_name = symbole2[y].st_name;
+    //             fusion_symbole[current].st_value = symbole2[y].st_value;
+    //             fusion_symbole[current].st_size = symbole2[y].st_size;
+    //             fusion_symbole[current].st_info = symbole2[y].st_info;
+    //             fusion_symbole[current].st_other = symbole2[y].st_other;
+    //             current++;
+    //             j++;
+    //         }
+    //     }
+    // }
 
     // fusion_symbole->st_name;		/* Symbol name (string tbl index) */
     // fusion_symbole->st_value;		/* Symbol value */

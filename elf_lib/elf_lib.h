@@ -117,4 +117,21 @@ void print_symbols(FILE *fout, Elf32_Ehdr elf_h, Elf32_Shdr *arr_elf_SH, Elf32_S
  */
 void print_relocations(FILE *fout);
 
+/**
+ * @brief Gestion des contraintes lier à la fusion de  
+ *        symbole gobaux.
+ *        Effet de bord :   
+ *        Insertion des symboles lors de l'execution
+ *
+ * @param fusion_symbole est la table de symbole modifier
+ * @param symbole1 est la table de symbole du symbole global
+ * @param symbole2 est la table de symbole à fusionner
+ * @param nouv_nb_symbols est le nb de symbole de la nouvelle table
+ * @param i est l'emplacement du symbole global
+ * @param current est l'emplacement dans la nouvelle table 
+ * @return 0 pour ok, 1 pour erreur
+ */
+int gestion_symbol_global(Elf32_Sym *fusion_symbole, Elf32_Sym *symbole1, Elf32_Sym *symbole2, int nouv_nb_symbols, int i, int *current);
+
+
 #endif

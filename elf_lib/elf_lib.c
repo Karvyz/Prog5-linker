@@ -261,7 +261,7 @@ void read_symbols(FILE *f, Elf32_Ehdr elf_h, Elf32_Shdr *arr_elf_SH, Elf32_Sym *
     // Check if there is a symbol table
     Elf32_Shdr SymTab;
     // printf("\n%d\n",elf_h.e_shstrndx);
-    if(!get_section_by_name(".symtab", elf_h.e_shnum, arr_elf_SH,&SymTab, read_section_names(f, arr_elf_SH[elf_h.e_shstrndx]))) {
+    if(!get_section_by_name(".symtab", elf_h.e_shnum, arr_elf_SH, &SymTab, read_section_names(f, arr_elf_SH[elf_h.e_shstrndx]))) {
         fprintf(stderr, "No symbol table found.\n");
         *nb_sym = 0;
         return;
@@ -317,3 +317,52 @@ void print_symbols(FILE *fout, Elf32_Ehdr elf_h, Elf32_Shdr *arr_elf_SH, Elf32_S
 }
 
 /* Etape 5 */
+
+
+/* Etape 6 */
+
+int gestion_symbol_global(Elf32_Sym *fusion_symbole, Elf32_Sym *symbole1, Elf32_Sym *symbole2, int nouv_nb_symbols, int i, int *current){
+    int j;
+    for(j=i;j<nouv_nb_symbols;j++){
+        if(symbole1[i].st_name == symbole2[j].st_name){
+            if(ELF32_ST_TYPE(symbole1[i].st_shndx) == SHN_UNDEF && ELF32_ST_TYPE(symbole2[j].st_shndx) == SHN_UNDEF){
+                // Les symboles sont de même nom et non-définies, donc on insere un seule des deux.
+                fusion_symbole[*current].st_name = symbole1[i].st_name;
+                fusion_symbole[*current].st_value = symbole1[i].st_value;
+                fusion_symbole[*current].st_size = symbole1[i].st_size;
+                fusion_symbole[*current].st_info = symbole1[i].st_info;
+                fusion_symbole[*current].st_other = symbole1[i].st_other;
+                *current++;
+            }else if(ELF32_ST_TYPE(symbole1[i].st_shndx) != SHN_UNDEF && ELF32_ST_TYPE(symbole2[j].st_shndx) != SHN_UNDEF){
+                // Les symboles sont de même nom et définies, donc on insere un seule des deux.
+                fprintf(stderr,"Redéfinition d'un symbole global\nErreur fatale ");
+                return 1; //ERREUR FATALE POUR LA FUSION
+            }else if(ELF32_ST_TYPE(symbole1[i].st_shndx) != SHN_UNDEF){
+                // Les symboles sont de même nom et un des symbols est définie, donc on insere celui définie.
+                fusion_symbole[*current].st_name = symbole1[i].st_name;
+                fusion_symbole[*current].st_value = symbole1[i].st_value;
+                fusion_symbole[*current].st_size = symbole1[i].st_size;
+                fusion_symbole[*current].st_info = symbole1[i].st_info;
+                fusion_symbole[*current].st_other = symbole1[i].st_other;
+                *current++;
+            }else if(ELF32_ST_TYPE(symbole2[j].st_shndx) != SHN_UNDEF){
+                // Les symboles sont de même nom et un des symbols est définie, donc on insere celui définie.
+                fusion_symbole[*current].st_name = symbole2[j].st_name;
+                fusion_symbole[*current].st_value = symbole2[j].st_value;
+                fusion_symbole[*current].st_size = symbole2[j].st_size;
+                fusion_symbole[*current].st_info = symbole2[j].st_info;
+                fusion_symbole[*current].st_other = symbole2[j].st_other;
+                *current++;
+            }
+        }
+    }
+    // Sortir de la boucle signifie que le symbole n'a pas d'equivalent,
+    // donc on insere celui-ci
+    fusion_symbole[*current].st_name = symbole1[i].st_name;
+    fusion_symbole[*current].st_value = symbole1[i].st_value;
+    fusion_symbole[*current].st_size = symbole1[i].st_size;
+    fusion_symbole[*current].st_info = symbole1[i].st_info;
+    fusion_symbole[*current].st_other = symbole1[i].st_other;
+    *current++;
+    return 0;
+}

@@ -9,7 +9,7 @@
 typedef struct {
     int old_index; // ancien numero de section 
     int new_index; // nouveau numero de section
-    Elf32_Off offset; //offset de concatenation (separation entre les deux sections)
+    Elf32_Off offset; //offset de concatenation (separation entre les deux sections fusionné)
 } SectionChanges;
 
 typedef struct {
