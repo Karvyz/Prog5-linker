@@ -5,21 +5,44 @@
 #include <string.h>
 #include <stdlib.h>
 
+Elf32_Addr offset_section_sortie(){
+    
+}
+
 Elf32_Addr new_offset_reloc(Elf32_Addr old_offset){
     Elf32_Addr new_offset;
-
-
+    //TODO : a modifie
+    new_offset = old_offset;
     return new_offset;
 }
 
 Elf32_Word new_info_reloc(Elf32_Word old_info){
-
+    //TODO : a modifie
     Elf32_Word new_info;
+    int new_symb;
     int symb = ELF32_R_SYM(old_info);
     int typint = ELF32_R_TYPE(old_info);
-    
-    return new_info
+    //TODO recherche nouveau indice du symbole
+    new_info = (new_symb << 8);
 
+    return new_info;
+
+}
+
+void lecture_ecriture_reloc(Elf32_Shdr* elf_SH, FILE *f, FILE *result){
+    for (int i_sym = 0; i_sym < elf_SH[i].sh_size / sizeof(Elf32_Rel); i_sym++){
+        Elf32_Rel relocation;
+        fseek(f, elf_SH[i].sh_offset, SEEK_SET);
+        //lecture dans le fichier 1
+        assert(bread(relocation.r_offset, sizeof(relocation.r_offset), 1, f));
+        assert(bread(relocation.r_info, sizeof(relocation.r_info), 1, f));
+
+        fseek(result, offset_section_sortie(), SEEK_SET);
+        //ecriture dans le fichier 1
+        assert(bwrite(new_offset_reloc(relocation.r_offset), sizeof(relocation.r_offset), 1, result));
+        assert(bwrite(new_info_reloc(relocation.r_info), sizeof(relocation.r_info), 1, result));
+        
+    }
 }
 
 
@@ -48,6 +71,7 @@ void fusion_relocation(FILE *f1, FILE *f2, FILE *result, Elf32_Ehdr elf_h1, Elf3
                 char *name_section2 = read_from_shstrtab(elf_SH2[j].sh_name);
                 //verification si le type de section de f2 est relocation et comparaison avec les nom dans f2
                 if (elf_SH2[j].sh_type == SHT_REL && name_section1 == name_section2){
+
                     Elf32_Rel relocation2;
                     //concatenation r1 et r2
                     for (int i_sym = 0; i_sym < elf_SH1[i].sh_size / sizeof(Elf32_Rel); i_sym++){
@@ -55,19 +79,21 @@ void fusion_relocation(FILE *f1, FILE *f2, FILE *result, Elf32_Ehdr elf_h1, Elf3
                         assert(bread(relocation1.r_offset, sizeof(relocation1.r_offset), 1, f1));
                         assert(bread(relocation1.r_info, sizeof(relocation1.r_info), 1, f1));
 
+                        fseek(result, offset_section_sortie(), SEEK_SET);
                         //ecriture dans le fichier 1
                         assert(bwrite(new_offset_reloc(relocation1.r_offset), sizeof(relocation1.r_offset), 1, result));
                         assert(bwrite(new_info_reloc(relocation1.r_info), sizeof(relocation1.r_info), 1, result));
                         
-                        //marquer la sections comme traite
-                        tab_base_check1[i]=1; 
                     }
+                    //marquer la sections comme traite
+                    tab_base_check1[i]=1; 
                     fseek(f2, elf_SH2[j].sh_offset, SEEK_SET);
                     for (int j_sym = 0; j_sym < elf_SH1[j].sh_size / sizeof(Elf32_Rel); j_sym++){
                         //lecture dans le fichier 2
                         assert(bread(relocation2.r_offset, sizeof(relocation2.r_offset), 1, f2));
                         assert(bread(relocation2.r_info, sizeof(relocation2.r_info), 1, f2));
                         
+                        fseek(result, offset_section_sortie(), SEEK_SET);
                         //ecriture dans le fichier 1
                         assert(bwrite(new_offset_reloc(relocation2.r_offset), sizeof(relocation2.r_offset), 1, result));
                         assert(bwrite(new_info_reloc(relocation2.r_info), sizeof(relocation2.r_info), 1, result));
@@ -84,12 +110,13 @@ void fusion_relocation(FILE *f1, FILE *f2, FILE *result, Elf32_Ehdr elf_h1, Elf3
                 free(name_section2);
 
             }
+            if (tab_base_check1[i] == 0){
+                //ajouter r1
+            }
             //si non :
-
+            
                 //ajout de r1 a la suite
             
-
-    //ajout des r2 non fait à la suite
             
         
             
@@ -97,6 +124,14 @@ void fusion_relocation(FILE *f1, FILE *f2, FILE *result, Elf32_Ehdr elf_h1, Elf3
         } else{
             //marquer la sections dans f1 comme traite car pas de reloc
             tab_base_check1[i]=1; 
+        }
+
+    }
+    //ajouter des relocations non traité de r2
+    for (int parcours = 0; parcours < elf_h2.e_shnum; parcours++){
+        if (tab_base_check2[parcours] == 0){
+            //ajouter r2
+
         }
 
     }
