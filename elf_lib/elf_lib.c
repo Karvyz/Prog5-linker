@@ -4,6 +4,7 @@
  * @date     14 Decembre 2022
  */
 
+#include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
 #include <assert.h>
@@ -58,29 +59,29 @@ void print_elf(FILE *fout, Elf32_Ehdr elf_h){
     }
     fprintf(fout, "\n");
 
-    fprintf(fout, "  Class:\t\t\t     ");
+    fprintf(fout, "  Class:                             ");
     if (elf_h.e_ident[EI_CLASS] == ELFCLASS32) fprintf(fout, "ELF32\n");
     else fprintf(fout, "None\n");
-    fprintf(fout, "  Data:\t\t\t\t     ");
+    fprintf(fout, "  Data:                              ");
 
     if (elf_h.e_ident[EI_DATA] == ELFDATA2MSB) fprintf(fout, "2's complement, big endian\n");
     else if(elf_h.e_ident[EI_DATA] == ELFDATA2LSB) fprintf(fout, "2's complement, little endian\n");
 
     print_elf_version(fout, elf_h.e_version);
     print_OS_ABI(fout, elf_h.e_ident[EI_OSABI]);
-    fprintf(fout, "  ABI Version:\t\t\t     %d\n", elf_h.e_ident[EI_ABIVERSION]);
+    fprintf(fout, "  ABI Version:                       %d\n", elf_h.e_ident[EI_ABIVERSION]);
     print_elf_type(fout, elf_h.e_type);
     print_elf_machine(fout, elf_h.e_machine);
-    fprintf(fout, "  Version:\t\t\t     0x%1.x\n", elf_h.e_version);
-    fprintf(fout, "  Entry point address:\t\t     0x%.1x\n", elf_h.e_entry);
-    fprintf(fout, "  Start of program headers:\t     %d (bytes into file)\n", elf_h.e_phoff);
-    fprintf(fout, "  Start of section headers:\t     %d (bytes into file)\n", elf_h.e_shoff);
-    fprintf(fout, "  Flags:\t\t\t     %#x, Version5 EABI\n",elf_h.e_flags);
-    fprintf(fout, "  Size of this header:\t\t     %d (bytes)\n", elf_h.e_ehsize);
-    fprintf(fout, "  Size of program headers:\t     %d (bytes)\n", elf_h.e_phentsize);
-    fprintf(fout, "  Number of program headers:\t     %d\n", elf_h.e_phnum);
-    fprintf(fout, "  Size of section headers:\t     %d (bytes)\n", elf_h.e_shentsize);
-    fprintf(fout, "  Number of section headers:\t     %d\n", elf_h.e_shnum);
+    fprintf(fout, "  Version:                           0x%1.x\n", elf_h.e_version);
+    fprintf(fout, "  Entry point address:               0x%.1x\n", elf_h.e_entry);
+    fprintf(fout, "  Start of program headers:          %d (bytes into file)\n", elf_h.e_phoff);
+    fprintf(fout, "  Start of section headers:          %d (bytes into file)\n", elf_h.e_shoff);
+    fprintf(fout, "  Flags:                             %#x, Version5 EABI\n",elf_h.e_flags);
+    fprintf(fout, "  Size of this header:               %d (bytes)\n", elf_h.e_ehsize);
+    fprintf(fout, "  Size of program headers:           %d (bytes)\n", elf_h.e_phentsize);
+    fprintf(fout, "  Number of program headers:         %d\n", elf_h.e_phnum);
+    fprintf(fout, "  Size of section headers:           %d (bytes)\n", elf_h.e_shentsize);
+    fprintf(fout, "  Number of section headers:         %d\n", elf_h.e_shnum);
     fprintf(fout, "  Section header string table index: %d\n", elf_h.e_shstrndx);
 }
 
@@ -248,7 +249,7 @@ void print_section_content(FILE *f, FILE *fout, Elf32_Shdr *elf_SH, char *shstrt
 
     for (int i = 0; i < elf_SH->sh_size; i++) {
         if (i%4 == 0) fprintf(fout, " ");
-        if (i%16 == 0) fprintf(fout, "\n0x%08x ", i);
+        if (i%16 == 0) fprintf(fout, "\n  0x%08x ", i);
         fprintf(fout, "%.2x", fgetc(f));
     }
     fprintf(fout, "\n");
@@ -303,7 +304,7 @@ void print_symbol(FILE *fout, Elf32_Shdr *arr_elf_Sym, Elf32_Sym elf_Sym, const 
 /* Print the symbol table */
 void print_symbols(FILE *fout, Elf32_Ehdr elf_h, Elf32_Shdr *arr_elf_SH, Elf32_Sym *arr_elf_ST, int nb_sym, const char *shstrtab, const char *symstrtab) {
     fprintf(fout, "\nSymbol table '.symtab' contains %d entries:\n", nb_sym);
-    fprintf(fout, "   Num:\tValue\t\tSize\tType\tBind\tVis\tNdx\tName\n");
+    fprintf(fout, "   Num:    Value  Size Type    Bind   Vis      Ndx Name\n");
 
     for (int i = 0; i < nb_sym; i++) {
         fprintf(fout, "   ");
@@ -319,7 +320,7 @@ void print_symbols(FILE *fout, Elf32_Ehdr elf_h, Elf32_Shdr *arr_elf_SH, Elf32_S
 /* Etape 5 */
 
 
-/* Etape 6 */
+/* Etape 7 */
 
 int gestion_symbol_global(Elf32_Sym *fusion_symbole, Elf32_Sym *symbole1, Elf32_Sym *symbole2, int nouv_nb_symbols, int i, int *current){
     int j;

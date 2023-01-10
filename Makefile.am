@@ -17,7 +17,7 @@ SUBDIRS+=. Examples_fusion
 bin_PROGRAMS=
 bin_PROGRAMS+=Options_and_debug_example read_elf
 
-read_elf_SOURCES=elf_lib/elf_lib.h elf_lib/elf_lib.c elf_lib/elf_utils.h elf_lib/elf_utils.c elf_read/elf_read.c elf_lib/Phase2.h elf_lib/Phase2.c
+read_elf_SOURCES=elf_lib/elf_lib.h elf_lib/elf_lib.c elf_lib/elf_utils.h elf_lib/elf_utils.c elf_read/elf_read.c elf_lib/Phase2.h elf_lib/Phase2.c elf_lib/fusion_reloc.h elf_lib/fusion_reloc.c
 
 
 COMMON=debug.h debug.c util.h util.c
@@ -27,3 +27,4 @@ Options_and_debug_example_SOURCES=$(COMMON) Options_and_debug_example.c
 
 EXTRA_DIST+=
 
+TESTS = ./tests/test_headers.sh ./tests/test_section_headers.sh ./tests/test_realocations.sh ./tests/test_symbols.sh ./tests/test_content_section.sh ./tests/mem_headers.sh ./tests/mem_realocations.sh ./tests/mem_symbols.sh ./tests/mem_sections_headers.sh ./tests/mem_content_section.sh

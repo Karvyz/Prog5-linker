@@ -161,7 +161,12 @@ int main(int argc, char *argv[]) {
         }
     }
     if(show_relocations) {
-        //print_relocations(stdout, header, sections);
+        Elf32_Shdr strtab;
+        if (get_section_by_name(".strtab", header.e_shnum, sections, &strtab)){
+            // -- lecture des noms de symboles avant affichage
+            read_symbol_names(file, strtab);
+            print_relocation(header, sections, symbols, file);
+        }
     }
     if(sectionsAAfficher_nb > 0) {
         for(i = 0; i < sectionsAAfficher_nb; i++) {
@@ -176,7 +181,7 @@ int main(int argc, char *argv[]) {
                 if (num >= 0 && num < header.e_shnum)
                     print_section_content(file, stdout, &sections[num], read_section_names(file, sections[header.e_shstrndx]));
                 else
-                    printf("-- No section number %d was found", num);
+                    fprintf(stderr, "-- No section number %d was found", num);
             } else {
                 Elf32_Shdr section;
                 if(get_section_by_name(name, header.e_shnum, sections, &section, read_section_names(file, sections[header.e_shstrndx]))) {
