@@ -7,9 +7,9 @@
 #include <stdlib.h>
 #include <elf.h>
 #include <string.h>
-#include "elf_lib/elf_lib.h"
-#include "elf_lib/elf_utils.h"
-#include "elf_lib/Phase2.h"
+#include "../elf_lib/elf_lib.h"
+#include "../elf_lib/elf_utils.h"
+#include "../elf_lib/Phase2.h"
 
 void usage(char *name) {
     fprintf(stderr, "Usage: \n"
@@ -30,6 +30,7 @@ int sectionsAAfficher_nb = 0;
 char *sectionsAAfficher[100];
 
 int main(int argc, char *argv[]) {
+
     int opt;
     char *file_name;
     FILE *file;
@@ -109,7 +110,7 @@ int main(int argc, char *argv[]) {
         fprintf(stderr, "No file given !\n");
         usage(argv[0]);
         exit(1);
-    } else {
+    }
         file_name = argv[optind];
 
         char *mode;
@@ -144,17 +145,17 @@ int main(int argc, char *argv[]) {
 
 
         nb_symbols = 0;
-
+        
         // - Lecture de l'en-tête
         init_header(file, &header);
         // - Lecture des en-têtes de sections
         read_sections(file, header, sections);
         // - Lecture des noms de sections
-        read_section_names(file, sections[header.e_shstrndx]);
+        char* shstrtab = read_section_names(file, sections[header.e_shstrndx]);
         // - Lecture des en-têtes de symboles
         read_symbols(file, header, sections, symbols, &nb_symbols);
 
-    }
+    
 
     if(show_header) {
         print_elf(stdout, header);
@@ -169,13 +170,20 @@ int main(int argc, char *argv[]) {
         //symstrtab = malloc(sizeof(char) * MAX_STRTAB_LEN);
         if (get_section_by_name(".strtab", header.e_shnum, sections, strtab, read_section_names(file, sections[header.e_shstrndx]))){
             // -- lecture des noms de symboles avant affichage
-            fprintf(stderr, "Reading symbols names...\n");
+            // fprintf(stderr, "Reading symbols names...\n");
             //strcpy(symstrtab, read_symbol_names(file, strtab));
             print_symbols(stdout, header, sections, symbols, nb_symbols, read_section_names(file, sections[header.e_shstrndx]), read_symbol_names(file, *strtab));
         }
+        free(strtab);
     }
     if(show_relocations) {
-        //print_relocations(stdout, header, sections);
+        Elf32_Shdr strtab;
+        if (get_section_by_name(".strtab", header.e_shnum, sections, &strtab, shstrtab)){
+            // -- lecture des noms de symboles avant affichage
+            char* tmp = read_symbol_names(file, strtab);
+            print_relocation(header, sections, symbols, file, shstrtab, tmp);
+            free(tmp);
+        }
     }
     if(sectionsAAfficher_nb > 0) {
         for(i = 0; i < sectionsAAfficher_nb; i++) {
@@ -188,15 +196,11 @@ int main(int argc, char *argv[]) {
             int res = sscanf(name, "%d", &num);
             if(res == 1) {
                 if (num >= 0 && num < header.e_shnum)
-                    print_section_content(file, stdout, &sections[num], read_section_names(file, sections[header.e_shstrndx]));
-                else
-                    printf("-- No section number %d was found", num);
+                    print_section_content(file, stdout, &sections[num], shstrtab);
             } else {
                 Elf32_Shdr section;
-                if(get_section_by_name(name, header.e_shnum, sections, &section, read_section_names(file, sections[header.e_shstrndx]))) {
-                    print_section_content(file, stdout, &section, read_section_names(file, sections[header.e_shstrndx]));
-                } else
-                    printf("-- No section named %s was found", name);
+                if(get_section_by_name(name, header.e_shnum, sections, &section, shstrtab))
+                    print_section_content(file, stdout, &section, shstrtab);
             }
             fprintf(stdout, "\n");
         }
@@ -249,6 +253,7 @@ int main(int argc, char *argv[]) {
 
     // TODO
     // Free memory
+    free(shstrtab);
     free(sections);
     free(symbols);
     // Close files
