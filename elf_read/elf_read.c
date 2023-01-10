@@ -15,7 +15,7 @@
 
 void usage(char *name) {
     fprintf(stderr, "Usage: \n"
-        "\t%s [ -H | --help ] [ -h | -S | -s | -x <num|text> | -r | -F file2 ] [ --debug] file\n\n"
+        "\t%s [ -H | --help ] [ -h | -S | -s | -x <num|text> | -r | -F file2 ] file\n\n"
         "\tDisplay information about the given ELF file\n"
         "\t-H --help\tDisplay this information\n"
         "\t-h\t\tDisplay the ELF header\n"
@@ -23,8 +23,7 @@ void usage(char *name) {
         "\t-s\t\tDisplay the symbol table\n"
         "\t-x <num|text>\tDisplay the content of the section <num|text>\n"
         "\t-r\t\tDisplay the relocation table\n"
-        "\t-F file2\t\tFusion of file2's sections in the file\n"
-        "\t--debug\t\tDisplay debug information\n"
+        "\t-F file2\tFusion of file2's sections in the file\n"
         , name);
 }
 
@@ -52,7 +51,6 @@ int main(int argc, char *argv[]) {
             {"relocations", no_argument,       NULL, 'r'},
             {"help",        no_argument,       NULL, 'H'},
             {"fusion",      required_argument, NULL, 'F'},
-            {"debug",       no_argument,       NULL, 'd'},
             {NULL,          0,                 NULL, 0}
     };
 
@@ -61,7 +59,11 @@ int main(int argc, char *argv[]) {
     int show_header = 0, show_sections = 0, show_symbols = 0, show_relocations = 0, show_section = 0;
     int fusion = 0;
 
-    while ( (opt = getopt_long(argc, argv, "hSsrx:F:Hd", longopts, NULL)) != -1 ) {
+    file2_name = NULL;
+    file2 = NULL;
+
+    // gestion des options
+    while ( (opt = getopt_long(argc, argv, "hSsrx:F:H", longopts, NULL)) != -1 ) {
         switch (opt) {
             case 'h':
                 show_header = 1;
@@ -94,10 +96,6 @@ int main(int argc, char *argv[]) {
             case 'H':
                 usage(argv[0]);
                 exit(0);
-            case 'd':
-                // TODO
-                fprintf(stderr, "Debug mode not implemented yet\n");
-                break;
             default:
                 fprintf(stderr, "Unrecognized option %c", opt);
                 usage(argv[0]);
@@ -105,88 +103,94 @@ int main(int argc, char *argv[]) {
         }
     }
 
+    // Gestion des cas d'erreurs
     if (optind >= argc) {
         if(show_section){
             fprintf(stderr, "Error: no section number or name given\n");
+        } else {
+            fprintf(stderr, "No file given !\n");
         }
-        fprintf(stderr, "No file given !\n");
         usage(argv[0]);
         exit(1);
     }
-        file_name = argv[optind];
 
-        char *mode;
-        if(fusion == 1){
-            mode = "r+";
-        } else {
-            mode = "r";
-        }
+    file_name = argv[optind];
 
-        file = fopen(file_name, mode);
-        if (file == NULL) {
-            fprintf(stderr, "Could not open file %s\n", file_name);
-            exit(1);
-        }
+    // Flux de lecture
+    file = fopen(file_name, "r");
+    if (file == NULL) {
+        fprintf(stderr, "Could not open file %s\n", file_name);
+        exit(1);
+    }
 
-        // TODO
-        // Define a macro SH_TABLE_MAX to 400
-        //
-        sections = malloc(sizeof(Elf32_Shdr) * 400);
-        if(!sections){
-            perror("Erreur d'allocation mémoiren\n");
-            exit(EXIT_FAILURE);
-        }
-        memset(sections, 0, sizeof(Elf32_Shdr)* 400);
+    // Stockage des sections lues
+    sections = malloc(sizeof(Elf32_Shdr) * MAX);
+    if(!sections){
+        perror("Erreur d'allocation mémoire (sections, elf_read.c:127)\n");
+        exit(EXIT_FAILURE);
+    }
+    memset(sections, 0, sizeof(Elf32_Shdr) * MAX);
 
-        symbols = malloc(sizeof(Elf32_Sym) * 400);
-        if(!symbols){
-            perror("Erreur d'allocation mémoire\n");
-            exit(EXIT_FAILURE);
-        }
-        memset(symbols, 0, sizeof(Elf32_Sym) * 400);
+    // Stockage des symboles lus
+    symbols = malloc(sizeof(Elf32_Sym) * 400);
+    if(!symbols){
+        perror("Erreur d'allocation mémoire (symbols, elf_read.c:135\n");
+        exit(EXIT_FAILURE);
+    }
+    memset(symbols, 0, sizeof(Elf32_Sym) * MAX);
 
-
-        nb_symbols = 0;
+    nb_symbols = 0;
         
-        // - Lecture de l'en-tête
-        init_header(file, &header);
-        // - Lecture des en-têtes de sections
-        read_sections(file, header, sections);
-        // - Lecture des noms de sections
-        char* shstrtab = read_section_names(file, sections[header.e_shstrndx]);
-        // - Lecture des en-têtes de symboles
-        read_symbols(file, header, sections, symbols, &nb_symbols);
+    // - Lecture de l'en-tête
+    init_header(file, &header);
+    // - Lecture des en-têtes de sections
+    read_sections(file, header, sections);
+    // - Lecture des noms de sections
+    char* shstrtab = read_section_names(file, sections[header.e_shstrndx]);
+    // - Lecture des en-têtes de symboles
+    read_symbols(file, header, sections, symbols, &nb_symbols);
 
-    
-
+    // Affichage du header
     if(show_header) {
         print_elf(stdout, header);
     }
+    // Affichage du header des sections
     if(show_sections) {
-        print_sections_header(file, stdout, header, sections, read_section_names(file, sections[header.e_shstrndx]));
+        print_sections_header(file, stdout, header, sections, shstrtab);
     }
+    // Affichage des symboles
     if(show_symbols) {
         Elf32_Shdr * strtab = NULL;
         strtab = malloc(sizeof(Elf32_Shdr));
-        //char *symstrtab = NULL;
-        //symstrtab = malloc(sizeof(char) * MAX_STRTAB_LEN);
-        if (get_section_by_name(".strtab", header.e_shnum, sections, strtab, read_section_names(file, sections[header.e_shstrndx]))){
+        if(!strtab){
+            perror("Erreur d'allocation mémoire (strtab, elf_read.c:164)\n");
+            exit(EXIT_FAILURE);
+        }
+        if (get_section_by_name(".strtab", header.e_shnum, sections, strtab, shstrtab)){
             // -- lecture des noms de symboles avant affichage
-            // fprintf(stderr, "Reading symbols names...\n");
-            //strcpy(symstrtab, read_symbol_names(file, strtab));
-            print_symbols(stdout, header, sections, symbols, nb_symbols, read_section_names(file, sections[header.e_shstrndx]), read_symbol_names(file, *strtab));
+            char* tmp = read_symbol_names(file, *strtab);
+            print_symbols(stdout, header, sections, symbols, nb_symbols, shstrtab, tmp);
+            free(tmp);
         }
         free(strtab);
     }
+    // Affichage des tables de réimplantation
     if(show_relocations) {
-        Elf32_Shdr strtab;
-        if (get_section_by_name(".strtab", header.e_shnum, sections, &strtab, shstrtab)){
+        Elf32_Shdr * strtab = NULL;
+        strtab = malloc(sizeof(Elf32_Shdr));
+        if(!strtab){
+            perror("Erreur d'allocation mémoire (strtab, elf_read.c:180)\n");
+            exit(EXIT_FAILURE);
+        }
+        if (get_section_by_name(".strtab", header.e_shnum, sections, strtab, shstrtab)){
             // -- lecture des noms de symboles avant affichage
-            char* tmp = read_symbol_names(file, strtab);
+            char* tmp = read_symbol_names(file, *strtab);
             print_relocation(header, sections, symbols, file, shstrtab, tmp);
             free(tmp);
         }
+        free(strtab);
     }
+    // Affichage du contenu d'une ou plusieurs section(s)
     if(sectionsAAfficher_nb > 0) {
         for(i = 0; i < sectionsAAfficher_nb; i++) {
             char * name = sectionsAAfficher[i];
@@ -195,6 +199,7 @@ int main(int argc, char *argv[]) {
                 exit(1);
             }
             int num = 0;
+            // Check s'il s'agit d'un numéro ou d'un nom de section
             int res = sscanf(name, "%d", &num);
             if(res == 1) {
                 if (num >= 0 && num < header.e_shnum)
@@ -207,19 +212,26 @@ int main(int argc, char *argv[]) {
             fprintf(stdout, "\n");
         }
     }
+    // Fusion de deux fichiers
     if(fusion){
         Elf32_Ehdr header2;
+        // Lecture de l'en-tête du 2ᵉ fichier
         init_header(file2, &header2);
-
 
         Elf32_Shdr *sections2;
         sections2 = malloc(sizeof(Elf32_Shdr) * 400);
+        if(!sections2){
+            perror("Erreur d'allocation mémoire (sections2, elf_read.c:222)\n");
+            exit(EXIT_FAILURE);
+        }
+        // Lecture des en-têtes de sections du 2ᵉ fichier
         read_sections(file2, header2, sections2);
 
+        // Stockage des résultats de la fusion des 2 fichiers
         SectionFusion *sectionsFusion = NULL;
         sectionsFusion = malloc(sizeof(SectionFusion));
-        if(sectionsFusion == NULL){
-            perror("malloc");
+        if(!sectionsFusion){
+            perror("Erreur d'allocation mémoire (sectionsFusion, elf_read.c:231)\n");
             exit(1);
         }
         sectionsFusion = fusion_sections(file, file2, header, sections, header2, sections2);
@@ -228,15 +240,14 @@ int main(int argc, char *argv[]) {
             printf("Section %d du 2ème fichier à pour nouveau numéro %d, offset de concat = %d\n", i, sectionsFusion->changes[i].new_index, sectionsFusion->changes[i].offset);
         }
         char *chaine_hexa = NULL;
+        size_t size = 0;
         for(i = 0; i < sectionsFusion->nb_sections; i++){
-            if(sectionsFusion->data[i] == NULL){
-                continue;
+            if(strcmp(sectionsFusion->data[i], "") != 0){
+                size = strlen(sectionsFusion->data[i]);
             }
-            size_t size = strlen(sectionsFusion->data[i]);
-            //fprintf(stderr, "size = %zu\n", size);
             chaine_hexa = malloc(2 * size + 1);
             if (chaine_hexa == NULL) {
-                perror("Erreur lors de l'allocation de mémoire pour la chaîne hexadécimale");
+                perror("Erreur d'allocation mémoire (chaine_hexa, elf_read.c:248)\n");
                 exit(EXIT_FAILURE);
             }
             for (size_t j = 0; j < strlen(sectionsFusion->data[j]); j++) {
@@ -259,5 +270,7 @@ int main(int argc, char *argv[]) {
     free(sections);
     free(symbols);
     // Close files
+    fclose(file);
+    //fclose(file2);
     return 0;
 }

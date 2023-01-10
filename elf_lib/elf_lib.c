@@ -115,13 +115,15 @@ void print_sections_header(FILE *fin, FILE *fout, Elf32_Ehdr elf_h, Elf32_Shdr *
     // Les noms de chaque section
     fprintf(fout,"Section Headers:\n");
     fprintf(fout, "  [Nr] Name              Type            Addr     Off    Size   ES Flg Lk Inf Al\n");
+
+    char * section_name = NULL;
     
     for (int i = 0; i < elf_h.e_shnum; i++) {
         // Numéro sections
         fprintf(fout,"  [%2d] ",i);
 
         // Nom de la section
-        char* section_name = read_from_shstrtab(arr_elf_SH[i].sh_name, shstrtab);
+        section_name = read_from_shstrtab(arr_elf_SH[i].sh_name, shstrtab);
         int k = 0;
         for (; section_name[k] != '\0'; k++) {}
         if (k > 15) {
@@ -219,6 +221,7 @@ void print_sections_header(FILE *fin, FILE *fout, Elf32_Ehdr elf_h, Elf32_Shdr *
 
         // Retour fin de ligne
         fprintf(fout,"\n");
+        free(section_name);
     }
     // Legende des Flags (A verifier)
     fprintf(fout,"Key to Flags:\n  W (write), A (alloc), X (execute), M (merge), S (strings), I (info),\n");
@@ -260,11 +263,15 @@ void    read_symbols(FILE *f, Elf32_Ehdr elf_h, Elf32_Shdr *arr_elf_SH, Elf32_Sy
     // Check if there is a symbol table
     Elf32_Shdr *SymTab = NULL;
     SymTab = malloc(sizeof(Elf32_Shdr));
-    if(!get_section_by_name(".symtab", elf_h.e_shnum, arr_elf_SH,SymTab, read_section_names(f, arr_elf_SH[elf_h.e_shstrndx]))) {
+    char *tmp = NULL;
+    tmp = read_section_names(f, arr_elf_SH[elf_h.e_shstrndx]);
+    if(!get_section_by_name(".symtab", elf_h.e_shnum, arr_elf_SH,SymTab, tmp)) {
         fprintf(stderr, "No symbol table found.\n");
         *nb_sym = 0;
+        free(tmp);
         return;
     }
+    free(tmp);
     // Go to the beginning of the symbol table
     assert(fseek(f, SymTab->sh_offset, SEEK_SET) == 0);
 
