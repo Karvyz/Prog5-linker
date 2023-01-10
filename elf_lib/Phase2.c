@@ -324,25 +324,29 @@ void fusion_symbols(FILE *f1, FILE *f2, Elf32_Ehdr header1, Elf32_Sym *symbole1,
     Elf32_Sym* fusion_symbole = NULL;
     Elf32_Shdr SymTab;
     int current = 0;
-    int j,y,z,i,nouv_nb_symbols,plus_grand_nb_symbols;
+    int j,z,i;
+    int nouv_nb_symbols;
+    int plus_grand_nb_symbols;
     for(i = 0; i < sectionsFusion->nb_sections; i++){
         if (strcmp(sectionsFusion->sections_names[i],".symtab") == 0) { // Si le nom de la section correspond au nom recherché
             SymTab = sectionsFusion->sections[i]; // On modifie la section (vide) passée en paramètre par la section trouvée
             break;
         }
     }
-//////////////// Nouveau nombre de symbol
-    if(nb_symbols1 <= nb_symbols2){
-        plus_grand_nb_symbols = 2; 
-    }else{
-        plus_grand_nb_symbols = 1;
-    }
+//////////////// Nouveau nombre de symbol ==> faux 
+    // if(nb_symbols1 <= nb_symbols2){
+    //     plus_grand_nb_symbols = 2; 
+    // }else{
+    //     plus_grand_nb_symbols = 1;
+    // }
     
-    if(plus_grand_nb_symbols == 1){
-        nouv_nb_symbols = nb_symbols1 + (nb_symbols1-nb_symbols2); 
-    }else{
-        nouv_nb_symbols = nb_symbols2 + (nb_symbols2-nb_symbols1); 
-    }
+    // if(plus_grand_nb_symbols == 1){
+    //     nouv_nb_symbols = nb_symbols1 + (nb_symbols1-nb_symbols2); 
+    // }else{
+    //     nouv_nb_symbols = nb_symbols2 + (nb_symbols2-nb_symbols1); 
+    // }
+
+
 
     for(i = 0; i < nouv_nb_symbols; i++){
 //////////////// Routine de décision en cas de symbole GLOBAL 
@@ -353,6 +357,9 @@ void fusion_symbols(FILE *f1, FILE *f2, Elf32_Ehdr header1, Elf32_Sym *symbole1,
         }
     }
 }
+
+
+
 /////////////// Essaie de récuperation des symbole ==> faux deux symbole comme $a doive apparaitre 2 fois et ici il ne le font pas
     // for(i = 0; i < nouv_nb_symbols; i++){
     //     if (symbole1[i].st_name == symbole2[i].st_name){
