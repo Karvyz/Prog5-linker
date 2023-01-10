@@ -1,4 +1,7 @@
 read_elf
+Options_and_debug_example
+Options_and_debug_example.o
+
 configure~
 configure.ac
 config.log
@@ -20,3 +23,4 @@ elf_read/*.o
 
 .deps
 .dirstamp
+autom4te.cache
