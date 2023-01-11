@@ -38,11 +38,13 @@ make
 sudo make install
 ```
 
-Cleanup
+Uninstall
 
 ```bash
 make clean
 make distclean
+cd ../
+rm -rf Prog5-linker
 ```
 
 ## Running Tests
