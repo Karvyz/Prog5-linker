@@ -1,5 +1,6 @@
 # ELF-linker
 Custom ELF Loader intended for pedagogic use
+
 ## Usage
 
 ```bash
@@ -8,13 +9,12 @@ Custom ELF Loader intended for pedagogic use
     Display information about the given ELF file
     -H --help       Display this information
     -h              Display the ELF header
-    -S              Display the sections' headers
+    -S              Display the sections headers
     -s              Display the symbol table
     -x <num|text>   Display the content of the section <num|text>
     -r              Display the relocation table
-    -F file2        Fusion of file2's sections in the file
+    -F file2        Fusion of file2 sections onto file
 ```
-
 
 ## Installation
 
@@ -38,7 +38,12 @@ make
 sudo make install
 ```
 
+Cleanup
 
+```bash
+make clean
+make distclean
+```
 
 ## Running Tests
 
