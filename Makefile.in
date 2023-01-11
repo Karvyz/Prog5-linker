@@ -566,7 +566,7 @@ read_elf_SOURCES = elf_lib/elf_lib.h elf_lib/elf_lib.c elf_lib/elf_utils.h elf_l
 COMMON = debug.h debug.c util.h util.c
 EXTRA_DIST = filtre.pl
 Options_and_debug_example_SOURCES = $(COMMON) Options_and_debug_example.c
-TESTS = ./tests/test_headers.sh ./tests/test_section_headers.sh ./tests/test_realocations.sh ./tests/test_symbols.sh ./tests/test_content_section.sh ./tests/mem_headers.sh ./tests/mem_realocations.sh ./tests/mem_symbols.sh ./tests/mem_sections_headers.sh ./tests/mem_content_section.sh ./tests/mem_fusion.sh
+TESTS = ./tests/test_headers.sh ./tests/test_section_headers.sh ./tests/test_relocations.sh ./tests/test_symbols.sh ./tests/test_content_section.sh ./tests/mem_headers.sh ./tests/mem_realocations.sh ./tests/mem_symbols.sh ./tests/mem_sections_headers.sh ./tests/mem_content_section.sh ./tests/mem_fusion.sh
 all: all-recursive
 
 .SUFFIXES:
@@ -974,9 +974,9 @@ recheck: all
 	--log-file $$b.log --trs-file $$b.trs \
 	$(am__common_driver_flags) $(AM_LOG_DRIVER_FLAGS) $(LOG_DRIVER_FLAGS) -- $(LOG_COMPILE) \
 	"$$tst" $(AM_TESTS_FD_REDIRECT)
-./tests/test_realocations.sh.log: ./tests/test_realocations.sh
-	@p='./tests/test_realocations.sh'; \
-	b='./tests/test_realocations.sh'; \
+./tests/test_relocations.sh.log: ./tests/test_relocations.sh
+	@p='./tests/test_relocations.sh'; \
+	b='./tests/test_relocations.sh'; \
 	$(am__check_pre) $(LOG_DRIVER) --test-name "$$f" \
 	--log-file $$b.log --trs-file $$b.trs \
 	$(am__common_driver_flags) $(AM_LOG_DRIVER_FLAGS) $(LOG_DRIVER_FLAGS) -- $(LOG_COMPILE) \

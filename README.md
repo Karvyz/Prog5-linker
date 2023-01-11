@@ -21,13 +21,13 @@ Custom ELF Loader intended for pedagogic use
 Clone the project
 
 ```bash
-  git clone https://github.com/Karvyz/Prog5-linker
+git clone https://github.com/Karvyz/Prog5-linker
 ```
 
 Go to the project directory
 
 ```bash
-  cd Prog5-linker
+cd Prog5-linker
 ```
 
 Install
@@ -50,6 +50,6 @@ make distclean
 To run tests, run the following command
 
 ```bash
-  make check
+make check
 ```
 
