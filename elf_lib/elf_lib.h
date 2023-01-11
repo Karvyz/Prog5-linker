@@ -120,6 +120,8 @@ void print_symbols(FILE *fout, Elf32_Ehdr elf_h, Elf32_Shdr *arr_elf_SH, Elf32_S
  * @param   elf_SH table des sections
  * @param   elf_Sym table des symboles
  * @param   file flux
+ * @param   shstrtab table des chaines de caractères
+ * @param   symstrtab table des noms de symboles
  */
 
 void print_relocation(Elf32_Ehdr elf_h, Elf32_Shdr* elf_SH, Elf32_Sym *elf_Sym, FILE *file, char* shstrtab, char* symstrtab);
