@@ -297,7 +297,7 @@ void    read_symbols(FILE *f, Elf32_Ehdr elf_h, Elf32_Shdr *arr_elf_SH, Elf32_Sy
 void print_symbol(FILE *fout, Elf32_Shdr *arr_elf_Sym, Elf32_Sym elf_Sym, const char *shstrtab, char *symstrtab) {
     // Affichage de toutes les données du symbole
     fprintf(fout, " %08x", elf_Sym.st_value);
-    fprintf(fout, " %2d", elf_Sym.st_size);
+    fprintf(fout, " %5d", elf_Sym.st_size);
 
     print_st_type(fout, elf_Sym.st_info);
     print_st_bind(fout, elf_Sym.st_info);

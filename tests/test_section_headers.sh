@@ -4,6 +4,7 @@ do
     ./read_elf -S $file > tmp1
     arm-none-eabi-readelf -S $file > tmp2
     if ! cmp -s tmp1 tmp2; then
+        echo Test failed on file $file with option -S
         rm tmp1 tmp2
         exit 1
     fi

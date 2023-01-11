@@ -405,7 +405,7 @@ am__DIST_COMMON = $(srcdir)/Makefile.in \
 	$(top_srcdir)/build-aux/install-sh \
 	$(top_srcdir)/build-aux/missing \
 	$(top_srcdir)/build-aux/test-driver AUTHORS COPYING INSTALL \
-	README build-aux/compile build-aux/config.guess \
+	README.md build-aux/compile build-aux/config.guess \
 	build-aux/config.sub build-aux/depcomp build-aux/install-sh \
 	build-aux/missing build-aux/ylwrap
 DISTFILES = $(DIST_COMMON) $(DIST_SOURCES) $(TEXINFOS) $(EXTRA_DIST)
@@ -566,7 +566,7 @@ read_elf_SOURCES = elf_lib/elf_lib.h elf_lib/elf_lib.c elf_lib/elf_utils.h elf_l
 COMMON = debug.h debug.c util.h util.c
 EXTRA_DIST = filtre.pl
 Options_and_debug_example_SOURCES = $(COMMON) Options_and_debug_example.c
-TESTS = ./tests/test_headers.sh ./tests/test_section_headers.sh ./tests/test_realocations.sh ./tests/test_symbols.sh ./tests/test_content_section.sh
+TESTS = ./tests/test_headers.sh ./tests/test_section_headers.sh ./tests/test_relocations.sh ./tests/test_symbols.sh ./tests/test_content_section.sh ./tests/mem_headers.sh ./tests/mem_realocations.sh ./tests/mem_symbols.sh ./tests/mem_sections_headers.sh ./tests/mem_content_section.sh ./tests/mem_fusion.sh
 all: all-recursive
 
 .SUFFIXES:
@@ -974,9 +974,9 @@ recheck: all
 	--log-file $$b.log --trs-file $$b.trs \
 	$(am__common_driver_flags) $(AM_LOG_DRIVER_FLAGS) $(LOG_DRIVER_FLAGS) -- $(LOG_COMPILE) \
 	"$$tst" $(AM_TESTS_FD_REDIRECT)
-./tests/test_realocations.sh.log: ./tests/test_realocations.sh
-	@p='./tests/test_realocations.sh'; \
-	b='./tests/test_realocations.sh'; \
+./tests/test_relocations.sh.log: ./tests/test_relocations.sh
+	@p='./tests/test_relocations.sh'; \
+	b='./tests/test_relocations.sh'; \
 	$(am__check_pre) $(LOG_DRIVER) --test-name "$$f" \
 	--log-file $$b.log --trs-file $$b.trs \
 	$(am__common_driver_flags) $(AM_LOG_DRIVER_FLAGS) $(LOG_DRIVER_FLAGS) -- $(LOG_COMPILE) \
@@ -991,6 +991,48 @@ recheck: all
 ./tests/test_content_section.sh.log: ./tests/test_content_section.sh
 	@p='./tests/test_content_section.sh'; \
 	b='./tests/test_content_section.sh'; \
+	$(am__check_pre) $(LOG_DRIVER) --test-name "$$f" \
+	--log-file $$b.log --trs-file $$b.trs \
+	$(am__common_driver_flags) $(AM_LOG_DRIVER_FLAGS) $(LOG_DRIVER_FLAGS) -- $(LOG_COMPILE) \
+	"$$tst" $(AM_TESTS_FD_REDIRECT)
+./tests/mem_headers.sh.log: ./tests/mem_headers.sh
+	@p='./tests/mem_headers.sh'; \
+	b='./tests/mem_headers.sh'; \
+	$(am__check_pre) $(LOG_DRIVER) --test-name "$$f" \
+	--log-file $$b.log --trs-file $$b.trs \
+	$(am__common_driver_flags) $(AM_LOG_DRIVER_FLAGS) $(LOG_DRIVER_FLAGS) -- $(LOG_COMPILE) \
+	"$$tst" $(AM_TESTS_FD_REDIRECT)
+./tests/mem_realocations.sh.log: ./tests/mem_realocations.sh
+	@p='./tests/mem_realocations.sh'; \
+	b='./tests/mem_realocations.sh'; \
+	$(am__check_pre) $(LOG_DRIVER) --test-name "$$f" \
+	--log-file $$b.log --trs-file $$b.trs \
+	$(am__common_driver_flags) $(AM_LOG_DRIVER_FLAGS) $(LOG_DRIVER_FLAGS) -- $(LOG_COMPILE) \
+	"$$tst" $(AM_TESTS_FD_REDIRECT)
+./tests/mem_symbols.sh.log: ./tests/mem_symbols.sh
+	@p='./tests/mem_symbols.sh'; \
+	b='./tests/mem_symbols.sh'; \
+	$(am__check_pre) $(LOG_DRIVER) --test-name "$$f" \
+	--log-file $$b.log --trs-file $$b.trs \
+	$(am__common_driver_flags) $(AM_LOG_DRIVER_FLAGS) $(LOG_DRIVER_FLAGS) -- $(LOG_COMPILE) \
+	"$$tst" $(AM_TESTS_FD_REDIRECT)
+./tests/mem_sections_headers.sh.log: ./tests/mem_sections_headers.sh
+	@p='./tests/mem_sections_headers.sh'; \
+	b='./tests/mem_sections_headers.sh'; \
+	$(am__check_pre) $(LOG_DRIVER) --test-name "$$f" \
+	--log-file $$b.log --trs-file $$b.trs \
+	$(am__common_driver_flags) $(AM_LOG_DRIVER_FLAGS) $(LOG_DRIVER_FLAGS) -- $(LOG_COMPILE) \
+	"$$tst" $(AM_TESTS_FD_REDIRECT)
+./tests/mem_content_section.sh.log: ./tests/mem_content_section.sh
+	@p='./tests/mem_content_section.sh'; \
+	b='./tests/mem_content_section.sh'; \
+	$(am__check_pre) $(LOG_DRIVER) --test-name "$$f" \
+	--log-file $$b.log --trs-file $$b.trs \
+	$(am__common_driver_flags) $(AM_LOG_DRIVER_FLAGS) $(LOG_DRIVER_FLAGS) -- $(LOG_COMPILE) \
+	"$$tst" $(AM_TESTS_FD_REDIRECT)
+./tests/mem_fusion.sh.log: ./tests/mem_fusion.sh
+	@p='./tests/mem_fusion.sh'; \
+	b='./tests/mem_fusion.sh'; \
 	$(am__check_pre) $(LOG_DRIVER) --test-name "$$f" \
 	--log-file $$b.log --trs-file $$b.trs \
 	$(am__common_driver_flags) $(AM_LOG_DRIVER_FLAGS) $(LOG_DRIVER_FLAGS) -- $(LOG_COMPILE) \
