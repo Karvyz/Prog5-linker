@@ -334,33 +334,45 @@ void print_symbols(FILE *fout, Elf32_Ehdr elf_h, Elf32_Shdr *arr_elf_SH, Elf32_S
 /* Etape 5 */
 
 void print_relocation(Elf32_Ehdr elf_h, Elf32_Shdr* elf_SH, Elf32_Sym *elf_Sym, FILE *file, char* shstrtab, char* symstrtab){
+    int bool = 1; // si il n'y a pas de relocation dans le fichier, reste à 1.
     // Parcours des sections en cherchant les relocalisations
-    int bool = 1;
     for (int i = 0; i < elf_h.e_shnum; i++) {
+        //regarde si la section est de type relocation
         if (elf_SH[i].sh_type == SHT_REL) {
+            //indique qu'il y a au moins une relocation.
             bool = 0;
+            //recupere le nom de la section
             char* tmp = read_from_shstrtab(elf_SH[i].sh_name, shstrtab);
+            //affiche les informations concernant la sectian
             printf("\nRelocation section '%s' at offset 0x%x contains %ld entr%s:\n", (tmp != NULL) ? tmp : "", elf_SH[i].sh_offset, elf_SH[i].sh_size / sizeof(Elf32_Rel), (elf_SH[i].sh_size / sizeof(Elf32_Rel) < 2) ? "y" : "ies");
             if (tmp != NULL) {
                 free(tmp);
             }
             printf(" Offset     Info    Type            Sym.Value  Sym. Name\n");
+            //avance dans le fichier jusqu'à la position de la section i
             fseek(file, elf_SH[i].sh_offset, SEEK_SET);
             Elf32_Rel relocations;
             
+            //parcours la table de relocation
             for (int j = 0; j < elf_SH[i].sh_size / sizeof(Elf32_Rel); j++) {
-                //assert(bread(&relocations.r_offset, sizeof(relocations.r_offset), 1, file));
+                //lis les informations de relocation et les stockes dans une Elf32_rel temporaire
+                //le r_offset contient la position du symbole relocalisé
                 bread(&relocations.r_offset, sizeof(relocations.r_offset), 1, file);
+                //r_info contient le type et l'index (dans la table des symboles) du symbole relocalisé
                 assert(bread(&relocations.r_info, sizeof(relocations.r_info), 1, file));
+                //utilisation de macro pour séparer les informations
                 int symb = ELF32_R_SYM(relocations.r_info);
                 int typint = ELF32_R_TYPE(relocations.r_info);
+                //convertion de typint en char correspondant
                 char* typechar = revert_define_type_relocation(typint);
+                //recuperation du nom du symbole
                 char * nomSymb;
                 if(ELF32_ST_TYPE(elf_Sym[symb].st_info) == STT_SECTION) {
                     nomSymb = read_from_shstrtab(elf_SH[elf_Sym[symb].st_shndx].sh_name, shstrtab);
                 } else {
                     nomSymb = read_from_strtab(elf_Sym[symb].st_name, symstrtab);
                 }
+                //affichage des lignes
                 printf("%08x  %08x %-17s",
                         relocations.r_offset,
                         relocations.r_info, 
@@ -369,12 +381,13 @@ void print_relocation(Elf32_Ehdr elf_h, Elf32_Shdr* elf_SH, Elf32_Sym *elf_Sym, 
                     printf(" %08x   %s", elf_Sym[symb].st_value, nomSymb);
                 }
                 printf("\n");
-                
+                //liberer la mémoire
                 free(typechar);
                 free(nomSymb);
             }
         }
     }
+    //si aucun relocation, affiche ce message
     if (bool) {
         printf("\nThere are no relocations in this file.\n");
     }
