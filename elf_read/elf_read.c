@@ -234,8 +234,7 @@ int main(int argc, char *argv[]) {
             printf("Section %d du 2ème fichier à pour nouveau numéro %d, offset de concat = %d\n", i, sectionsFusion->changes[i].new_index, sectionsFusion->changes[i].offset);
         }
 
-        // TODO
-        // - Afficher les sections fusionnées
+        // Libérer la mémoire
         for(i=0; i<sectionsFusion->nb_sections; i++){
             free(sectionsFusion-> data[i]);
         }
@@ -243,16 +242,15 @@ int main(int argc, char *argv[]) {
         free(sectionsFusion -> changes);
         free(sectionsFusion);
         free(sections2);
+        // Close file
         fclose(file2);
     }
 
-    // TODO
-    // Free memory
+    // Libérer la mémoire
     free(shstrtab);
     free(sections);
     free(symbols);
-    // Close files
+    // Close file
     fclose(file);
-    //fclose(file2);
     return 0;
 }
