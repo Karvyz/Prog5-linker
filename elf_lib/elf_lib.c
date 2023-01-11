@@ -223,7 +223,7 @@ void print_sections_header(FILE *fin, FILE *fout, Elf32_Ehdr elf_h, Elf32_Shdr *
         fprintf(fout,"\n");
         free(section_name);
     }
-    // Legende des Flags (A verifier)
+    // Legende des Flags
     fprintf(fout,"Key to Flags:\n  W (write), A (alloc), X (execute), M (merge), S (strings), I (info),\n");
     fprintf(fout,"  L (link order), O (extra OS processing required), G (group), T (TLS),\n");
     fprintf(fout,"  C (compressed), x (unknown), o (OS specific), E (exclude),\n");
@@ -233,6 +233,7 @@ void print_sections_header(FILE *fin, FILE *fout, Elf32_Ehdr elf_h, Elf32_Shdr *
 /* Etape 3 */
 
 void print_section_content(FILE *f, FILE *fout, Elf32_Shdr *elf_SH, char *shstrtab) {
+    // Uniquement affichage du nom de la section si elle est vide
     if(elf_SH->sh_size == 0) {
         char* tmp = read_from_shstrtab(elf_SH->sh_name, shstrtab);
         if (tmp == NULL) {return;}
@@ -240,6 +241,8 @@ void print_section_content(FILE *f, FILE *fout, Elf32_Shdr *elf_SH, char *shstrt
         free(tmp);
         return;
     }
+
+    // Affichage du contenu de la section
     fprintf(fout, "\n");
     char* tmp = read_from_shstrtab(elf_SH->sh_name, shstrtab);
     if (tmp == NULL) {return;}
@@ -260,7 +263,7 @@ void print_section_content(FILE *f, FILE *fout, Elf32_Shdr *elf_SH, char *shstrt
 /* Etape 4 */
 
 void    read_symbols(FILE *f, Elf32_Ehdr elf_h, Elf32_Shdr *arr_elf_SH, Elf32_Sym *arr_elf_ST, int *nb_sym){
-    // Check if there is a symbol table
+    // Check s'il y a une table des symboles
     Elf32_Shdr *SymTab = NULL;
     SymTab = malloc(sizeof(Elf32_Shdr));
     char *tmp = NULL;
@@ -272,25 +275,19 @@ void    read_symbols(FILE *f, Elf32_Ehdr elf_h, Elf32_Shdr *arr_elf_SH, Elf32_Sy
         return;
     }
     free(tmp);
-    // Go to the beginning of the symbol table
+    // Go to le début de la table des symboles
     assert(fseek(f, SymTab->sh_offset, SEEK_SET) == 0);
 
-    // Read the symbol table
+    // Lecture de la table des symboles
     int i = 0; // Count the number of symbols
-    for (i = 0; i < SymTab->sh_size / sizeof(Elf32_Sym) ; i++){ // Read all the symbols
+    for (i = 0; i < SymTab->sh_size / sizeof(Elf32_Sym) ; i++){
+        // Lecture de tous les symboles
         assert(bread(&arr_elf_ST[i].st_name, sizeof(arr_elf_ST[i].st_name), 1, f));
-        // fprintf(stderr, "i = %d, st_name : %u\n", i, arr_elf_ST[i].st_name);
         assert(bread(&arr_elf_ST[i].st_value, sizeof(arr_elf_ST[i].st_value), 1, f));
-        // fprintf(stderr, "i = %d, st_value : %u\n", i, arr_elf_ST[i].st_value);
         assert(bread(&arr_elf_ST[i].st_size, sizeof(arr_elf_ST[i].st_size), 1, f));
-        // fprintf(stderr, "i = %d, st_size : %u\n", i, arr_elf_ST[i].st_size);
         assert(bread(&arr_elf_ST[i].st_info, sizeof(arr_elf_ST[i].st_info), 1, f));
-        // fprintf(stderr, "i = %d, st_info : %u\n", i, arr_elf_ST[i].st_info);
         assert(bread(&arr_elf_ST[i].st_other, sizeof(arr_elf_ST[i].st_other), 1, f));
-        // fprintf(stderr, "i = %d, st_other : %u\n", i, arr_elf_ST[i].st_other);
-        //assert(bread(&arr_elf_ST[i].st_shndx, sizeof(arr_elf_ST[i].st_shndx), 1, f));
         assert(bread_abs(&arr_elf_ST[i].st_shndx, sizeof(arr_elf_ST[i].st_shndx), 1, f));
-        // fprintf(stderr, "i = %d, st_shndx : %u\n", i, arr_elf_ST[i].st_shndx);
     }
     *nb_sym = i;
     free(SymTab);
@@ -298,6 +295,7 @@ void    read_symbols(FILE *f, Elf32_Ehdr elf_h, Elf32_Shdr *arr_elf_SH, Elf32_Sy
 
 /* Print one symbol */
 void print_symbol(FILE *fout, Elf32_Shdr *arr_elf_Sym, Elf32_Sym elf_Sym, const char *shstrtab, char *symstrtab) {
+    // Affichage de toutes les données du symbole
     fprintf(fout, " %08x", elf_Sym.st_value);
     fprintf(fout, " %2d", elf_Sym.st_size);
 
@@ -324,6 +322,7 @@ void print_symbols(FILE *fout, Elf32_Ehdr elf_h, Elf32_Shdr *arr_elf_SH, Elf32_S
     fprintf(fout, "\nSymbol table '.symtab' contains %d entries:\n", nb_sym);
     fprintf(fout, "   Num:    Value  Size Type    Bind   Vis      Ndx Name\n");
 
+    // Affichage de la table des symboles
     for (int i = 0; i < nb_sym; i++) {
         fprintf(fout, "   ");
         fprintf(fout, "%3d:", i);
@@ -335,8 +334,7 @@ void print_symbols(FILE *fout, Elf32_Ehdr elf_h, Elf32_Shdr *arr_elf_SH, Elf32_S
 /* Etape 5 */
 
 void print_relocation(Elf32_Ehdr elf_h, Elf32_Shdr* elf_SH, Elf32_Sym *elf_Sym, FILE *file, char* shstrtab, char* symstrtab){
-    //parcours des sections en cherchant les relocalisations
-
+    // Parcours des sections en cherchant les relocalisations
     int bool = 1;
     for (int i = 0; i < elf_h.e_shnum; i++) {
         if (elf_SH[i].sh_type == SHT_REL) {
