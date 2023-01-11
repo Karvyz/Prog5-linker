@@ -10,10 +10,11 @@
 #include "elf_lib/elf_lib.h"
 #include "elf_lib/elf_utils.h"
 #include "elf_lib/Phase2.h"
+#include "elf_lib/elf_write.h"
 
 void usage(char *name) {
     fprintf(stderr, "Usage: \n"
-        "\t%s [ -H | --help ] [ -h | -S | -s | -x <num|text> | -r | -F file2 ] [ --debug] file\n\n"
+        "\t%s [ -H | --help ] [ -h | -S | -s | -x <num|text> | -r | -F file2 | -w ] [ --debug] file\n\n"
         "\tDisplay information about the given ELF file\n"
         "\t-H --help\tDisplay this information\n"
         "\t-h\t\tDisplay the ELF header\n"
@@ -22,6 +23,7 @@ void usage(char *name) {
         "\t-x <num|text>\tDisplay the content of the section <num|text>\n"
         "\t-r\t\tDisplay the relocation table\n"
         "\t-F file2\t\tFusion of file2's sections in the file\n"
+        "\t-w\t\tWrite elf file\n"
         "\t--debug\t\tDisplay debug information\n"
         , name);
 }
@@ -49,6 +51,7 @@ int main(int argc, char *argv[]) {
             {"relocations", no_argument,       NULL, 'r'},
             {"help",        no_argument,       NULL, 'H'},
             {"fusion",      required_argument, NULL, 'F'},
+            {"write",       no_argument,       NULL, 'w'},
             {"debug",       no_argument,       NULL, 'd'},
             {NULL,          0,                 NULL, 0}
     };
@@ -57,8 +60,9 @@ int main(int argc, char *argv[]) {
 
     int show_header = 0, show_sections = 0, show_symbols = 0, show_relocations = 0, show_section = 0;
     int fusion = 0;
+    int write = 0;
 
-    while ( (opt = getopt_long(argc, argv, "hSsrx:F:Hd", longopts, NULL)) != -1 ) {
+    while ( (opt = getopt_long(argc, argv, "hSsrx:F:Hdw", longopts, NULL)) != -1 ) {
         switch (opt) {
             case 'h':
                 show_header = 1;
@@ -87,6 +91,9 @@ int main(int argc, char *argv[]) {
                     fprintf(stderr, "Error: cannot open file %s\n", file2_name);
                     exit(1);
                 }
+                break;
+            case 'w':
+                write = 1;
                 break;
             case 'H':
                 usage(argv[0]);
@@ -158,14 +165,6 @@ int main(int argc, char *argv[]) {
             fprintf(stderr, "Reading symbols names...\n");
             //strcpy(symstrtab, read_symbol_names(file, strtab));
             print_symbols(stdout, header, sections, symbols, nb_symbols, read_section_names(file, sections[header.e_shstrndx]), read_symbol_names(file, strtab));
-        }
-    }
-    if(show_relocations) {
-        Elf32_Shdr strtab;
-        if (get_section_by_name(".strtab", header.e_shnum, sections, &strtab)){
-            // -- lecture des noms de symboles avant affichage
-            read_symbol_names(file, strtab);
-            print_relocation(header, sections, symbols, file);
         }
     }
     if(sectionsAAfficher_nb > 0) {
@@ -249,6 +248,11 @@ int main(int argc, char *argv[]) {
         // free(symbols2);
         // fclose(file2); 
     }
+
+    if(write) {
+        write_main(header, sections);
+    }
+
     // TODO
     // Free memory
     // Close files

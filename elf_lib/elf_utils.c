@@ -307,6 +307,7 @@ char * read_from_strtab(Elf32_Word st_name, const char * symstrtab) {
 /* Etape 6 */
 
 // TODO : bwrite
+/*
 int bwrite(void *ptr, size_t size, size_t nmemb, FILE *f) {
     int i = 0;
     // Ecrire en big endian
@@ -315,7 +316,7 @@ int bwrite(void *ptr, size_t size, size_t nmemb, FILE *f) {
         ptr += size;
     }
     return 0;
-}
+}*/
 
 char * revert_define_type_relocation(int val){
     char * type = malloc(sizeof("R_ARM_JUMP24"));

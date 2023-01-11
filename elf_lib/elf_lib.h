@@ -113,13 +113,9 @@ void print_symbols(FILE *fout, Elf32_Ehdr elf_h, Elf32_Shdr *arr_elf_SH, Elf32_S
  * @brief   Affichage de la table des relocations
  *          du fichier ELF
  *
- * @param   elf_h en-tête ELF
- * @param   elf_SH table des sections
- * @param   elf_Sym table des symboles
- * @param   file flux
+ * @param   fout flux de sortie
  */
-
-void print_relocation(Elf32_Ehdr elf_h, Elf32_Shdr* elf_SH, Elf32_Sym *elf_Sym, FILE *file);
+void print_relocations(FILE *fout);
 
 /**
  * @brief Gestion des contraintes lier à la fusion de  
