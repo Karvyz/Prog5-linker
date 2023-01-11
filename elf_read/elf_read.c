@@ -23,8 +23,7 @@ void usage(char *name) {
         "\t-s\t\tDisplay the symbol table\n"
         "\t-x <num|text>\tDisplay the content of the section <num|text>\n"
         "\t-r\t\tDisplay the relocation table\n"
-        "\t-F file2\tFusion of file2's sections in the file\n"
-        , name);
+        "\t-F file2\tFusion of file2's sections in the file\n", name);
 }
 
 int sectionsAAfficher_nb = 0;
@@ -218,7 +217,7 @@ int main(int argc, char *argv[]) {
         // Lecture de l'en-tête du 2ᵉ fichier
         init_header(file2, &header2);
 
-        Elf32_Shdr *sections2;
+        Elf32_Shdr *sections2 = NULL;
         sections2 = malloc(sizeof(Elf32_Shdr) * 400);
         if(!sections2){
             perror("Erreur d'allocation mémoire (sections2, elf_read.c:222)\n");
@@ -229,39 +228,22 @@ int main(int argc, char *argv[]) {
 
         // Stockage des résultats de la fusion des 2 fichiers
         SectionFusion *sectionsFusion = NULL;
-        sectionsFusion = malloc(sizeof(SectionFusion));
-        if(!sectionsFusion){
-            perror("Erreur d'allocation mémoire (sectionsFusion, elf_read.c:231)\n");
-            exit(1);
-        }
         sectionsFusion = fusion_sections(file, file2, header, sections, header2, sections2);
         printf("Fusion effectuée\n");
         for(i = 1; i < header2.e_shnum; i++){
             printf("Section %d du 2ème fichier à pour nouveau numéro %d, offset de concat = %d\n", i, sectionsFusion->changes[i].new_index, sectionsFusion->changes[i].offset);
         }
-        char *chaine_hexa = NULL;
-        size_t size = 0;
-        for(i = 0; i < sectionsFusion->nb_sections; i++){
-            if(strcmp(sectionsFusion->data[i], "") != 0){
-                size = strlen(sectionsFusion->data[i]);
-            }
-            chaine_hexa = malloc(2 * size + 1);
-            if (chaine_hexa == NULL) {
-                perror("Erreur d'allocation mémoire (chaine_hexa, elf_read.c:248)\n");
-                exit(EXIT_FAILURE);
-            }
-            for (size_t j = 0; j < strlen(sectionsFusion->data[j]); j++) {
-                sprintf(chaine_hexa + 2*j, "%02x", sectionsFusion->data[i][j]);
-            }
-            chaine_hexa[2*size] = '\0';
-            //fprintf(stderr, "sectionsFusion[%d] : data = %s\n", i, chaine_hexa);
-        }
 
         // TODO
         // - Afficher les sections fusionnées
+        for(i=0; i<sectionsFusion->nb_sections; i++){
+            free(sectionsFusion-> data[i]);
+        }
+        free(sectionsFusion -> data);
+        free(sectionsFusion -> changes);
         free(sectionsFusion);
         free(sections2);
-        free(chaine_hexa);
+        fclose(file2);
     }
 
     // TODO
