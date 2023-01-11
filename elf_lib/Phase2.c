@@ -119,19 +119,20 @@ SectionFusion *fusion_sections(FILE *f1, FILE *f2, Elf32_Ehdr header1, Elf32_Shd
         perror("Erreur lors de l'allocation de la structure SectionFusion->changes");
         exit(EXIT_FAILURE);
     }
+    // Initialisation des valeurs à -1
     for(int i=0; i<nb_sym2; i++){
         fusion->changes[i].old_index = -1;
         fusion->changes[i].new_index = -1;
         fusion->changes[i].offset = -1;
     }
 
+    // Parcours de toutes les sections du 1er fichier
     for (int i = 0; i < nb_sym1; i++){
         char * tmp2 = NULL;
         tmp2 = read_section_names(f1, sections1[header1.e_shstrndx]);
         name1 = read_from_shstrtab(sections1[i].sh_name, tmp2);
         unsigned long taille1 = 0;
         taille1 = strlen(name1);
-        //fprintf(stderr, "taille = %lu, taille = %lu\n", strlen(names1[i]), taille1);
         if( (strcmp(name1, "") != 0 || strcmp(name1, "\0") != 0) && strlen(names1[i]) >= taille1){
             strcpy(names1[i], name1);
         }
@@ -140,14 +141,15 @@ SectionFusion *fusion_sections(FILE *f1, FILE *f2, Elf32_Ehdr header1, Elf32_Shd
             tmp = realloc(names1[i], sizeof(char) * taille1);
             if(tmp){
                 names1[i] = tmp;
+            } else{
+                free(tmp);
             }
             strcpy(names1[i], name1);
-            //free(tmp);
         }
         free(name1);
 
         if(sections1[i].sh_type == SHT_PROGBITS) {
-            // test si chaque section du 2ème fichier est de type PROGBIT
+            // Test si chaque section du 2ème fichier est de type PROGBIT
             // Booleen pour vérifier si la section 1 peut être ajoutée si pas de fusion possible
             int bool = 0;
             for(int j = 1; j < nb_sym2; j++) {
@@ -175,11 +177,11 @@ SectionFusion *fusion_sections(FILE *f1, FILE *f2, Elf32_Ehdr header1, Elf32_Shd
                 if(strcmp(names1[i], "\0") == 0 || strcmp(names2[j], "\0") == 0 || names1[i] == NULL || names2[j] == NULL || strcmp(names1[i], "") == 0 || strcmp(names2[j], "") == 0){
                     continue;
                 }
-                // test si type = PROGBIT et même nom que la section du 1
+                // Test si type = PROGBIT et même nom que la section du 1
                 if(sections2[j].sh_type == SHT_PROGBITS && (strcmp(names1[i], names2[j]) == 0)) {
                     // Mis à jour du booleen
                     bool = 1;
-                    // allocation mémoire à data
+                    // Allocation mémoire à data
                     data = malloc(sections1[i].sh_size + sections2[j].sh_size);
                     if (!data) {
                         perror("Erreur lors de l'allocation de la mémoire de data");
@@ -355,37 +357,3 @@ SectionFusion *fusion_sections(FILE *f1, FILE *f2, Elf32_Ehdr header1, Elf32_Shd
 
     return fusion;
 }
-
-/* Etape 7 */
-void fusion_symbols(FILE *f1, FILE *f2, Elf32_Ehdr header1, Elf32_Shdr *sections1, Elf32_Ehdr header2, Elf32_Shdr *sections2){
-}
-
-/*
-// New header
-Elf32_Ehdr new_header;
-memset(new_header.e_ident, 0, EI_NIDENT);
-new_header.e_ident[EI_MAG0] = ELFMAG0;
-new_header.e_ident[EI_MAG1] = ELFMAG1;
-new_header.e_ident[EI_MAG2] = ELFMAG2;
-new_header.e_ident[EI_MAG3] = ELFMAG3;
-new_header.e_ident[EI_CLASS] = ELFCLASS32;
-new_header.e_ident[EI_DATA] = ELFDATA2MSB;
-new_header.e_ident[EI_VERSION] = EV_CURRENT;
-new_header.e_ident[EI_PAD] = 0;
-new_header.e_type = header1.e_type;
-new_header.e_machine = header1.e_machine;
-new_header.e_version = header1.e_version;
-new_header.e_entry = header1.e_entry;
-new_header.e_phoff = header1.e_phoff;
-new_header.e_shoff = sizeof(Elf32_Ehdr);
-new_header.e_flags = header1.e_flags;
-new_header.e_ehsize = header1.e_ehsize;
-new_header.e_phentsize = header1.e_phentsize;
-new_header.e_phnum = header1.e_phnum;
-new_header.e_shentsize = header1.e_shentsize;
-new_header.e_shnum = 0;
-new_header.e_shstrndx = SHN_UNDEF;
-
-// Ecriture du header dans le fichier resultat
-bwrite(&new_header, sizeof(Elf32_Ehdr), 1, result);
- */
