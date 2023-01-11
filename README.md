@@ -53,3 +53,17 @@ To run tests, run the following command
 make check
 ```
 
+
+## Documentation
+
+To access documentation you require [doxygen](https://www.doxygen.nl/download.html):
+
+```bash
+doxygen Documentation/Doxyfile
+```
+
+Open with your web browser
+
+```bash
+Documentation/html/index.html
+```
