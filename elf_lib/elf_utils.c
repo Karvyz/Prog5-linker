@@ -165,9 +165,6 @@ void print_OS_ABI(FILE *fout, unsigned char OSABI){
 
 /* Etape 3 */
 
-//char shstrtab[MAX_STRTAB_LEN];
-//char symstrtab[MAX_STRTAB_LEN];
-
 char * read_section_names(FILE *f, Elf32_Shdr STable) {
     char *shstrtab = NULL;
     shstrtab = malloc(sizeof(char) * 20000);

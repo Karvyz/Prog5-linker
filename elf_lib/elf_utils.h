@@ -26,6 +26,18 @@
  */
 size_t bread(void * buffer, size_t s, size_t n, FILE *f);
 
+/**
+ * @brief   Lit un certain nombre d'octets à partir d'un flux.
+ *          On lit en "big endian"
+ *          Ne sort pas de la fonction lors de la lecture
+ *          d'un EOF
+ *
+ * @param   buffer pointeur pour stocker ce qui est lu
+ * @param   s taille (en octets) d'un bloc unitaire à lire
+ * @param   n nombre de blocs unitaires à lire
+ * @param   f flux à partir duquel les octets doivent être lus
+ * @return  size_t lue
+ */
 size_t bread_abs(void * buffer, size_t s, size_t n, FILE *f);
 
 /**
